@@ -33,3 +33,16 @@ entsprechenden Feature-Module vollständig abdeckt. Kein Big-Bang-Cutover.
 
 Single-User-Projekt (Alex, `schneider@alexle135.de`). Kein Team, keine externen Stakeholder — Vision
 und Scope-Entscheidungen werden direkt mit Alex getroffen, nicht in Tickets/Boards verwaltet.
+
+## Pivot: Lovable-Credit-Limit (10.09.2026)
+
+Tasks 1–9 des Implementierungsplans liefen über Lovable-MCP (Design-System-Bootstrap, Supabase-Auth,
+Content-Import, „Rechnen üben"). Danach war der Lovable-Workspace ohne Guthaben. Statt zu warten,
+wurde der komplette Projektstand (TanStack Start + Vite + Nitro, 99 Dateien) exportiert und wird seit
+Task 10 direkt in `app/` weiterentwickelt, gegen ein self-hosted Supabase auf dem armserver
+(`supabase.alexle135.de`) statt gegen Lovables verwaltetes Supabase-Projekt.
+
+Das ändert Architektur und Deploy-Ziel gegenüber der ursprünglichen Spec (siehe
+[architecture.md](architecture.md)), nicht aber Vision, Feature-Umfang oder Nicht-Ziele. Stand und
+Fortschritt: [PR #33](https://github.com/arn0ld87/AP1/pull/33), Branch
+`worktree-ap1-lovable-plattform`, noch nicht nach `main` gemerged.

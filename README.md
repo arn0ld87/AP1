@@ -1,13 +1,19 @@
 # AP1-Vorbereitung — Fachinformatiker Systemintegration
 
+### Lernmaterial + begleitende Web-App für die Abschlussprüfung Teil 1
+
 **Prüfungstermin: 30.09.2026** · Paket erstellt am 10.09.2026
+
+[Inhalt](#inhalt) · [So arbeitest du damit](#so-arbeitest-du-damit) · [Datengrundlage](#datengrundlage) · [AP1 Trainer — die Web-App](#ap1-trainer--die-web-app-app) · [Aktueller Stand](#aktueller-stand) · [Dokumentation](#dokumentation)
+
+---
 
 ## Inhalt
 
 ```
 00_PRUEFUNGSANALYSE.md      Inventar aller Prüfungs-PDFs, Aufgabenanalyse,
                             Häufigkeitsanalyse, A/B/C-Priorisierung, 80/20
-01_LERNPLAN.md              Tagesplan für die verbleibenden 20 Tage
+01_LERNPLAN.md              Tagesplan für die verbleibenden Tage
 02_FORMELSAMMLUNG.md        alle Formeln, die in den Prüfungen gebraucht wurden
 03_PRUEFUNGSPROGNOSE.md     Prognose je Thema mit Begründung aus den Altprüfungen
 04_LERNFORTSCHRITT.md       Tabelle zum Eintragen des eigenen Kenntnisstands
@@ -30,6 +36,9 @@ probepruefungen/            drei vollständige Probeprüfungen ohne Lösungen
   probepruefung_03.md       etwas über dem erwarteten Niveau
 
 loesungen/                  die zugehörigen Musterlösungen mit Punkteverteilung
+
+AP1-Trainer.html            eigenständiges Offline-Übungstool (siehe unten)
+docs/                       Kontext, Vision, Architektur, Datenmodell, API der Web-App
 ```
 
 ## So arbeitest du damit
@@ -42,6 +51,9 @@ loesungen/                  die zugehörigen Musterlösungen mit Punkteverteilun
    den Ordner `loesungen/` öffnen.
 5. Jeden Fehler in `05_FEHLERLISTE.md` eintragen und den Kenntnisstand in `04_LERNFORTSCHRITT.md`
    fortschreiben. Ein A-Thema mit Kenntnisstand „unsicher" verdrängt jedes B-Thema aus dem Tagesplan.
+
+Alternativ läuft dasselbe Übungsmaterial interaktiv in `AP1-Trainer.html` (einfach im Browser öffnen,
+kein Server nötig) bzw. — sobald fertig migriert — im begleitenden Web-Trainer unter `app/`, siehe unten.
 
 ## Datengrundlage
 

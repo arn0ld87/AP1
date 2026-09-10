@@ -47,26 +47,27 @@ Zustand ausschließlich in `localStorage` (`ap1state`, `ap1theme`). Relevante St
 die entsprechende `lernen/*.md`-Datei bzw. `02_FORMELSAMMLUNG.md`, falls diese als Quelle der
 Wahrheit dienen soll — beide sind aktuell unabhängig gepflegt, nicht generiert.
 
-## Geplante Migration (Lovable-Plattform)
+## Migration zur Web-App (in Arbeit, PR #33)
 
-Es existiert ein genehmigter Plan, dieses statische Material in eine Lovable-App
-(React/Vite/TS/Tailwind/shadcn + Supabase) mit KI-Prüfungsbewertung zu überführen:
+Dieses statische Material wird in eine Web-App mit KI-Prüfungsbewertung überführt. Der genehmigte
+Plan ging von einer reinen Lovable-App aus; die tatsächliche Umsetzung ist seit dem
+Lovable-Credit-Limit-Pivot davon abgewichen (Details: [docs/context.md](docs/context.md#pivot-lovable-credit-limit-10092026)).
+Stand und Code liegen auf Branch `worktree-ap1-lovable-plattform`
+([PR #33](https://github.com/arn0ld87/AP1/pull/33)), **noch nicht nach `main` gemerged** — auf `main`
+existieren `app/`, `data/`, `scripts/migrate/` und `docs/lovable/` deshalb noch nicht.
 
-- Spec: `docs/superpowers/specs/2026-09-10-lovable-ap1-plattform-design.md`
-- Plan: `docs/superpowers/plans/2026-09-10-lovable-ap1-plattform.md`
-- Warum/Ausgangslage: [docs/context.md](docs/context.md)
+- Ursprüngliche Spec: `docs/superpowers/specs/2026-09-10-lovable-ap1-plattform-design.md`
+- Ursprünglicher Plan: `docs/superpowers/plans/2026-09-10-lovable-ap1-plattform.md`
+- Warum/Ausgangslage + Pivot: [docs/context.md](docs/context.md)
 - Produktvision & Nicht-Ziele: [docs/vision.md](docs/vision.md)
-- Architektur & Feature-Module: [docs/architecture.md](docs/architecture.md)
-- Datenmodell (Supabase/Postgres): [docs/data-model.md](docs/data-model.md)
-- API / KI-Bewertungs-Flow (Edge Function): [docs/api.md](docs/api.md)
+- Aktuelle Architektur & Feature-Module (Stand nach Pivot): [docs/architecture.md](docs/architecture.md)
+- Datenmodell (self-hosted Supabase/Postgres): [docs/data-model.md](docs/data-model.md)
+- API / KI-Bewertungs-Flow (Edge Function, noch nicht implementiert): [docs/api.md](docs/api.md)
 
-Der Plan sieht lokale Python-Migrationsskripte unter `scripts/migrate/` vor (reines Stdlib, keine
-Zusatzpakete), die die `.md`-Dateien nach `data/migration/*.json` überführen, sowie eine Serie von
-`lovable`-Skill-Prompts unter `docs/lovable/prompts/`. Diese Verzeichnisse existieren im Repo noch
-nicht — erst beim Abarbeiten des Plans anlegen. Wichtige Constraints aus dem Plan (nicht wiederholen,
-nur verlinkt): Auth ist Single-User (Alex), KI-Modell ist Claude Haiku 4.5 über Amazon Bedrock
-(Fallback 3.5 Haiku), Secrets ausschließlich als Supabase-Edge-Function-Secret, kein automatisierter
-Test-Runner — Verifikation erfolgt manuell in der Lovable-Preview.
+Wichtige Constraints (nicht wiederholen, nur verlinkt): Auth ist Single-User (Alex), KI-Modell ist
+Claude Haiku 4.5 über Amazon Bedrock (Modell-ID verifiziert:
+`eu.anthropic.claude-haiku-4-5-20251001-v1:0`; Fallback 3.5 Haiku noch ungetestet), Secrets
+ausschließlich als Supabase-Edge-Function-Secret, kein automatisierter Test-Runner.
 
-Sobald an diesem Plan gearbeitet wird: `superpowers:subagent-driven-development` oder
-`superpowers:executing-plans` verwenden, wie im Plan-Header vermerkt.
+Auf dem PR-Branch weiterarbeiten mit `superpowers:subagent-driven-development` oder
+`superpowers:executing-plans`, wie im Plan-Header vermerkt — nicht auf `main`.
