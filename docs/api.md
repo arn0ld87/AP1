@@ -3,7 +3,13 @@
 Es gibt keine klassische REST-/GraphQL-API dieses Repos — die einzige Backend-Logik ist eine
 Supabase Edge Function für die KI-Bewertung der Probeprüfungen. Alle übrige Datenzugriffe laufen über
 den Supabase-Client direkt gegen die Tabellen aus [data-model.md](data-model.md) (mit RLS), nicht über
-eigene Endpunkte.
+eigene Endpunkte. Läuft seit dem Lovable-Pivot (siehe
+[context.md](context.md#pivot-lovable-credit-limit-10092026)) auf dem self-hosted Supabase auf dem
+armserver, nicht mehr auf Lovables verwaltetem Projekt.
+
+> **Stand:** Das Probeprüfungs-Modul (und damit diese Edge Function) ist noch nicht implementiert —
+> siehe Modul-Tabelle in [architecture.md](architecture.md#feature-module-7). Der Ablauf unten ist der
+> geplante Flow für Task 14.
 
 ## Edge Function: KI-Bewertung
 
@@ -25,9 +31,11 @@ Implementierungs-Task „09-pruefungsmodus-ki-bewertung" im Plan.
 
 ### Modell & Zugangsdaten
 
-- Primär: **Claude Haiku 4.5** über Amazon Bedrock, sofern in der genutzten Region freigeschaltet
-  (Model-Access-Check zu Projektbeginn, `scripts/check_bedrock_access.py` laut Plan).
-- Fallback: **Claude 3.5 Haiku**.
+- Primär: **Claude Haiku 4.5** über Amazon Bedrock — Zugriff verifiziert (Task 5, echter `invoke`-Call
+  gegen die Vaultwarden-Credentials): in `eu-central-1` nur per Cross-Region-Inferenz erreichbar,
+  Modell-ID `eu.anthropic.claude-haiku-4-5-20251001-v1:0`.
+- Fallback: **Claude 3.5 Haiku** — die dokumentierte Fallback-ID lieferte im Test „invalid model
+  identifier"; ungetestet, solange der Fallback nicht tatsächlich gebraucht wird (Task 14).
 - Secrets: `AWS_BEDROCK_API_KEY` / `BEDROCK_GATEWAY_KEY`, in Vaultwarden hinterlegt (`vw get <name>`).
   **Ausschließlich** als Supabase-Edge-Function-Secret konfigurieren — niemals im Frontend-Bundle,
   Prompt-Text oder Chat im Klartext.

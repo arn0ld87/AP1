@@ -12,10 +12,12 @@ konkrete Schwächen des Status quo behebt:
 
 ## Zielbild
 
-Eine Web-App (Lovable/React/Supabase), die alle sieben Lernaktivitäten aus dem bestehenden Material in
-einer Oberfläche vereint und den Fortschritt serverseitig für einen einzelnen Account führt. Die
-Musterlösungs-Korrektur wird durch eine KI-Bewertung (Amazon Bedrock, Claude Haiku 4.5) ersetzt, mit
-manuellem Fallback, falls das Modell nicht erreichbar ist.
+Eine Web-App (React/Supabase — ursprünglich auf Lovable gebaut, seit dem Credit-Limit-Pivot lokal in
+`app/` gegen ein self-hosted Supabase weiterentwickelt, siehe [context.md](context.md#pivot-lovable-credit-limit-10092026)),
+die alle sieben Lernaktivitäten aus dem bestehenden Material in einer Oberfläche vereint und den
+Fortschritt serverseitig für einen einzelnen Account führt. Die Musterlösungs-Korrektur wird durch
+eine KI-Bewertung (Amazon Bedrock, Claude Haiku 4.5) ersetzt, mit manuellem Fallback, falls das
+Modell nicht erreichbar ist.
 
 Vollständige Feature-Liste, Architektur und Datenmodell: [architecture.md](architecture.md),
 [data-model.md](data-model.md), Ursprungs-Spec
@@ -27,11 +29,15 @@ Explizit aus dem genehmigten Design ausgeschlossen — bei jeder Weiterentwicklu
 stillschweigend erweitern:
 
 - **Mehrbenutzerfähigkeit.** Ein Account (Alex), keine Nutzerverwaltung, keine Rollen.
-- **Eigene Domain.** `ap1.alexle135.de` ist als Idee genannt, aber bewusst nicht Teil dieser Iteration.
 - **Automatisierte Tests.** Verifikation läuft über manuelle Klick-Durchläufe in der Lovable-Preview,
   passend zum Lovable-Workflow — kein CI-Test-Runner geplant.
 - **alexle135-Branding.** Die App bekommt eine eigenständige Optik („Discord-Stil", dunkles Theme),
   keine Anlehnung an bestehende Alex-Projekte.
+
+`ap1.alexle135.de` war ursprünglich als „bewusst nicht Teil dieser Iteration" genannt; seit dem
+Lovable-Pivot ist es das tatsächliche Deploy-Ziel des self-hosted Setups (Traefik auf dem armserver,
+siehe [architecture.md](architecture.md#auth--deploy)) — kein eigenes Nicht-Ziel mehr, aber auch noch
+nicht live.
 
 ## Erfolgskriterium
 

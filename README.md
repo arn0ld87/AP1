@@ -1,13 +1,19 @@
 # AP1-Vorbereitung — Fachinformatiker Systemintegration
 
+### Lernmaterial + begleitende Web-App für die Abschlussprüfung Teil 1
+
 **Prüfungstermin: 30.09.2026** · Paket erstellt am 10.09.2026
+
+[Inhalt](#inhalt) · [So arbeitest du damit](#so-arbeitest-du-damit) · [Datengrundlage](#datengrundlage) · [AP1 Trainer — die Web-App](#ap1-trainer--die-web-app-app) · [Aktueller Stand](#aktueller-stand) · [Dokumentation](#dokumentation)
+
+---
 
 ## Inhalt
 
 ```
 00_PRUEFUNGSANALYSE.md      Inventar aller Prüfungs-PDFs, Aufgabenanalyse,
                             Häufigkeitsanalyse, A/B/C-Priorisierung, 80/20
-01_LERNPLAN.md              Tagesplan für die verbleibenden 20 Tage
+01_LERNPLAN.md              Tagesplan für die verbleibenden Tage
 02_FORMELSAMMLUNG.md        alle Formeln, die in den Prüfungen gebraucht wurden
 03_PRUEFUNGSPROGNOSE.md     Prognose je Thema mit Begründung aus den Altprüfungen
 04_LERNFORTSCHRITT.md       Tabelle zum Eintragen des eigenen Kenntnisstands
@@ -30,6 +36,9 @@ probepruefungen/            drei vollständige Probeprüfungen ohne Lösungen
   probepruefung_03.md       etwas über dem erwarteten Niveau
 
 loesungen/                  die zugehörigen Musterlösungen mit Punkteverteilung
+
+AP1-Trainer.html            eigenständiges Offline-Übungstool (siehe unten)
+docs/                       Kontext, Vision, Architektur, Datenmodell, API der Web-App
 ```
 
 ## So arbeitest du damit
@@ -43,6 +52,9 @@ loesungen/                  die zugehörigen Musterlösungen mit Punkteverteilun
 5. Jeden Fehler in `05_FEHLERLISTE.md` eintragen und den Kenntnisstand in `04_LERNFORTSCHRITT.md`
    fortschreiben. Ein A-Thema mit Kenntnisstand „unsicher" verdrängt jedes B-Thema aus dem Tagesplan.
 
+Alternativ läuft dasselbe Übungsmaterial interaktiv in `AP1-Trainer.html` (einfach im Browser öffnen,
+kein Server nötig) bzw. — sobald fertig migriert — im begleitenden Web-Trainer unter `app/`, siehe unten.
+
 ## Datengrundlage
 
 Ausgewertet wurden acht vollständig lesbare AP1-Termine im aktuellen Format:
@@ -55,4 +67,101 @@ Textebene. Sie sind deshalb aus allen Häufigkeitsangaben ausgenommen.
 Alle Zahlenwerte in den Probeprüfungen wurden programmatisch nachgerechnet und durch Rückrechnung
 kontrolliert. Szenarien, Firmen, Zahlen und IP-Adressen sind neu — die geforderte fachliche
 Kompetenz entspricht den Originalprüfungen.
-# AP1
+
+## AP1 Trainer — die Web-App (`app/`)
+
+> [!NOTE]
+> Die Web-App wird auf einem separaten Branch entwickelt und ist noch **nicht** in `main` gemerged.
+> Dieser Abschnitt beschreibt den Zielzustand und den aktuellen Baustand aus
+> [PR #33](https://github.com/arn0ld87/AP1/pull/33) (Branch `worktree-ap1-lovable-plattform`). Bis
+> zum Merge bleiben die `.md`-Dateien und `AP1-Trainer.html` die primäre Arbeitsgrundlage.
+
+Die hier abgelegten Markdown-Unterlagen sind die Quelle für eine begleitende Lern-Web-App: dunkles
+Theme im Discord-Look, Sidebar mit sieben Modulen, serverseitiger Fortschritt statt `localStorage`,
+KI-Bewertung der Probeprüfungen statt manueller Korrektur. Details zu Motivation und Scope:
+[docs/vision.md](docs/vision.md).
+
+Sie wurde zunächst mit [Lovable](https://lovable.dev) gebaut (Prompts unter `docs/lovable/prompts/`).
+Nach Erreichen des Lovable-Credit-Limits wurde der komplette Projektstand exportiert und wird seither
+lokal in `app/` weiterentwickelt — Architektur und Deploy-Ziel haben sich dadurch gegenüber der
+ursprünglichen Planung geändert, siehe [docs/architecture.md](docs/architecture.md).
+
+### Architektur
+
+- **Frontend:** TanStack Start (Vite + React 19 + TypeScript), Tailwind, shadcn/ui
+- **Backend:** self-hosted Supabase auf dem armserver (`supabase.alexle135.de`),
+  E-Mail+Passwort-Auth (ein Account), 6 Tabellen mit Row Level Security:
+  `topic_mastery`, `flashcard_progress`, `exam_questions` (read-only für den Client),
+  `exam_attempts`, `exam_answers`, `error_log`
+- **Build-Output:** Nitro (Cloudflare-Worker-kompatibel), Deploy-Ziel ist
+  `ap1.alexle135.de` hinter Traefik (Router-Vorlage liegt auf dem armserver)
+
+### Module
+
+| Modul | Route | Stand |
+|---|---|---|
+| Rechnen üben | `/rechnen` | fertig — 7 Aufgaben-Generatoren, `topic_mastery`-Upsert |
+| Wissenskarten | `/wissenskarten` | fertig — 47 Karten, Gewichtung `falsch/(r+f+1)`, `flashcard_progress`-Upsert |
+| Lernblätter | `/lernblaetter` | geplant (statischer Content aus `data/migration/`) |
+| Formelsammlung | `/formelsammlung` | geplant |
+| Tagesplan | `/tagesplan` | geplant |
+| Probeprüfungen | `/probepruefungen` | geplant (KI-Bewertung via Bedrock Edge-Function) |
+| Fortschritt & Fehlerliste | `/fortschritt` | geplant |
+
+### Installation
+
+Voraussetzungen: [Bun](https://bun.sh) ≥ 1.2, Netzwerkzugriff auf
+`supabase.alexle135.de` (Tailscale oder öffentlich).
+
+```bash
+git checkout worktree-ap1-lovable-plattform   # bis zum Merge nach main
+cd app
+bun install          # Dependencies
+
+# .env anlegen (Supabase-Verbindung — Keys NICHT committen):
+#   VITE_SUPABASE_URL=https://supabase.alexle135.de
+#   VITE_SUPABASE_PUBLISHABLE_KEY=<publishable key, liegt in Vaultwarden>
+#   VITE_SUPABASE_PROJECT_ID=ap1-armserver
+
+bun run dev          # Dev-Server mit HMR
+bun run build        # Produktions-Build (Nitro-Output in .output/)
+bun run preview      # gebauten Output lokal ansehen
+bun run lint         # ESLint
+```
+
+Login: der eine angelegte Account (Zugangsdaten in Vaultwarden, nicht im Repo). Ohne Login erscheint
+nur der Login-Screen — alle Modulrouten liegen hinter dem Auth-Gate
+(`app/src/routes/_authenticated/route.tsx`).
+
+### Datenbank
+
+Schema-Migration und Seed liegen in `app/supabase/migrations/` bzw. werden über
+`docs/lovable/prompts/03-content-import.md` beschrieben (77 Prüfungsaufgaben: 24/26/27 je
+Probeprüfung, je 100 Punkte). Angewendet werden sie direkt per `psql` im Container `supabase-db`
+auf dem armserver — kein Lovable-verwaltetes Supabase-Projekt mehr.
+
+### Historie
+
+Tasks 1–9 des SDD-Plans (`.superpowers/sdd/2026-09-10-lovable-ap1-plattform/`, Details in
+[docs/architecture.md](docs/architecture.md)) liefen über Lovable-MCP; seit dem Credit-Stopp wird
+direkt in `app/` implementiert. Der PR dazu: [arn0ld87/AP1#33](https://github.com/arn0ld87/AP1/pull/33).
+
+## Aktueller Stand
+
+- **Lernmaterial** (`.md`-Dateien, `AP1-Trainer.html`): vollständig und sofort einsatzbereit.
+- **Web-App** (`app/`): 2 von 7 Feature-Modulen fertig (Rechnen üben, Wissenskarten), Rest geplant.
+  Backend/Deploy laufen self-hosted auf dem armserver, noch nicht live unter `ap1.alexle135.de`.
+  Läuft auf `worktree-ap1-lovable-plattform`, offen als [PR #33](https://github.com/arn0ld87/AP1/pull/33).
+
+Solange die Web-App nicht vollständig ist, bleiben die `.md`-Dateien und `AP1-Trainer.html` die
+verbindliche Arbeitsgrundlage — siehe [docs/vision.md](docs/vision.md) für den Grundsatz „kein
+Big-Bang-Cutover".
+
+## Dokumentation
+
+- [`docs/context.md`](docs/context.md) — Ausgangslage und Motivation der Migration
+- [`docs/vision.md`](docs/vision.md) — Zielbild, Erfolgskriterium, Nicht-Ziele
+- [`docs/architecture.md`](docs/architecture.md) — Architektur der Web-App, Feature-Module, Auth/Deploy
+- [`docs/data-model.md`](docs/data-model.md) — Supabase-Datenmodell
+- [`docs/api.md`](docs/api.md) — KI-Bewertungs-Flow für die Probeprüfungen
+- [`CLAUDE.md`](CLAUDE.md) — Repo-Guidance für Claude Code
