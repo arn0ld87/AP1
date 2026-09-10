@@ -30,7 +30,7 @@ export function renderMarkdown(src: string): string {
   let i = 0;
 
   while (i < lines.length) {
-    const line = lines[i];
+    const line = lines[i]!;
 
     // horizontal rule
     if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) {
@@ -43,8 +43,8 @@ export function renderMarkdown(src: string): string {
     if (line.trim().startsWith("```")) {
       const body: string[] = [];
       i++;
-      while (i < lines.length && !lines[i].trim().startsWith("```")) {
-        body.push(lines[i]);
+      while (i < lines.length && !lines[i]!.trim().startsWith("```")) {
+        body.push(lines[i]!);
         i++;
       }
       i++; // closing fence
@@ -57,8 +57,8 @@ export function renderMarkdown(src: string): string {
     // blockquote
     if (line.trim().startsWith(">")) {
       const body: string[] = [];
-      while (i < lines.length && lines[i].trim().startsWith(">")) {
-        body.push(lines[i].replace(/^\s*>\s?/, ""));
+      while (i < lines.length && lines[i]!.trim().startsWith(">")) {
+        body.push(lines[i]!.replace(/^\s*>\s?/, ""));
         i++;
       }
       out.push(
@@ -72,9 +72,8 @@ export function renderMarkdown(src: string): string {
       const rows: string[][] = [];
       let headerDone = false;
       const header: string[] = [];
-      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
-        const cells = lines[i]
-          .trim()
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i]!)) {
+        const cells = lines[i]!.trim()
           .replace(/^\|/, "")
           .replace(/\|$/, "")
           .split("|")
@@ -118,8 +117,8 @@ export function renderMarkdown(src: string): string {
     // unordered list
     if (/^\s*[-*]\s+/.test(line)) {
       const items: string[] = [];
-      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\s*[-*]\s+/, ""));
+      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i]!)) {
+        items.push(lines[i]!.replace(/^\s*[-*]\s+/, ""));
         i++;
       }
       out.push(
@@ -133,8 +132,8 @@ export function renderMarkdown(src: string): string {
     // ordered list
     if (/^\s*\d+\.\s+/.test(line)) {
       const items: string[] = [];
-      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\s*\d+\.\s+/, ""));
+      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i]!)) {
+        items.push(lines[i]!.replace(/^\s*\d+\.\s+/, ""));
         i++;
       }
       out.push(
@@ -155,15 +154,15 @@ export function renderMarkdown(src: string): string {
     const para: string[] = [];
     while (
       i < lines.length &&
-      lines[i].trim() &&
-      !lines[i].trim().startsWith("```") &&
-      !lines[i].trim().startsWith(">") &&
-      !/^\s*(-{3,}|\*{3,})\s*$/.test(lines[i]) &&
-      !/^\s*[-*]\s+/.test(lines[i]) &&
-      !/^\s*\d+\.\s+/.test(lines[i]) &&
-      !/^\s*\|.*\|\s*$/.test(lines[i])
+      lines[i]!.trim() &&
+      !lines[i]!.trim().startsWith("```") &&
+      !lines[i]!.trim().startsWith(">") &&
+      !/^\s*(-{3,}|\*{3,})\s*$/.test(lines[i]!) &&
+      !/^\s*[-*]\s+/.test(lines[i]!) &&
+      !/^\s*\d+\.\s+/.test(lines[i]!) &&
+      !/^\s*\|.*\|\s*$/.test(lines[i]!)
     ) {
-      para.push(lines[i]);
+      para.push(lines[i]!);
       i++;
     }
     out.push(

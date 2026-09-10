@@ -11,7 +11,7 @@ import { mastery } from "@/lib/ap1-topics";
 
 export const Route = createFileRoute("/_authenticated/lernblaetter")({
   validateSearch: (search: Record<string, unknown>) => ({
-    blatt: typeof search.blatt === "string" ? search.blatt : undefined,
+    blatt: typeof search["blatt"] === "string" ? search["blatt"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -47,7 +47,8 @@ function statusOf(row: MasteryRow | undefined): Bewertung {
 }
 
 function LernblaetterPage() {
-  const { blatt } = Route.useSearch();
+  const search = Route.useSearch();
+  const blatt = search["blatt"];
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<Record<string, MasteryRow>>({});
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -174,6 +175,7 @@ function Detail({
     <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
       <Link
         to="/lernblaetter"
+        search={{} as never}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> Alle Lernblätter
