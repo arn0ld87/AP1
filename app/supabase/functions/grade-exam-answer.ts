@@ -158,7 +158,10 @@ Deno.serve(async (req: Request) => {
       },
     );
     if (brRes.ok) {
-      const br: { output?: { message?: { content?: { text?: string }[] } } } = await brRes.json();
+      const br: {
+        content?: { text?: string }[];
+        output?: { message?: { content?: { text?: string }[] } };
+      } = await brRes.json();
       const text = br.content?.[0]?.text ?? br.output?.message?.content?.[0]?.text ?? "";
       const m = text.match(/\{[\s\S]*\}/);
       if (m) {
