@@ -55,7 +55,11 @@ Das ändert Architektur und Deploy-Ziel gegenüber der ursprünglichen Spec (sie
   Fortschritt & Fehlerliste) gemerged via [PR #36](https://github.com/arn0ld87/AP1/pull/36)
   (versehentlich vor dem Review gemerged — Env-Namen- und `verify_jwt`-Korreturen folgen im
   Fix-PR `fix/grade-exam-answer`).
-- Task 16 (Live-Deploy) ausstehend.
+- Task 16 (Live-Deploy) **live seit 10.09.2026**: App unter
+  <https://pruefung.alexle135.de> (Traefik/tswebsecure, nur Tailscale), Edge Function
+  `grade-exam-answer` deployed, `VERIFY_JWT=true`, Secret `AWS_BEDROCK_API_KEY` (Fix-PR
+  [#37](https://github.com/arn0ld87/AP1/pull/37)). Offener End-To-End-Check: einmal mit echtem
+  Login eine Probeprüfung durchspielen.
 - Docs-Standabgleich erfolgte via PR [#35](https://github.com/arn0ld87/AP1/pull/35).
 - CI etabliert via [PR #38](https://github.com/arn0ld87/AP1/pull/38): GitHub-Actions-Workflow
   `.github/workflows/pr-check.yml` — fünf parallele Checks je PR (Lint, Prettier, Typecheck,

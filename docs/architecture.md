@@ -6,9 +6,9 @@ und der zugehörige Plan:
 [docs/superpowers/plans/2026-09-10-lovable-ap1-plattform.md](superpowers/plans/2026-09-10-lovable-ap1-plattform.md).
 Die tatsächliche Umsetzung ist seit dem Lovable-Pivot (siehe
 [context.md](context.md#pivot-lovable-credit-limit-10092026)) davon abgewichen — dieses Dokument
-beschreibt den **aktuellen** Stand aus [PR #33](https://github.com/arn0ld87/AP1/pull/33)
-(Branch `worktree-ap1-lovable-plattform`, noch nicht nach `main` gemerged); bei Widerspruch zur Spec
-gilt dieses Dokument als aktueller.
+beschreibt den **aktuellen** Stand auf `main` (PRs
+[#33](https://github.com/arn0ld87/AP1/pull/33)–[#37](https://github.com/arn0ld87/AP1/pull/37),
+Tasks 1–16); bei Widerspruch zur Spec gilt dieses Dokument als aktueller.
 
 ## Zwei-Phasen-Architektur
 
@@ -32,16 +32,16 @@ gilt dieses Dokument als aktueller.
 |---|---|---|---|---|---|
 | 1 | Rechnen üben | `/rechnen` | `AP1-Trainer.html` (`TOPICS`, `GEN`, `pick`) | Generator-Teil des Trainers | **fertig** |
 | 2 | Wissenskarten | `/wissenskarten` | `AP1-Trainer.html` (`CARDS`) | Flashcard-Teil des Trainers | **fertig** |
-| 3 | Lernblätter | `/lernblaetter` | `lernen/*.md` (9 Dateien, migriert nach `data/migration/lernblaetter.json`) | manuelles Nachschlagen | geplant |
-| 4 | Formelsammlung | `/formelsammlung` | `02_FORMELSAMMLUNG.md` (migriert nach `data/migration/formelsammlung.json`) | manuelles Nachschlagen | geplant |
-| 5 | Probeprüfungen + KI-Bewertung | `/probepruefungen` | `probepruefungen/`, `loesungen/` (migriert, `exam_questions`-Tabelle befüllt) | manuelle Korrektur | geplant |
-| 6 | Fortschritt & Fehlerliste | `/fortschritt` | abgeleitet aus 1/2/5 | `04_LERNFORTSCHRITT.md`, `05_FEHLERLISTE.md` | geplant |
-| 7 | Tagesplan | `/tagesplan` | `01_LERNPLAN.md` (migriert nach `data/migration/lernplan.json`) | manuelles Abhaken | geplant |
+| 3 | Lernblätter | `/lernblaetter` | `lernen/*.md` (9 Dateien, migriert nach `data/migration/lernblaetter.json`) | manuelles Nachschlagen | **fertig** |
+| 4 | Formelsammlung | `/formelsammlung` | `02_FORMELSAMMLUNG.md` (migriert nach `data/migration/formelsammlung.json`) | manuelles Nachschlagen | **fertig** |
+| 5 | Probeprüfungen + KI-Bewertung | `/probepruefungen` | `probepruefungen/`, `loesungen/` (migriert, `exam_questions`-Tabelle befüllt) | manuelle Korrektur | **fertig** |
+| 6 | Fortschritt & Fehlerliste | `/fortschritt` | abgeleitet aus 1/2/5 | `04_LERNFORTSCHRITT.md`, `05_FEHLERLISTE.md` | **fertig** |
+| 7 | Tagesplan | `/tagesplan` | `01_LERNPLAN.md` (migriert nach `data/migration/lernplan.json`) | manuelles Abhaken | **fertig** |
 
-Module 1 und 2 sind fertig implementiert (`app/src/routes/_authenticated/rechnen.tsx` bzw.
-`wissenskarten.tsx`) inklusive serverseitigem Fortschritts-Upsert gegen `topic_mastery` bzw.
-`flashcard_progress`. Module 3–7 haben aktuell nur Platzhalter-Routen; die Daten dafür liegen bereits
-migriert unter `data/migration/*.json` bzw. in der `exam_questions`-Tabelle vor.
+Alle 7 Module sind implementiert (Routes unter `app/src/routes/_authenticated/`) inklusive
+serverseitigem Fortschritts-Upsert gegen `topic_mastery` bzw. `flashcard_progress`; das
+Probeprüfungs-Modul bewertet über die Edge Function `grade-exam-answer` (siehe
+[api.md](api.md)).
 
 ## Auth & Deploy
 
@@ -52,14 +52,17 @@ migriert unter `data/migration/*.json` bzw. in der `exam_questions`-Tabelle vor.
 - Backend: self-hosted Supabase auf dem armserver (`supabase.alexle135.de`) — nicht mehr Lovables
   verwaltetes Supabase-Projekt (Pivot, siehe oben). Schema-Migrationen liegen in
   `app/supabase/migrations/`, angewendet per `psql` im Container `supabase-db`.
-- Deploy: Build-Output ist Nitro (Cloudflare-Worker-kompatibel), Ziel-Domain
-  `ap1.alexle135.de` hinter Traefik auf dem armserver — ursprünglich als „bewusst out of scope"
-  geplant, seit dem Pivot weg von Lovables eigenem Live-Deploy das tatsächliche Ziel (noch nicht
-  live).
-- CI: PR-Checks via GitHub Actions (`.github/workflows/pr-check.yml`, [PR #38](https://github.com/arn0ld87/AP1/pull/38))
-  — fünf parallele Jobs: ESLint + Prettier, `tsc --noEmit`, Vite-Build, `deno check` der Edge
-  Function, `py_compile` der Migrationsskripte. Kein Deploy-Workflow — Deploy erfolgt weiterhin
-  manuell (Task 16).
+- Deploy (Task 16, live seit 10.09.2026): Ziel-Domain **`pruefung.alexle135.de`** (DNS →
+  Tailscale-IP `100.71.152.44`). Docker-Container `pruefung-frontend` (Nitro `node-server`-Build,
+  `app/Dockerfile`) hinter Traefik (Entry Point `tswebsecure`, Letsencrypt-Zertifikat, Router
+  `/opt/traefik/dynamic/pruefung.yml`, Vorlage `deploy/traefik-pruefung.yml`) — nur aus dem
+  Tailscale-Netz erreichbar. Compose liegt unter `deploy/docker-compose.pruefung.yml` (auf dem
+  Server `/opt/pruefung-frontend/`). `ap1.alexle135.de` ist dagegen der ältere Vor-Pivot-Deploy
+  (Lovable-Projekt „ap1-skill-simulator") und läuft unberührt parallel.
+- Edge Function `grade-exam-answer`: deployed unter
+  `/opt/supabase/volumes/functions/main/grade-exam-answer/index.ts` auf dem armserver; Env am
+  Container `functions`: `AWS_BEDROCK_API_KEY` (aus Vaultwarden), `VERIFY_JWT=true` (Bounce-Main
+  verifiziert User-JWTs gegen JWKS).
 
 ## Design-System
 
