@@ -43,6 +43,17 @@ Task 10 direkt in `app/` weiterentwickelt, gegen ein self-hosted Supabase auf de
 (`supabase.alexle135.de`) statt gegen Lovables verwaltetes Supabase-Projekt.
 
 Das ändert Architektur und Deploy-Ziel gegenüber der ursprünglichen Spec (siehe
-[architecture.md](architecture.md)), nicht aber Vision, Feature-Umfang oder Nicht-Ziele. Stand und
-Fortschritt: [PR #33](https://github.com/arn0ld87/AP1/pull/33), Branch
-`worktree-ap1-lovable-plattform`, noch nicht nach `main` gemerged.
+[architecture.md](architecture.md)), nicht aber Vision, Feature-Umfang oder Nicht-Ziele.
+
+## Aktueller Stand (10.09.2026)
+
+- Tasks 1–9 (Migration, Supabase-Auth, Content-Import, Rechnen üben) gemerged via
+  [PR #33](https://github.com/arn0ld87/AP1/pull/33); Entwicklung läuft seit Task 10 direkt in `app/`.
+- Tasks 10–13 (Wissenskarten, Lernblätter, Formelsammlung, Tagesplan) gemerged via
+  [PR #34](https://github.com/arn0ld87/AP1/pull/34).
+- Tasks 14–15 (Probeprüfungen mit KI-Bewertung über die Edge Function `grade-exam-answer`,
+  Fortschritt & Fehlerliste) gemerged via [PR #36](https://github.com/arn0ld87/AP1/pull/36)
+  (versehentlich vor dem Review gemerged — Env-Namen- und `verify_jwt`-Korreturen folgen im
+  Fix-PR `fix/grade-exam-answer`).
+- Task 16 (Live-Deploy) ausstehend.
+- Docs-Standabgleich erfolgte via PR [#35](https://github.com/arn0ld87/AP1/pull/35).
