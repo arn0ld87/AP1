@@ -1,0 +1,569 @@
+[
+  {
+    "exam_id": "probepruefung_01",
+    "title": "Probeprüfung 01 — Schwerpunkt: wahrscheinlichste Aufgaben",
+    "ausgangssituation": "Sie sind Auszubildender im Systemhaus **NordTec IT-Service GmbH**. Das Unternehmen betreut kleine und\nmittlere Betriebe von der Hardwarebeschaffung bis zur laufenden Betreuung.\n\nIhr Kunde, die **VeloWerk GmbH**, stellt Komponenten für E-Bikes her und bezieht eine neue\nFertigungshalle mit angeschlossenem Lager. Die NordTec IT-Service GmbH erhält den Auftrag,\ndie IT-Infrastruktur zu planen und einzurichten. Sie arbeiten in diesem Projekt mit.\n\n---",
+    "aufgaben": [
+      {
+        "aufgabe_nr": 1,
+        "max_punkte": 25,
+        "intro": "Für den Umzug in die neue Halle wird die Terminplanung erstellt.",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Nennen Sie vier Merkmale, an denen man erkennt, dass es sich bei dem Umzug um ein Projekt handelt.",
+            "max_punkte": 4,
+            "musterloesung": "(je 1 Punkt, vier Nennungen genügen)\nEinmaligkeit · klare Zielvorgabe · zeitliche Begrenzung mit Anfang und Ende ·\nbegrenzte Ressourcen (personell, finanziell, sachlich) · eigene Projektorganisation ·\nKomplexität · Neuartigkeit · fachübergreifende Zusammenarbeit"
+          },
+          {
+            "teil": "b",
+            "frage": "Für die Terminplanung wurde die folgende Vorgangsliste erstellt.\n\n| Vorgang | Beschreibung | Dauer (Tage) | Vorgänger |\n|---|---|---:|---|\n| A | Ist-Analyse | 3 | – |\n| B | Soll-Konzept | 4 | A |\n| C | Beschaffung Hardware | 6 | B |\n| D | Strukturierte Verkabelung | 5 | B |\n| E | Serverinstallation | 4 | C, D |\n| F | Clients einrichten | 3 | E |\n| G | Mitarbeiterschulung | 2 | F |\n| H | Dokumentation | 2 | E |\n| I | Abnahme und Übergabe | 1 | G, H |\n\nErmitteln Sie für alle Vorgänge FAZ, FEZ, SAZ, SEZ, GP und FP.\nTragen Sie die Werte in eine Tabelle ein. **12 Punkte**\n\nHinweis: FAZ = frühester Anfangszeitpunkt · FEZ = frühester Endzeitpunkt ·\nSAZ = spätester Anfangszeitpunkt · SEZ = spätester Endzeitpunkt ·\nGP = Gesamtpuffer (= SAZ − FAZ) · FP = freier Puffer (= FAZ des Nachfolgers − FEZ)",
+            "max_punkte": 12,
+            "musterloesung": "(je vollständig richtiger Vorgang 1,5 Punkte, insgesamt 12)\n\n| Vorgang | Dauer | FAZ | FEZ | SAZ | SEZ | GP | FP |\n|---|--:|--:|--:|--:|--:|--:|--:|\n| A | 3 | 0 | 3 | 0 | 3 | 0 | 0 |\n| B | 4 | 3 | 7 | 3 | 7 | 0 | 0 |\n| C | 6 | 7 | 13 | 7 | 13 | 0 | 0 |\n| D | 5 | 7 | 12 | 8 | 13 | 1 | 1 |\n| E | 4 | 13 | 17 | 13 | 17 | 0 | 0 |\n| F | 3 | 17 | 20 | 17 | 20 | 0 | 0 |\n| G | 2 | 20 | 22 | 20 | 22 | 0 | 0 |\n| H | 2 | 17 | 19 | 20 | 22 | 3 | 3 |\n| I | 1 | 22 | 23 | 22 | 23 | 0 | 0 |\n\nRechenweg: FEZ = FAZ + Dauer · FAZ des Nachfolgers = größter FEZ der Vorgänger ·\nSAZ = SEZ − Dauer · SEZ des Vorgängers = kleinster SAZ der Nachfolger.\nE beginnt bei max(13; 12) = 13, I beginnt bei max(22; 19) = 22."
+          },
+          {
+            "teil": "c",
+            "frage": "Geben Sie die Projektdauer in Tagen an und nennen Sie die Vorgänge des kritischen Pfads.",
+            "max_punkte": 3,
+            "musterloesung": "Projektdauer **23 Tage** (1 Punkt).\nKritischer Pfad **A – B – C – E – F – G – I** (2 Punkte), erkennbar an GP = 0."
+          },
+          {
+            "teil": "d",
+            "frage": "Die Verkabelung (Vorgang D) verzögert sich um zwei Tage.\nBeschreiben Sie die Auswirkung auf das Projektende und begründen Sie Ihre Antwort.",
+            "max_punkte": 2,
+            "musterloesung": "Vorgang D hat einen Gesamtpuffer von nur **1 Tag**. Eine Verzögerung um 2 Tage überschreitet den\nPuffer um einen Tag, dadurch verschiebt sich das Projektende um **1 Tag auf 24 Tage**.\nD wird damit selbst kritisch."
+          },
+          {
+            "teil": "e",
+            "frage": "Grundlage des Auftrags ist ein Lastenheft der VeloWerk GmbH.\nBenennen Sie vier inhaltliche Aspekte, die üblicherweise in einem Lastenheft enthalten sind. **4 Punkte**\n\n---",
+            "max_punkte": 4,
+            "musterloesung": "(je 1 Punkt)\nKurzvorstellung des Auftraggebers · Definition des Projektziels · Beschreibung der bestehenden\nIT-Infrastruktur · funktionale Anforderungen · Zeitrahmen · Rahmenbedingungen zu IT-Sicherheit und\nDatenschutz · Abnahmekriterien · Budgetrahmen\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 2,
+        "max_punkte": 25,
+        "intro": "Im Lager sollen Überwachungskameras installiert und ein neuer Server beschafft werden.",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Die Kameras nehmen mit einer Auflösung von **2560 × 1440** Bildpunkten bei einer Farbtiefe von\n**24 Bit** und **25 Bildern pro Sekunde** auf. Das Material wird auf **8 %** komprimiert.\n\nBerechnen Sie die erforderliche Datenübertragungsrate **pro Kamera in Mbit/s**.\nRunden Sie das Ergebnis auf volle Mbit/s auf. Der Rechenweg ist anzugeben.",
+            "max_punkte": 4,
+            "musterloesung": "```\n2560 × 1440              = 3.686.400 Pixel        (1 P)\n3.686.400 × 24 bit       = 88.473.600 bit je Bild (1 P)\n88.473.600 × 25 fps      = 2.211.840.000 bit/s    (1 P)\n× 0,08                   = 176.947.200 bit/s\n                         = 176,9472 Mbit/s\n```\n**Ergebnis: 177 Mbit/s** (aufgerundet, 1 P)"
+          },
+          {
+            "teil": "b",
+            "frage": "Es werden **sechs** Kameras installiert. Die Aufnahmen sollen **14 Tage** gespeichert werden.\n\nBerechnen Sie die erforderliche Speicherkapazität in **TiB**. Runden Sie auf volle TiB auf.\nFalls Sie Aufgabe a) nicht lösen konnten, rechnen Sie mit **177 Mbit/s**.\nDer Rechenweg ist anzugeben.",
+            "max_punkte": 5,
+            "musterloesung": "```\n14 Tage = 14 × 24 × 3.600 = 1.209.600 s                       (1 P)\n177.000.000 bit/s × 6 Kameras × 1.209.600 s\n      = 1.284.595.200.000.000 bit                             (2 P)\n/ 8                  = 160.574.400.000.000 Byte               (1 P)\n/ 1024 / 1024 / 1024 / 1024 = 146,04 TiB\n```\n**Ergebnis: 147 TiB** (aufgerundet, 1 P)"
+          },
+          {
+            "teil": "c",
+            "frage": "Für den Serverraum stehen zwei Netzteilvarianten zur Auswahl. Die Serverkomponenten benötigen\nim Betrieb durchgehend **450 W**. Der Server läuft an **365 Tagen je 24 Stunden**.\nDer Strompreis beträgt **0,34 EUR/kWh**.\n\n| | Variante A | Variante B |\n|---|---|---|\n| Wirkungsgrad des Netzteils | 82 % | 94 % |\n| Anschaffungspreis | 260 EUR | 400 EUR |\n\nBerechnen Sie für **Variante A** die aus dem Netz bezogene Leistung und die jährlichen Stromkosten.\nDer Rechenweg ist anzugeben.",
+            "max_punkte": 5,
+            "musterloesung": "```\nBezogene Leistung:  450 W / 0,82 = 548,78 W                  (2 P)\nBetriebsstunden:    365 × 24 = 8.760 h                        (1 P)\nEnergie:            0,54878 kW × 8.760 h = 4.807,32 kWh       (1 P)\nKosten:             4.807,32 kWh × 0,34 EUR = 1.634,49 EUR    (1 P)\n```"
+          },
+          {
+            "teil": "d",
+            "frage": "Berechnen Sie, nach wie vielen **Monaten** sich der Mehrpreis der Variante B amortisiert hat.\nDer Rechenweg ist anzugeben.",
+            "max_punkte": 4,
+            "musterloesung": "```\nVariante B: 450 W / 0,94 = 478,72 W\n            0,47872 kW × 8.760 h = 4.193,62 kWh\n            × 0,34 EUR = 1.425,83 EUR/Jahr                    (2 P)\nErsparnis:  1.634,49 − 1.425,83 = 208,66 EUR/Jahr\n            = 17,39 EUR/Monat                                 (1 P)\nMehrpreis:  400 − 260 = 140 EUR\n            140 / 17,39 = 8,05 Monate → nach 9 Monaten        (1 P)\n```"
+          },
+          {
+            "teil": "e",
+            "frage": "In der Werkstatt sollen folgende Geräte über eine einzige Mehrfachsteckdose mit der Aufschrift\n„maximal 16 A\" betrieben werden:\n\n- 3 Arbeitsplatzrechner mit je 220 W maximaler Leistungsaufnahme\n- 1 Laserdrucker mit 1.100 W\n- 1 Wasserkocher mit 2.200 W\n\nWeisen Sie durch eine Rechnung nach, dass diese Geräte nicht gleichzeitig betrieben werden können.",
+            "max_punkte": 4,
+            "musterloesung": "```\nZulässige Last:  16 A × 230 V = 3.680 W                       (2 P)\nAngeschlossen:   3 × 220 W + 1.100 W + 2.200 W = 3.960 W      (1 P)\n3.960 W > 3.680 W → gleichzeitiger Betrieb nicht möglich       (1 P)\n```"
+          },
+          {
+            "teil": "f",
+            "frage": "Nennen Sie drei weitere Maßnahmen zur Senkung der Energiekosten an IT-Arbeitsplätzen. **3 Punkte**\n\n---",
+            "max_punkte": 3,
+            "musterloesung": "(je 1 Punkt)\nschaltbare Steckdosenleisten gegen Standby-Verbrauch · Energiesparoptionen des Betriebssystems\naktivieren · Geräte mit guter Energieeffizienzklasse beschaffen · Thin Clients statt vollwertiger PCs ·\nMonitore mit LED-Hintergrundbeleuchtung · Servervirtualisierung zur Reduzierung der Gerätezahl ·\nAbschaltung nicht benötigter Geräte außerhalb der Arbeitszeit\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 3,
+        "max_punkte": 25,
+        "intro": "Sie richten die Netzwerkkonfiguration der neuen Arbeitsplätze ein.",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Einem Arbeitsplatzrechner wurde die Adresse **172.20.48.137/26** zugewiesen.\n\nErmitteln Sie:\n- Subnetzmaske in Dezimalschreibweise\n- Netzadresse\n- Broadcast-Adresse\n- erste und letzte nutzbare Hostadresse\n- Anzahl nutzbarer IP-Adressen",
+            "max_punkte": 6,
+            "musterloesung": "(je 1 Punkt)\n- Subnetzmaske: **255.255.255.192**\n- Netzadresse: **172.20.48.128**\n- Broadcast-Adresse: **172.20.48.191**\n- erste nutzbare Hostadresse: **172.20.48.129**\n- letzte nutzbare Hostadresse: **172.20.48.190**\n- Anzahl nutzbarer Adressen: **62** (2⁶ − 2)\n\nRechenweg: /26 → 6 Hostbits → Blockgröße 256 − 192 = 64.\nBlöcke: 0–63, 64–127, **128–191**, 192–255. Die .137 liegt im dritten Block."
+          },
+          {
+            "teil": "b",
+            "frage": "Das Netz **172.20.48.0/24** soll vollständig in Subnetze mit dem Präfix **/26** aufgeteilt werden.\nGeben Sie an, wie viele Subnetze dabei entstehen, und begründen Sie Ihre Antwort.",
+            "max_punkte": 2,
+            "musterloesung": "**4 Subnetze.** Von /24 auf /26 werden 2 Bits geliehen: 2² = 4."
+          },
+          {
+            "teil": "c",
+            "frage": "Ergänzen Sie die leeren Felder der folgenden Tabelle. Geben Sie pro Feld jeweils nur ein\npassendes Beispiel an. **5 Punkte**\n\n| OSI-Schicht Nr. | Schichtname | Verwendete Protokolle | Verwendete Adressen | Möglicher Fehler |\n|---:|---|---|---|---|\n| 7 | | | – | |\n| 3 | | | | |\n| 2 | Sicherung | Ethernet | MAC-Adressen | Netzwerkkarte defekt |\n| 1 | | – | – | |",
+            "max_punkte": 5,
+            "musterloesung": "(je richtig gefülltem Feld 0,5 Punkte)\n\n| Nr. | Schichtname | Protokolle | Adressen | Möglicher Fehler |\n|---:|---|---|---|---|\n| 7 | Anwendung | HTTP, DNS, DHCP, SMTP | – | Serverkonfiguration fehlerhaft |\n| 3 | Vermittlung | IPv4, IPv6, ICMP | IP-Adressen | falsche IP-Adresse vergeben |\n| 2 | Sicherung | Ethernet | MAC-Adressen | Netzwerkkarte defekt |\n| 1 | Bitübertragung | – | – | Medium getrennt, Kabel defekt |"
+          },
+          {
+            "teil": "d",
+            "frage": "Bei der Analyse eines PCs wird Ihnen die IP-Adresse **169.254.87.13** angezeigt,\nobwohl im Netz ein DHCP-Server betrieben wird.\n\nBegründen Sie diese Anzeige und nennen Sie zwei mögliche Ursachen.",
+            "max_punkte": 3,
+            "musterloesung": "Die Adresse stammt aus dem **APIPA-Bereich 169.254.0.0/16** (1 P). Sie wird vom Betriebssystem\nselbst vergeben, wenn kein DHCP-Server erreicht werden konnte und keine statische Adresse gesetzt ist.\nZwei mögliche Ursachen (je 1 P): DHCP-Server ausgefallen oder nicht erreichbar · Netzwerkkabel nicht\ngesteckt oder Dose nicht gepatcht · DHCP-Adressbereich erschöpft · Gerät im falschen VLAN"
+          },
+          {
+            "teil": "e",
+            "frage": "Nennen Sie zu jedem der folgenden Fehler eine mögliche Überprüfung und eine Fehlerbehebung. **6 Punkte**\n\n| Möglicher Fehler | Mögliche Überprüfung | Fehlerbehebung |\n|---|---|---|\n| Gateway-Adresse ist falsch | Beispiel: Gateway mit `ipconfig /all` prüfen | Beispiel: korrekte Gateway-Adresse zuweisen lassen |\n| Patchkabel ist defekt | | |\n| Netzwerkdose ist nicht gepatcht | | |\n| Namensauflösung funktioniert nicht | | |",
+            "max_punkte": 6,
+            "musterloesung": "(je Zeile 2 Punkte)\n\n| Möglicher Fehler | Mögliche Überprüfung | Fehlerbehebung |\n|---|---|---|\n| Patchkabel ist defekt | LED an der Netzwerkbuchse prüfen, Kabeltester einsetzen, Kabel testweise tauschen | defektes Netzwerkkabel austauschen |\n| Netzwerkdose ist nicht gepatcht | funktionierenden Rechner an der Dose anschließen, Verteilerfeld prüfen | Dose im Patchfeld auflegen lassen oder andere Dose nutzen |\n| Namensauflösung funktioniert nicht | `ping` auf eine IP-Adresse gelingt, auf den Namen nicht; `nslookup` ausführen | DNS-Server-Eintrag korrigieren bzw. Störung melden |"
+          },
+          {
+            "teil": "f",
+            "frage": "Die Kameras erhalten Adressen aus dem Bereich 192.168.30.0/24.\nBeschreiben Sie, wie sich diese Adressen hinsichtlich ihrer Erreichbarkeit aus dem Internet verhalten. **3 Punkte**\n\n---",
+            "max_punkte": 3,
+            "musterloesung": "Es handelt sich um **private IP-Adressen** (1 P). Sie werden im Internet nicht geroutet (1 P) und\nsind daher von außen nicht direkt erreichbar; ein Zugriff nach außen erfolgt nur über NAT am Router (1 P).\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 4,
+        "max_punkte": 25,
+        "intro": "Die VeloWerk GmbH beauftragt Sie, Datenschutz und Datensicherheit zu bewerten.",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Ordnen Sie jeder Sicherheitsmaßnahme genau ein Schutzziel zu (Vertraulichkeit, Integrität\noder Verfügbarkeit) und geben Sie jeweils eine Begründung an. **8 Punkte**\n\n| Sicherheitsmaßnahme | Schutzziel | Begründung |\n|---|---|---|\n| Verschlüsselung der Notebook-Festplatten | | |\n| Tägliche Datensicherung der Konstruktionsdaten | | |\n| Prüfsummenvergleich nach dem Software-Download | | |\n| Unterbrechungsfreie Stromversorgung im Serverraum | | |",
+            "max_punkte": 8,
+            "musterloesung": "(je Zeile 1 Punkt Schutzziel + 1 Punkt Begründung)\n\n| Sicherheitsmaßnahme | Schutzziel | Begründung |\n|---|---|---|\n| Verschlüsselung der Notebook-Festplatten | Vertraulichkeit | Bei Verlust oder Diebstahl können Unberechtigte die Daten nicht lesen. |\n| Tägliche Datensicherung der Konstruktionsdaten | Verfügbarkeit | Nach einem Datenverlust kann der Bestand wiederhergestellt werden. |\n| Prüfsummenvergleich nach dem Software-Download | Integrität | Eine Veränderung oder Manipulation der Datei würde auffallen. |\n| Unterbrechungsfreie Stromversorgung im Serverraum | Verfügbarkeit | Bei Stromausfall bleiben die Systeme erreichbar bzw. lassen sich geordnet herunterfahren. |"
+          },
+          {
+            "teil": "b",
+            "frage": "Die Personalabteilung möchte wissen, für welche Art von Daten ein besonderer gesetzlicher\nSchutz vorgeschrieben ist. Geben Sie Auskunft und benennen Sie eine rechtliche Grundlage.",
+            "max_punkte": 3,
+            "musterloesung": "Besonders geschützt sind **personenbezogene Daten** (1 P), also alle Daten, die sich auf eine\nidentifizierte oder identifizierbare natürliche Person beziehen — hier zum Beispiel Mitarbeiter- und\nBewerberdaten (1 P). Rechtliche Grundlage: **DSGVO**, ergänzend das Bundesdatenschutzgesetz (BDSG) (1 P)."
+          },
+          {
+            "teil": "c",
+            "frage": "Nennen Sie zwei Kriterien für ein sicheres Passwort und begründen Sie jeweils, warum das\nKriterium die Sicherheit erhöht.",
+            "max_punkte": 4,
+            "musterloesung": "(je Kriterium 1 P, je Begründung 1 P)\n- Ausreichende Länge → der Suchraum wächst stark, ein Brute-Force-Angriff dauert unverhältnismäßig lange.\n- Groß- und Kleinbuchstaben, Ziffern und Sonderzeichen → größerer Zeichenvorrat, dadurch deutlich mehr Kombinationen.\n- Keine Wörter aus dem Wörterbuch → Wörterbuchangriffe laufen ins Leere.\n- Für jeden Dienst ein eigenes Passwort → ein kompromittiertes Passwort gefährdet nicht alle Zugänge."
+          },
+          {
+            "teil": "da",
+            "frage": "In der Buchhaltung häufen sich verdächtige E-Mails.\n\n-\n\nNennen Sie drei Anzeichen, an denen ein Anwender eine Phishing-Mail erkennen kann. **3 Punkte**\n-",
+            "max_punkte": 3,
+            "musterloesung": "(je 1 Punkt)\nunpersönliche Anrede · Druck und Drohung („Konto wird gesperrt\") · Rechtschreib- und Grammatikfehler ·\nAbsenderadresse weicht von der angezeigten Organisation ab · Linkziel stimmt nicht mit dem Anzeigetext\nüberein · unerwarteter Anhang · Aufforderung zur Eingabe von Zugangsdaten"
+          },
+          {
+            "teil": "db",
+            "frage": "In der Buchhaltung häufen sich verdächtige E-Mails.\n\n-\n\nNennen Sie zwei technische oder organisatorische Maßnahmen, die das Unternehmen zum Schutz vor Phishing ergreifen kann.",
+            "max_punkte": 2,
+            "musterloesung": "(je 1 Punkt)\nSpamfilter und Mail-Gateway einsetzen · regelmäßige Awareness-Schulungen · Anhänge in einer Sandbox\nprüfen · SPF/DKIM/DMARC konfigurieren · klaren Meldeweg an die IT einrichten · Zwei-Faktor-Authentifizierung"
+          },
+          {
+            "teil": "ea",
+            "frage": "Die Konstruktionsdaten werden derzeit freitags beim Herunterfahren auf eine zweite Partition\nderselben Festplatte gesichert.\n\n-\n\nBeschreiben Sie zwei Risiken dieses Vorgehens. **2 Punkte**\n-",
+            "max_punkte": 2,
+            "musterloesung": "(je 1 Punkt)\nKeine räumliche Trennung: Bei Diebstahl, Brand oder Defekt der Festplatte sind Original und Sicherung\ngleichzeitig verloren · zu langer Sicherungszyklus: Es können bis zu fünf Arbeitstage verloren gehen ·\nnur ein Sicherungsstand, ältere Versionen sind nicht wiederherstellbar · Verschlüsselungstrojaner\nbefällt die zweite Partition mit"
+          },
+          {
+            "teil": "eb",
+            "frage": "Die Konstruktionsdaten werden derzeit freitags beim Herunterfahren auf eine zweite Partition\nderselben Festplatte gesichert.\n\n-\n\nUnterbreiten Sie einen konkreten Verbesserungsvorschlag. **3 Punkte**\n\n---\n\n*Ende der Probeprüfung 01*",
+            "max_punkte": 3,
+            "musterloesung": "Sicherung auf ein **externes Medium** (1 P), das nach dem Sichern getrennt und **an einem anderen Ort**\nverwahrt wird (1 P), mit mindestens **täglicher** Sicherung der veränderten Daten nach dem\nGenerationenprinzip und regelmäßigem Test der Rücksicherung (1 P)."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_id": "probepruefung_02",
+    "title": "Probeprüfung 02 — Schwerpunkt: realistische gemischte Prüfung",
+    "ausgangssituation": "Sie sind Auszubildender bei der **DataFlow Systemhaus AG**. Ihr Kunde, die **Stadtwerke Bergheim**,\nrichtet ein neues Kundenzentrum ein. Sie sind dem Team zugeteilt, das Beschaffung, Hardware,\nNetzwerk und die Datenhaltung verantwortet.\n\n---",
+    "aufgaben": [
+      {
+        "aufgabe_nr": 1,
+        "max_punkte": 26,
+        "intro": "Für das Kundenzentrum werden **24 Notebooks** beschafft. Drei Angebote liegen vor.\n\n| | TecPoint GmbH | ByteDirekt AG | NordCom KG |\n|---|---|---|---|\n| Listenpreis pro Stück | 1.250 EUR | 1.190 EUR | 1.320 EUR |\n| Rabatt | 3 % | – | 5 % |\n| Lieferkosten pro Stück | 18 EUR | 12 EUR | 0 EUR |\n| Bezugspreis pro Stück | | | |\n| Lieferzeit | 4 Wochen | 2 Wochen | 3 Wochen |\n| Qualität | gut | durchschnittlich | sehr gut |\n| Kundenrückmeldungen | gelegentlich Reklamationen | Lieferung ohne Beanstandung | sehr gutes Kulanzverhalten |",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Berechnen Sie den Bezugspreis pro Stück für alle drei Anbieter. Der Rechenweg ist anzugeben.",
+            "max_punkte": 3,
+            "musterloesung": "(je Anbieter 1 Punkt)\n```\nTecPoint GmbH : 1.250,00 × 0,97 = 1.212,50 + 18,00 = 1.230,50 EUR\nByteDirekt AG : 1.190,00 ×  1   = 1.190,00 + 12,00 = 1.202,00 EUR\nNordCom KG    : 1.320,00 × 0,95 = 1.254,00 +  0,00 = 1.254,00 EUR\n```"
+          },
+          {
+            "teil": "b",
+            "frage": "Bewerten Sie die Anbieter je Kriterium mit einer Skala von **1 (schwach) bis 3 (sehr gut)** und\nführen Sie mit den folgenden Gewichtungen einen gewichteten Angebotsvergleich durch.\nEntscheiden Sie sich anschließend begründet für einen Lieferanten. **10 Punkte**\n\n| Kriterium | Gewichtung | TecPoint GmbH | ByteDirekt AG | NordCom KG |\n|---|---:|---|---|---|\n| Bezugspreis | 10 | | | |\n| Lieferzeit | 6 | | | |\n| Qualität | 8 | | | |\n| Service / Erfahrung | 4 | | | |\n| **Summe** | | | | |",
+            "max_punkte": 10,
+            "musterloesung": "(Bewertung 4 P, Rechnung 4 P, Summen und Entscheidung 2 P)\n\n| Kriterium | Gew. | TecPoint | | ByteDirekt | | NordCom | |\n|---|---:|---:|---:|---:|---:|---:|---:|\n| | | Pkt | ×Gew | Pkt | ×Gew | Pkt | ×Gew |\n| Bezugspreis | 10 | 2 | 20 | 3 | 30 | 1 | 10 |\n| Lieferzeit | 6 | 1 | 6 | 3 | 18 | 2 | 12 |\n| Qualität | 8 | 2 | 16 | 1 | 8 | 3 | 24 |\n| Service / Erfahrung | 4 | 1 | 4 | 2 | 8 | 3 | 12 |\n| **Summe** | | | **46** | | **64** | | **58** |\n\n**Entscheidung: ByteDirekt AG** mit dem höchsten Nutzwert von 64 Punkten.\nAusschlaggebend sind der günstigste Bezugspreis und die kürzeste Lieferzeit,\ndie zusammen die schwächere Qualitätsbewertung überkompensieren.\n\n*(Abweichende Punktvergaben sind zu akzeptieren, wenn sie in sich schlüssig sind und die\nRangfolge nachvollziehbar aus den Angebotsdaten abgeleitet wurde.)*"
+          },
+          {
+            "teil": "c",
+            "frage": "Der ausgewählte Anbieter legt folgendes Angebot vor:\n\n- 24 Notebooks zum ermittelten Bezugspreis, Nutzungsdauer **4 Jahre**\n- 24 Dockingstationen zu je 180 EUR, Nutzungsdauer **3 Jahre**\n- Softwaremiete 22 EUR pro Monat und Arbeitsplatz\n- Wartungspauschale 2.880 EUR pro Jahr für alle Geräte\n\nBerechnen Sie die **laufenden Kosten pro Monat** für die gesamte Ausstattung.\nDer Rechenweg ist anzugeben.",
+            "max_punkte": 7,
+            "musterloesung": "```\nNotebooks:   24 × 1.202,00 EUR = 28.848,00 EUR / 48 Monate =   601,00 EUR/Monat  (2 P)\nDocking:     24 ×   180,00 EUR =  4.320,00 EUR / 36 Monate =   120,00 EUR/Monat  (2 P)\nSoftware:    24 ×    22,00 EUR                             =   528,00 EUR/Monat  (1 P)\nWartung:      2.880,00 EUR / 12 Monate                     =   240,00 EUR/Monat  (1 P)\n------------------------------------------------------------------------------\nLaufende Kosten pro Monat                                  = 1.489,00 EUR        (1 P)\n```"
+          },
+          {
+            "teil": "d",
+            "frage": "Die Notebooks wurden am 12. Mai bestellt. Eine Auftragsbestätigung gibt es nicht.\nGeliefert wurde am 3. Juni, die Rechnung ging am 5. Juni ein.\nErläutern Sie, zu welchem Zeitpunkt der Kaufvertrag zustande gekommen ist, und begründen Sie Ihre Entscheidung.",
+            "max_punkte": 2,
+            "musterloesung": "Der Kaufvertrag ist mit der **Lieferung am 3. Juni** zustande gekommen (1 P).\nDie Bestellung war der Antrag (erste Willenserklärung). Da keine Auftragsbestätigung erfolgte,\ngilt die Lieferung als Annahme durch schlüssiges Handeln (zweite Willenserklärung) — zwei\nübereinstimmende Willenserklärungen (1 P)."
+          },
+          {
+            "teil": "e",
+            "frage": "Nennen Sie zwei Kaufvertragsstörungen und geben Sie zu jeder eine Maßnahme an,\nmit der der Kunde ihr vorbeugen kann. **4 Punkte**\n\n---",
+            "max_punkte": 4,
+            "musterloesung": "(je Störung 1 P, je Maßnahme 1 P)\n- **Lieferverzug** → Liefertermin vertraglich fixieren, Vertragsstrafe vereinbaren, Lieferanten sorgfältig auswählen, frühzeitig mahnen\n- **Mangelhafte Lieferung** → Ware unverzüglich prüfen, Qualitätsanforderungen im Vertrag festhalten, Referenzen einholen\n- weitere zulässig: Annahmeverzug, Zahlungsverzug, Nichtlieferung\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 2,
+        "max_punkte": 24,
+        "intro": "Im Serverraum wird ein neues Speichersystem aufgebaut.",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Verfügbar sind **3 Festplatten à 6 TB** und **5 Festplatten à 4 TB** sowie ein RAID-Controller.\nMit allen Platten soll eine fehlertolerante **RAID-5**-Konfiguration mit größtmöglicher\nNettospeicherkapazität erstellt werden.\n\nBerechnen Sie die Nettospeicherkapazität in TB. Der Rechenweg ist anzugeben.",
+            "max_punkte": 4,
+            "musterloesung": "```\nAnzahl Platten n = 3 + 5 = 8                                     (1 P)\nMaßgeblich ist die kleinste Plattenkapazität: k = 4 TB           (2 P)\nRAID 5: (8 − 1) × 4 TB = 28 TB                                   (1 P)\n```\nVon den 6-TB-Platten bleiben je 2 TB ungenutzt."
+          },
+          {
+            "teil": "b",
+            "frage": "Berechnen Sie zum Vergleich die Nettospeicherkapazität derselben Platten als **RAID 6**\nund als **JBOD**. Der Rechenweg ist anzugeben.",
+            "max_punkte": 4,
+            "musterloesung": "```\nRAID 6: (8 − 2) × 4 TB = 24 TB                                   (2 P)\nJBOD:   3 × 6 TB + 5 × 4 TB = 18 TB + 20 TB = 38 TB              (2 P)\n```"
+          },
+          {
+            "teil": "c",
+            "frage": "Erklären Sie die Grundfunktion von RAID 1, RAID 5 und RAID 10 und geben Sie jeweils an,\nwie viele Festplatten ausfallen dürfen.",
+            "max_punkte": 6,
+            "musterloesung": "(je Level 2 Punkte)\n- **RAID 1 — Mirroring:** Die Daten werden vollständig auf eine zweite Platte gespiegelt.\n  Nutzbar ist die Kapazität einer Platte. Es darf **eine** Platte ausfallen.\n- **RAID 5 — Striping mit verteilter Parität:** Die Daten werden in Blöcke zerlegt und zusammen mit\n  Paritätsinformationen über alle Platten verteilt. Nutzbar sind (n − 1) Platten.\n  Es darf **eine** Platte ausfallen.\n- **RAID 10 — Spiegelung plus Striping:** Jeweils zwei Platten werden gespiegelt, die Spiegelpaare\n  zusätzlich gestriped. Nutzbar ist die Hälfte der Kapazität. Es darf **je Spiegelpaar eine** Platte ausfallen."
+          },
+          {
+            "teil": "d",
+            "frage": "Ein Kollege sagt: „Mit dem RAID brauchen wir kein Backup mehr.\"\nNehmen Sie begründet Stellung.",
+            "max_punkte": 2,
+            "musterloesung": "Die Aussage ist falsch. RAID schützt vor dem **Ausfall von Hardware**, nicht vor Datenverlust durch\nversehentliches Löschen, fehlerhafte Änderungen, Schadsoftware oder Diebstahl — solche Vorgänge werden\nsofort auf alle Platten übernommen. RAID erhöht die Verfügbarkeit, ein Backup bleibt zwingend nötig."
+          },
+          {
+            "teil": "e",
+            "frage": "Nennen Sie drei Vorteile einer SSD gegenüber einer HDD.",
+            "max_punkte": 3,
+            "musterloesung": "(je 1 Punkt)\ndeutlich kürzere Zugriffszeiten und höhere Datenrate · keine beweglichen Teile, dadurch\nunempfindlicher gegen Erschütterungen · geringerer Energieverbrauch · geräuschlos ·\ngeringeres Gewicht und kompaktere Bauform"
+          },
+          {
+            "teil": "f",
+            "frage": "Für einen Arbeitsplatzrechner soll das Netzteil ausgewählt werden. Netzteile stehen von\n400 W bis 1.200 W in 50-W-Schritten zur Verfügung. Zur ermittelten Leistungsaufnahme ist ein\nPuffer von **15 %** hinzuzurechnen.\n\n| Komponente | max. Leistungsaufnahme je Stück | Anzahl |\n|---|---:|---:|\n| Prozessor | 125 W | 1 |\n| Grafikkarte | 220 W | 1 |\n| Mainboard inkl. RAM | 60 W | 1 |\n| SSD | 8 W | 2 |\n| Gehäuselüfter | 4 W | 3 |\n\nBerechnen Sie die Leistungsaufnahme mit Puffer und benennen Sie das auszuwählende Netzteil. **5 Punkte**\n\n---",
+            "max_punkte": 5,
+            "musterloesung": "```\nProzessor       1 × 125 W = 125 W\nGrafikkarte     1 × 220 W = 220 W\nMainboard/RAM   1 ×  60 W =  60 W\nSSD             2 ×   8 W =  16 W\nGehäuselüfter   3 ×   4 W =  12 W\n------------------------------------\nSumme                     = 433 W                                (2 P)\nPuffer 15 %:  433 W × 1,15 = 497,95 W                            (2 P)\nNächste verfügbare Stufe: 500-W-Netzteil                         (1 P)\n```\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 3,
+        "max_punkte": 25,
+        "intro": "",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Einem Server wurde die Adresse **10.42.16.200/27** zugewiesen.\nErmitteln Sie Subnetzmaske, Netzadresse, Broadcast-Adresse, erste und letzte nutzbare Hostadresse\nsowie die Anzahl nutzbarer IP-Adressen.",
+            "max_punkte": 6,
+            "musterloesung": "(je 1 Punkt)\n- Subnetzmaske: **255.255.255.224**\n- Netzadresse: **10.42.16.192**\n- Broadcast-Adresse: **10.42.16.223**\n- erste nutzbare Hostadresse: **10.42.16.193**\n- letzte nutzbare Hostadresse: **10.42.16.222**\n- Anzahl nutzbarer Adressen: **30** (2⁵ − 2)\n\nBlockgröße 256 − 224 = 32, die .200 liegt im Block 192–223."
+          },
+          {
+            "teil": "b",
+            "frage": "Geben Sie an, wie viele Subnetze mit dem Präfix /27 aus einem /24-Netz gebildet werden können,\nund begründen Sie Ihre Antwort.",
+            "max_punkte": 2,
+            "musterloesung": "**8 Subnetze.** Von /24 auf /27 werden 3 Bits geliehen: 2³ = 8."
+          },
+          {
+            "teil": "ca",
+            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\n-\n\nGeben Sie die Länge einer IPv6-Adresse in Bit an. **1 Punkt**\n-",
+            "max_punkte": 1,
+            "musterloesung": "— **128 Bit**"
+          },
+          {
+            "teil": "cb",
+            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\n-\n\nGeben Sie die Adresse in ungekürzter hexadezimaler Schreibweise an. **2 Punkte**\n-",
+            "max_punkte": 2,
+            "musterloesung": "`2001:0db8:4f1a:0027:0000:0000:0000:08a2`"
+          },
+          {
+            "teil": "cc",
+            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\n-\n\nNennen Sie die Präfixlänge und den Interface-Identifier.",
+            "max_punkte": 2,
+            "musterloesung": "Präfixlänge **/64** (1 P) · Interface-Identifier **0000:0000:0000:08a2** bzw. verkürzt `::8a2` (1 P)"
+          },
+          {
+            "teil": "d",
+            "frage": "Nach der Eingabe von `ip addr` erscheint zusätzlich die Adresse `fe80::7a2b:cbff:fe41:9d05`,\ndie niemand konfiguriert hat. Benennen Sie die Adressart und erklären Sie ihre Herkunft.",
+            "max_punkte": 2,
+            "musterloesung": "Es handelt sich um eine **Link-Local-Adresse** (Unicast) aus dem Bereich `fe80::/10` (1 P).\nSie wird von jedem IPv6-fähigen Interface automatisch selbst erzeugt (SLAAC) und ist nur im\nlokalen Netzsegment gültig, sie wird nicht geroutet (1 P)."
+          },
+          {
+            "teil": "e",
+            "frage": "Erläutern Sie eine Möglichkeit, IPv4 und IPv6 im selben Netz parallel zu betreiben.",
+            "max_punkte": 3,
+            "musterloesung": "**Dual-Stack:** Auf denselben Geräten und Netzen werden IPv4- und IPv6-Adressen gleichzeitig\nbetrieben, jedes Gerät kann über beide Protokolle kommunizieren.\nAlternativ **Tunneling:** IPv6-Pakete werden in IPv4-Pakete gekapselt und über das bestehende\nIPv4-Netz transportiert (oder umgekehrt)."
+          },
+          {
+            "teil": "f",
+            "frage": "Sie prüfen drei Geräte mit `ping` und erhalten folgende Ergebnisse:\n\n| Gerät | Paketverlust | Mittelwert Antwortzeit |\n|---|---:|---:|\n| Kasse 1 | 0 % | 3 ms |\n| Kasse 2 | 0 % | 512 ms |\n| Kasse 3 | 75 % | 18 ms |\n\nBenennen Sie für Kasse 2 und Kasse 3 jeweils den kritischen Wert und beschreiben Sie ein Problem,\ndas daraus entstehen kann.",
+            "max_punkte": 4,
+            "musterloesung": "(je Gerät 1 P kritischer Wert, 1 P Problem)\n- **Kasse 2:** kritischer Wert ist die **Antwortzeit von 512 ms**. Sie ist um ein Vielfaches zu hoch.\n  Folge: spürbare Verzögerungen in Anwendungen, Timeouts bei Datenbankzugriffen, abbrechende Sitzungen.\n- **Kasse 3:** kritischer Wert ist der **Paketverlust von 75 %**. Die Verbindung ist instabil.\n  Folge: abbrechende Verbindungen, unvollständige Übertragungen, wiederholte Sendeversuche und dadurch\n  weiter sinkender Durchsatz. Ursache oft defektes Kabel, Duplex-Problem oder überlasteter Port."
+          },
+          {
+            "teil": "g",
+            "frage": "Erläutern Sie anhand eines Beispiels die grundlegende Aufgabe des Address Resolution Protocol (ARP). **3 Punkte**\n\n---",
+            "max_punkte": 3,
+            "musterloesung": "ARP ermittelt zu einer bekannten **IP-Adresse** die zugehörige **MAC-Adresse** im lokalen Netz (2 P).\nBeispiel: Der Rechner will 10.42.16.193 erreichen, kennt aber nur dessen IP. Er sendet einen\nARP-Broadcast „Wer hat 10.42.16.193?\". Das Zielgerät antwortet mit seiner MAC-Adresse, die\nanschließend im ARP-Cache hinterlegt wird (1 P).\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 4,
+        "max_punkte": 25,
+        "intro": "Die Auftragsdaten des Kundenzentrums sollen in einer Datenbank verwaltet werden.",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Erstellen Sie ein Entity-Relationship-Modell für den folgenden Sachverhalt.\nGeben Sie alle Attribute, die Primärschlüssel und die Kardinalitäten an. **6 Punkte**\n\n> Ein Kunde kann mehrere Aufträge erteilen. Jeder Auftrag gehört zu genau einem Kunden.\n> Zu einem Kunden werden Kundennummer, Name, Vorname und Anschrift gespeichert.\n> Zu einem Auftrag werden Auftragsnummer, Auftragsdatum, Betrag und Status gespeichert.",
+            "max_punkte": 6,
+            "musterloesung": "```\n   KUNDE                                    AUFTRAG\n   ---------------------                    ---------------------\n   KundenID (PK)                            AuftragID (PK)\n   Name                     1        n      Auftragsdatum\n   Vorname          -------< erteilt >----- Betrag\n   Anschrift                                Status\n                                            KundenID (FK)\n```\nBewertung: Entitäten mit Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nBeziehung mit korrekter Kardinalität **1 : n** 2 P.\nDie Fremdschlüsselkennung darf entfallen."
+          },
+          {
+            "teil": "ba",
+            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\n-\n\nAlle Aufträge mit einem Betrag über 500 EUR, absteigend nach Betrag sortiert. **3 Punkte**\n-",
+            "max_punkte": 3,
+            "musterloesung": "```sql\nSELECT * FROM Auftrag\nWHERE Betrag > 500\nORDER BY Betrag DESC;\n```"
+          },
+          {
+            "teil": "bb",
+            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\n-\n\nDie Anzahl der Aufträge je Status. **3 Punkte**\n-",
+            "max_punkte": 3,
+            "musterloesung": "```sql\nSELECT Status, COUNT(*) AS Anzahl\nFROM Auftrag\nGROUP BY Status;\n```"
+          },
+          {
+            "teil": "bc",
+            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\n-\n\nDie Summe aller Beträge der Aufträge mit dem Status `offen`.",
+            "max_punkte": 3,
+            "musterloesung": "```sql\nSELECT SUM(Betrag) AS Gesamtbetrag\nFROM Auftrag\nWHERE Status = 'offen';\n```"
+          },
+          {
+            "teil": "c",
+            "frage": "Für die Rechnungsstellung wurde die folgende Funktion entworfen.\n\n```\nFUNKTION rechnungsbetrag(positionen)\n    summe = 0\n    FÜR JEDE position IN positionen\n        menge  = position[\"menge\"]\n        preis  = position[\"einzelpreis\"]\n        zwischensumme = menge * preis\n        WENN menge >= 10 DANN\n            zwischensumme = zwischensumme * 0.90\n        ENDE WENN\n        summe = summe + zwischensumme\n    ENDE FÜR\n    WENN summe > 500 DANN\n        summe = summe * 0.95\n    ENDE WENN\n    RÜCKGABE summe\nENDE FUNKTION\n```\n\nGegeben sind folgende Positionen:\n\n```\npositionen = [\n    { \"menge\": 4,  \"einzelpreis\": 35.00 },\n    { \"menge\": 12, \"einzelpreis\": 18.50 },\n    { \"menge\": 10, \"einzelpreis\": 24.00 }\n]\n```\n\nErmitteln Sie den Zwischenbetrag je Position und den Endbetrag der Rechnung.\nDer Rechenweg ist anzugeben.",
+            "max_punkte": 7,
+            "musterloesung": "(je Position 1,5 P, Endbetrag 2,5 P)\n\n| Position | Menge | Einzelpreis | Zwischensumme | Mengenrabatt | Betrag |\n|---|---:|---:|---:|---|---:|\n| 1 | 4 | 35,00 | 140,00 | nein (Menge < 10) | **140,00** |\n| 2 | 12 | 18,50 | 222,00 | ja, × 0,90 | **199,80** |\n| 3 | 10 | 24,00 | 240,00 | ja, × 0,90 (Menge = 10) | **216,00** |\n\n```\nSumme:            140,00 + 199,80 + 216,00 = 555,80 EUR\n555,80 > 500  →   Gesamtrabatt: 555,80 × 0,95\nEndbetrag:        528,01 EUR\n```\n\nHäufiger Fehler: Position 3 mit Menge **genau 10** — die Bedingung lautet `>= 10`,\nder Rabatt greift also."
+          },
+          {
+            "teil": "d",
+            "frage": "Beim Import eines fremden Kundenbestands stellen Sie Redundanzen fest.\nErklären Sie den Begriff und beschreiben Sie ein Problem, das durch Redundanzen entstehen kann. **3 Punkte**\n\n---\n\n*Ende der Probeprüfung 02*",
+            "max_punkte": 3,
+            "musterloesung": "Redundanz bedeutet, dass dieselbe Information **mehrfach** in der Datenbank gespeichert ist (1 P).\nProblem: **Inkonsistenz** — wird eine Angabe nur an einer Stelle geändert, widersprechen sich die\nDatensätze, Auswertungen werden falsch (1 P). Zusätzlich steigen Speicherbedarf und Pflegeaufwand (1 P).\nAbhilfe: Normalisierung, Auslagerung in eigene Tabellen mit Fremdschlüsselbeziehung."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_id": "probepruefung_03",
+    "title": "Probeprüfung 03 — Schwerpunkt: etwas über dem erwarteten Niveau",
+    "ausgangssituation": "Sie sind Auszubildender bei der **Novatex IT-Solutions GmbH**. Der Kunde **Hafenlogistik Wendt KG**\nrüstet sein Terminal auf ein videogestütztes Zutritts- und Verladesystem um.\nSie betreuen die technische Planung.\n\n---",
+    "aufgaben": [
+      {
+        "aufgabe_nr": 1,
+        "max_punkte": 25,
+        "intro": "Für das Terminal werden Außenkameras beschafft. Aus dem Datenblatt:\n\n```\nSpecifications\n  Maximum resolution & frame rate   3840 x 2160 @ 30 fps\n  Colour depth                      24 bit\n  Power consumption                 Typical: 12 W\n                                    Max. with heater and IR: 51 W\n  Power source                      PoE, IEEE 802.3 compliant switch required\n  Connection                        IEEE 802.3 10/100/1000 Ethernet\n  Note                              The device ships without a default password.\n```",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Die Kamera soll in der Betriebsart „max. with heater and IR\" über das Netzwerkkabel mit Strom\nversorgt werden. Wählen Sie aus der folgenden Tabelle den passenden Standard aus und berechnen Sie\ndie zu erwartende maximale Stromstärke in **mA** bei einer Spannung von **48 V**. **4 Punkte**\n\n| Leistung am Port | Standard |\n|---|---|\n| bis 15,4 W | IEEE 802.3af |\n| bis 30,0 W | IEEE 802.3at |\n| bis 60,0 W | IEEE 802.3bt (Type 3) |\n| bis 90,0 W | IEEE 802.3bt (Type 4) |",
+            "max_punkte": 4,
+            "musterloesung": "Die Betriebsart „max. with heater and IR\" benötigt **51 W**. Das erfüllt erst\n**IEEE 802.3bt (Type 3)** mit bis zu 60 W (2 P).\n```\nI = P / U = 51 W / 48 V = 1,0625 A = 1.062,5 mA                  (2 P)\n```"
+          },
+          {
+            "teil": "b",
+            "frage": "Der Stream soll mit der maximalen Auflösung und Bildrate übertragen und dabei auf **5 %**\nkomprimiert werden.\nBerechnen Sie die erforderliche Datenübertragungsrate in Mbit/s. Runden Sie auf volle Mbit/s auf.\nDer Rechenweg ist anzugeben.",
+            "max_punkte": 4,
+            "musterloesung": "```\n3840 × 2160                 = 8.294.400 Pixel                     (1 P)\n8.294.400 × 24 bit          = 199.065.600 bit je Bild             (1 P)\n199.065.600 × 30 fps        = 5.971.968.000 bit/s\n× 0,05                      = 298.598.400 bit/s = 298,5984 Mbit/s (1 P)\n```\n**Ergebnis: 299 Mbit/s** (aufgerundet, 1 P)"
+          },
+          {
+            "teil": "c",
+            "frage": "Es werden **acht** Kameras betrieben, die Aufnahmen werden **30 Tage** vorgehalten.\nBerechnen Sie die notwendige Speicherkapazität in **TiB**. Runden Sie auf.\nFalls Sie b) nicht lösen konnten, rechnen Sie mit **299 Mbit/s**.\nDer Rechenweg ist anzugeben.",
+            "max_punkte": 5,
+            "musterloesung": "```\n30 Tage = 30 × 24 × 3.600 = 2.592.000 s                           (1 P)\n299.000.000 bit/s × 8 Kameras × 2.592.000 s\n      = 6.200.064.000.000.000 bit                                 (2 P)\n/ 8                         = 775.008.000.000.000 Byte            (1 P)\n/ 1024⁴                     = 704,87 TiB\n```\n**Ergebnis: 705 TiB** (aufgerundet, 1 P)"
+          },
+          {
+            "teil": "d",
+            "frage": "Das Tagesarchiv **einer** Kamera soll über eine Gigabit-Leitung (1 Gbit/s) in ein Rechenzentrum\nübertragen werden. Berechnen Sie die reine Übertragungsdauer und geben Sie sie in Stunden, Minuten\nund Sekunden an. Der Rechenweg ist anzugeben.",
+            "max_punkte": 5,
+            "musterloesung": "```\nTagesmenge einer Kamera:\n299.000.000 bit/s × 86.400 s = 25.833.600.000.000 bit             (2 P)\nÜbertragung bei 1 Gbit/s = 1.000.000.000 bit/s:\n25.833.600.000.000 / 1.000.000.000 = 25.833,6 s                   (2 P)\n25.833,6 s : 3.600 = 7 h Rest 633,6 s = 10 min Rest 33,6 s\n```\n**Ergebnis: 7 Stunden 10 Minuten 34 Sekunden** (aufgerundet, 1 P)"
+          },
+          {
+            "teil": "e",
+            "frage": "Im Datenblatt steht: *„The device ships without a default password.\"*\nBeschreiben Sie zwei mögliche Konsequenzen dieser Voreinstellung.",
+            "max_punkte": 4,
+            "musterloesung": "(je 2 Punkte)\n- Es muss zwingend ein eigenes, den Sicherheitsvorgaben entsprechendes Passwort vergeben werden;\n  ohne Vergabe ist in der Regel kein Zugang möglich. Das erzwingt eine bewusste Konfiguration.\n- Es gibt kein herstellerweit einheitliches Standardpasswort, das aus öffentlichen Listen bekannt\n  sein könnte. Damit entfällt ein sehr häufiger Angriffsweg auf Netzwerkkameras."
+          },
+          {
+            "teil": "f",
+            "frage": "Nennen Sie den Zweck, warum die Kamera in einer Variante mit Heizung angeboten wird.",
+            "max_punkte": 1,
+            "musterloesung": "Die Heizung schützt die Kamera bei niedrigen Außentemperaturen vor Vereisung und Beschlagen der\nOptik und hält sie damit auch im Winter betriebsbereit."
+          },
+          {
+            "teil": "g",
+            "frage": "Die Kameras sollen über einen einzigen Switch versorgt werden. Nennen Sie zwei Angaben, die Sie\nfür die Auswahl dieses Switches zwingend benötigen. **2 Punkte**\n\n---",
+            "max_punkte": 2,
+            "musterloesung": "(je 1 Punkt)\n- **Gesamtes PoE-Leistungsbudget** des Switches (8 Kameras × 51 W = 408 W zuzüglich Reserve)\n- Unterstützter **PoE-Standard je Port** (hier 802.3bt Type 3)\n- ebenfalls zulässig: Anzahl benötigter Ports · Portgeschwindigkeit (mindestens 1 Gbit/s wegen 299 Mbit/s je Kamera)\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 2,
+        "max_punkte": 25,
+        "intro": "",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Ein Kollege hat den folgenden Netzplan bereits ausgefüllt. Die zugrunde liegende Vorgangsliste lautet:\n\n| Vorgang | Dauer | Vorgänger |\n|---|---:|---|\n| A | 2 | – |\n| B | 5 | A |\n| C | 3 | A |\n| D | 4 | B |\n| E | 6 | B, C |\n| F | 2 | D |\n| G | 3 | E |\n| H | 2 | F, G |\n\nDie eingetragenen Werte des Kollegen:\n\n| Vorgang | FAZ | FEZ | SAZ | SEZ | GP | FP |\n|---|---:|---:|---:|---:|---:|---:|\n| A | 0 | 2 | 0 | 2 | 0 | 0 |\n| B | 2 | 7 | 2 | 7 | 0 | 0 |\n| C | 2 | 5 | 2 | 7 | 2 | 2 |\n| D | 7 | 11 | 10 | 14 | 4 | 0 |\n| E | 7 | 13 | 7 | 13 | 0 | 0 |\n| F | 11 | 13 | 14 | 16 | 3 | 0 |\n| G | 13 | 16 | 13 | 16 | 0 | 0 |\n| H | 16 | 18 | 16 | 18 | 0 | 0 |\n\nDer Kollege hat **genau drei Werte falsch** eingetragen. Alle übrigen Werte sind korrekt.\n\nFinden Sie die drei Fehler und tragen Sie sie in die folgende Tabelle ein. **9 Punkte**\n\n| Nr. | Vorgang | falsches Feld | eingetragener Wert | korrekter Wert |\n|---:|---|---|---:|---:|\n| 1 | | | | |\n| 2 | | | | |\n| 3 | | | | |",
+            "max_punkte": 9,
+            "musterloesung": "(je Fehler 3 Punkte: Vorgang und Feld 1 P, korrekter Wert 2 P)\n\nKorrekt gerechnet ergibt sich:\n\n| Vorgang | Dauer | FAZ | FEZ | SAZ | SEZ | GP | FP |\n|---|--:|--:|--:|--:|--:|--:|--:|\n| A | 2 | 0 | 2 | 0 | 2 | 0 | 0 |\n| B | 5 | 2 | 7 | 2 | 7 | 0 | 0 |\n| C | 3 | 2 | 5 | **4** | 7 | 2 | 2 |\n| D | 4 | 7 | 11 | 10 | 14 | **3** | 0 |\n| E | 6 | 7 | 13 | 7 | 13 | 0 | 0 |\n| F | 2 | 11 | 13 | 14 | 16 | 3 | **3** |\n| G | 3 | 13 | 16 | 13 | 16 | 0 | 0 |\n| H | 2 | 16 | 18 | 16 | 18 | 0 | 0 |\n\n| Nr. | Vorgang | falsches Feld | eingetragen | korrekt |\n|---:|---|---|---:|---:|\n| 1 | C | SAZ | 2 | **4** |\n| 2 | D | GP | 4 | **3** |\n| 3 | F | FP | 0 | **3** |\n\nBegründungen:\n1. C: SAZ = SEZ − Dauer = 7 − 3 = **4**. Der Kollege hat den FAZ abgeschrieben.\n2. D: GP = SAZ − FAZ = 10 − 7 = **3** (Gegenprobe SEZ − FEZ = 14 − 11 = 3).\n3. F: FP = FAZ des Nachfolgers H − FEZ von F = 16 − 13 = **3**."
+          },
+          {
+            "teil": "b",
+            "frage": "Geben Sie die Projektdauer an und nennen Sie die Vorgänge des kritischen Pfads.",
+            "max_punkte": 2,
+            "musterloesung": "Projektdauer **18 Tage** (1 P) · kritischer Pfad **A – B – E – G – H** (1 P)"
+          },
+          {
+            "teil": "c",
+            "frage": "Für das Projekt wird ein Angebot kalkuliert:\n\n- 18 Kameras zu je 489,00 EUR netto\n- 4 PoE-Switches zu je 1.290,00 EUR netto\n- 1 Aufzeichnungsserver zu 2.450,00 EUR netto\n- 3 Arbeitstage Montage zu je 640,00 EUR netto\n\nBerechnen Sie den Nettobetrag und den Bruttobetrag bei 19 % Umsatzsteuer.\nDer Rechenweg ist anzugeben.",
+            "max_punkte": 5,
+            "musterloesung": "```\nKameras:   18 × 489,00 EUR   =  8.802,00 EUR                      (1 P)\nSwitches:   4 × 1.290,00 EUR =  5.160,00 EUR                      (1 P)\nServer:     1 × 2.450,00 EUR =  2.450,00 EUR\nMontage:    3 ×  640,00 EUR  =  1.920,00 EUR                      (1 P)\n---------------------------------------------\nNettobetrag                  = 18.332,00 EUR                      (1 P)\nBruttobetrag: 18.332,00 × 1,19 = 21.815,08 EUR                    (1 P)\n```"
+          },
+          {
+            "teil": "d",
+            "frage": "Zusätzlich wird ein Wartungsvertrag über **5 Jahre** zu **1.180,00 EUR netto pro Jahr** angeboten.\nBerechnen Sie die Gesamtkosten über fünf Jahre netto und brutto.",
+            "max_punkte": 4,
+            "musterloesung": "```\nWartung 5 Jahre: 5 × 1.180,00 EUR = 5.900,00 EUR                  (1 P)\nNetto gesamt:  18.332,00 + 5.900,00 = 24.232,00 EUR               (2 P)\nBrutto gesamt: 24.232,00 × 1,19    = 28.836,08 EUR                (1 P)\n```"
+          },
+          {
+            "teil": "e",
+            "frage": "Die Hafenlogistik Wendt KG überlegt, die Anlage stattdessen zu leasen.\nBeschreiben Sie drei Vorteile der Beschaffung über Leasing.",
+            "max_punkte": 3,
+            "musterloesung": "(je 1 Punkt)\ngleichbleibende, gut planbare monatliche Kosten · keine hohe Anfangsinvestition, Liquidität bleibt\nerhalten · stets aktuelle Technik durch Austausch am Vertragsende · Wartung und Service häufig im\nVertrag enthalten · Leasingraten sind als Betriebsausgaben absetzbar · Bilanzneutralität"
+          },
+          {
+            "teil": "f",
+            "frage": "Nennen Sie zwei Möglichkeiten, die nach Ablauf der Leasingdauer bestehen. **2 Punkte**\n\n---",
+            "max_punkte": 2,
+            "musterloesung": "(je 1 Punkt)\nKauf der Anlage zum Restwert · Verlängerung des bestehenden Leasingvertrags ·\nAbschluss eines neuen Leasingvertrags über modernere Technik · Rückgabe der Anlage\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 3,
+        "max_punkte": 25,
+        "intro": "Für die Abrechnung der Softwarelizenzen wird eine Funktion entwickelt.",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Die Klasse `LizenzRechner` soll folgende Attribute besitzen:\n\n- `preisBasis` — Preis einer Basis-Lizenz in EUR\n- `preisPro` — Preis einer Pro-Lizenz in EUR\n- `preisEnterprise` — Preis einer Enterprise-Lizenz in EUR\n- `rabattGrenze` — Betrag, ab dem ein Nachlass gewährt wird\n\nAlle Attribute haben den Datentyp `double` und sind **privat**.\nDie öffentlich sichtbare Methode `berechneKosten(kunden: List<Kunde>): double` ist bereits vorgegeben.\n\nErstellen Sie das UML-Klassendiagramm mit Klassenname, Attributen, Datentypen und Sichtbarkeiten.",
+            "max_punkte": 5,
+            "musterloesung": "```\n+---------------------------------------------------------+\n|                     LizenzRechner                        |\n+---------------------------------------------------------+\n| - preisBasis : double                                    |\n| - preisPro : double                                      |\n| - preisEnterprise : double                               |\n| - rabattGrenze : double                                  |\n+---------------------------------------------------------+\n| + berechneKosten(kunden: List<Kunde>) : double           |\n+---------------------------------------------------------+\n```\nBewertung: Klassenname 1 P · vier Attribute 2 P · Datentyp `double` durchgängig 1 P ·\nSichtbarkeit `-` bei allen Attributen 1 P."
+          },
+          {
+            "teil": "b",
+            "frage": "Die Kosten werden mit folgender Funktion berechnet:\n\n```\nFUNKTION berechneKosten(positionen)\n    gesamt = 0\n    FÜR JEDE position IN positionen\n        typ  = position[\"typ\"]\n        anz  = position[\"anzahl\"]\n\n        WENN typ = \"Basis\" DANN\n            kosten = anz * 9.50\n        SONST WENN typ = \"Pro\" DANN\n            kosten = anz * 21.00\n        SONST\n            kosten = anz * 48.00\n        ENDE WENN\n\n        WENN anz >= 10 DANN\n            kosten = kosten * 0.85\n        SONST WENN anz >= 5 DANN\n            kosten = kosten * 0.95\n        ENDE WENN\n\n        gesamt = gesamt + kosten\n    ENDE FÜR\n\n    WENN gesamt > 400 DANN\n        gesamt = gesamt - 25\n    ENDE WENN\n\n    RÜCKGABE gesamt\nENDE FUNKTION\n```\n\nGegeben sind folgende Positionen:\n\n```\npositionen = [\n    { \"typ\": \"Basis\",      \"anzahl\": 3  },\n    { \"typ\": \"Pro\",        \"anzahl\": 7  },\n    { \"typ\": \"Basis\",      \"anzahl\": 12 },\n    { \"typ\": \"Pro\",        \"anzahl\": 4  },\n    { \"typ\": \"Enterprise\", \"anzahl\": 2  }\n]\n```\n\nErmitteln Sie die Kosten jeder einzelnen Position und den Endbetrag.\nLegen Sie eine Wertetabelle an. Der Rechenweg ist anzugeben.",
+            "max_punkte": 10,
+            "musterloesung": "(je Position 1,5 P, Endbetrag 2,5 P)\n\n| Nr. | Typ | Anzahl | Grundpreis | Rechnung | Staffel | Betrag |\n|---:|---|---:|---:|---|---|---:|\n| 1 | Basis | 3 | 9,50 | 3 × 9,50 = 28,50 | keine (Anzahl < 5) | **28,50** |\n| 2 | Pro | 7 | 21,00 | 7 × 21,00 = 147,00 | × 0,95 (5 ≤ Anzahl < 10) | **139,65** |\n| 3 | Basis | 12 | 9,50 | 12 × 9,50 = 114,00 | × 0,85 (Anzahl ≥ 10) | **96,90** |\n| 4 | Pro | 4 | 21,00 | 4 × 21,00 = 84,00 | keine | **84,00** |\n| 5 | Enterprise | 2 | 48,00 | 2 × 48,00 = 96,00 | keine | **96,00** |\n\n```\nZwischensumme: 28,50 + 139,65 + 96,90 + 84,00 + 96,00 = 445,05 EUR\n445,05 > 400  →  Abzug von 25,00 EUR\nEndbetrag:     420,05 EUR\n```\n\nStolperstellen: Die Staffel wird über `SONST WENN` geprüft — bei Anzahl 12 greift **nur** die\n15-Prozent-Stufe, nicht zusätzlich die 5-Prozent-Stufe. Der Schlussrabatt ist ein **fester Abzug**\nvon 25 EUR, kein Prozentsatz."
+          },
+          {
+            "teil": "c",
+            "frage": "Erläutern Sie den wesentlichen Unterschied zwischen einer Compiler- und einer Interpretersprache.",
+            "max_punkte": 3,
+            "musterloesung": "Ein **Compiler** übersetzt den gesamten Quelltext vor der Ausführung einmal vollständig in\nMaschinencode; das Programm läuft danach eigenständig und schnell, muss aber für jede Zielplattform\nneu übersetzt werden.\nEin **Interpreter** übersetzt und führt den Quelltext zur Laufzeit Anweisung für Anweisung aus;\ndas ist plattformunabhängiger und beim Testen flexibler, aber in der Ausführung langsamer."
+          },
+          {
+            "teil": "d",
+            "frage": "Nennen Sie zwei Vorteile objektorientierter gegenüber prozeduraler Programmierung.",
+            "max_punkte": 2,
+            "musterloesung": "(je 1 Punkt)\nWiederverwendbarkeit durch Klassen und Vererbung · Kapselung schützt Daten vor unkontrolliertem\nZugriff · bessere Wartbarkeit und Erweiterbarkeit großer Programme · realitätsnähere Modellierung ·\nArbeitsteilung im Team wird einfacher"
+          },
+          {
+            "teil": "e",
+            "frage": "Ergänzen Sie das Entity-Relationship-Modell für folgenden Sachverhalt.\nKennzeichnen Sie die Primärschlüssel und geben Sie die Kardinalitäten an. **5 Punkte**\n\n> Ein Kunde kann mehrere Lizenzen besitzen, eine Lizenz gehört zu genau einem Kunden.\n> Gespeichert werden: Kundennummer, Firmenname, Ansprechpartner sowie\n> Lizenznummer, Lizenztyp, Gültigkeitsbeginn und Gültigkeitsende.\n\n---",
+            "max_punkte": 5,
+            "musterloesung": "```\n   KUNDE                                     LIZENZ\n   ---------------------                     ---------------------\n   Kundennummer (PK)                         Lizenznummer (PK)\n   Firmenname               1        n       Lizenztyp\n   Ansprechpartner  -------< besitzt >------ Gueltigkeitsbeginn\n                                             Gueltigkeitsende\n                                             Kundennummer (FK)\n```\nBewertung: zwei Entitäten mit vollständigen Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nKardinalität **1 : n** 1 P.\n\n---"
+          }
+        ]
+      },
+      {
+        "aufgabe_nr": 4,
+        "max_punkte": 25,
+        "intro": "",
+        "teilaufgaben": [
+          {
+            "teil": "a",
+            "frage": "Die Aufnahmen des Parkplatzes vor dem Terminal erfassen auch öffentlich zugängliche Flächen.\nNennen Sie zwei rechtliche Vorgaben, die dabei zu beachten sind.",
+            "max_punkte": 2,
+            "musterloesung": "(je 1 Punkt)\nHinweisschild auf die Videoüberwachung gut sichtbar anbringen · öffentlich zugängliche Flächen\nmöglichst nicht erfassen bzw. unkenntlich machen · zulässige Speicherfristen einhalten und\nAufnahmen danach löschen · Zugriff auf die Aufnahmen auf berechtigte Personen beschränken ·\nVerarbeitungsverzeichnis führen"
+          },
+          {
+            "teil": "b",
+            "frage": "Nennen Sie eine rechtliche Grundlage für den Umgang mit personenbezogenen Daten und\nbeschreiben Sie deren Zweck.",
+            "max_punkte": 3,
+            "musterloesung": "**DSGVO** (Datenschutz-Grundverordnung), ergänzend das **BDSG** (1 P).\nZweck: Sie schützt personenbezogene Daten vor unbefugter Erhebung, Verarbeitung, Veränderung und\nWeitergabe (1 P) und gibt den Betroffenen Rechte wie Auskunft, Berichtigung und Löschung (1 P)."
+          },
+          {
+            "teil": "ca",
+            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\n-\n\nBeschreiben Sie in vier Schritten den Ablauf, wenn der Betriebsleiter eine vertrauliche\n  E-Mail an den Dienstleister senden möchte. **4 Punkte**\n-",
+            "max_punkte": 4,
+            "musterloesung": "(je Schritt 1 Punkt)\n1. Der Dienstleister übermittelt seinen **öffentlichen** Schlüssel an den Betriebsleiter.\n2. Der Betriebsleiter verschlüsselt die E-Mail mit dem **öffentlichen Schlüssel des Dienstleisters**.\n3. Die verschlüsselte E-Mail wird übertragen; sie ist unterwegs nicht lesbar.\n4. Der Dienstleister entschlüsselt sie mit seinem **privaten** Schlüssel."
+          },
+          {
+            "teil": "cb",
+            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\n-\n\nNennen Sie das damit erreichte IT-Schutzziel. **1 Punkt**\n-",
+            "max_punkte": 1,
+            "musterloesung": "— **Vertraulichkeit**"
+          },
+          {
+            "teil": "cc",
+            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\n-\n\nNennen Sie einen Vorteil und einen Nachteil der asymmetrischen gegenüber der\n  symmetrischen Verschlüsselung.",
+            "max_punkte": 2,
+            "musterloesung": "Vorteil: Der geheime Schlüssel muss nicht übertragen werden, nur der öffentliche wird verteilt —\nkein Problem des sicheren Schlüsselaustauschs (1 P).\nNachteil: Das Verfahren ist rechenintensiver und damit deutlich langsamer als die symmetrische\nVerschlüsselung (1 P)."
+          },
+          {
+            "teil": "d",
+            "frage": "Auf der Herstellerseite wird neben der Installationsdatei ein SHA-256-Hashwert veröffentlicht.\nErläutern Sie den Zweck dieses Hashwerts.",
+            "max_punkte": 3,
+            "musterloesung": "Der Hashwert dient der **Integritätsprüfung** der heruntergeladenen Datei (1 P).\nDer Anwender berechnet den Hash der Datei selbst und vergleicht ihn mit dem veröffentlichten Wert (1 P).\nStimmen beide überein, wurde die Datei bei der Übertragung weder beschädigt noch manipuliert (1 P)."
+          },
+          {
+            "teil": "e",
+            "frage": "Zum Thema Absicherung finden Sie folgenden englischen Herstellertext:\n\n> *Before connecting the system to your production network, apply the following measures.\n> Replace all factory-set credentials with individual passwords. Segment the camera network from\n> the office LAN by using a separate VLAN. Keep the firmware up to date, since outdated firmware is\n> the most common entry point for attackers. Restrict administrative access to a defined range of\n> management workstations. Finally, enable logging so that unauthorised access attempts can be traced\n> afterwards.*\n\nNennen Sie **fünf** Sicherheitsmaßnahmen, die in diesem Text beschrieben werden.",
+            "max_punkte": 5,
+            "musterloesung": "(je 1 Punkt)\n1. Werkseitig gesetzte Zugangsdaten durch individuelle Passwörter ersetzen\n2. Das Kameranetz per eigenem **VLAN** vom Büro-LAN trennen\n3. Die **Firmware aktuell** halten\n4. Den administrativen Zugriff auf festgelegte Management-Arbeitsplätze beschränken\n5. **Protokollierung** aktivieren, damit unberechtigte Zugriffsversuche nachvollziehbar sind"
+          },
+          {
+            "teil": "f",
+            "frage": "Der Betriebsleiter schlägt vor, allen Mitarbeitern Administratorrechte zu geben,\ndamit sie sich seltener beim Support melden müssen.\nErläutern Sie einen Grund, warum dieses Vorgehen aus Sicherheitsgründen nicht zu empfehlen ist.",
+            "max_punkte": 3,
+            "musterloesung": "Mit Administratorrechten läuft auch **Schadsoftware mit vollen Rechten** (1 P) und kann Systemdateien\nverändern, Sicherheitsfunktionen abschalten und sich im Netz ausbreiten (1 P).\nNach dem Prinzip der minimalen Rechtevergabe sollten Anwender nur eingeschränkte Rechte erhalten und\nAdministratorrechte nur bei Bedarf und zeitlich begrenzt bekommen (1 P)."
+          },
+          {
+            "teil": "g",
+            "frage": "Nennen Sie zwei Maßnahmen, mit denen die Verfügbarkeit des Aufzeichnungsservers erhöht werden kann. **2 Punkte**\n\n---\n\n*Ende der Probeprüfung 03*",
+            "max_punkte": 2,
+            "musterloesung": "(je 1 Punkt)\nunterbrechungsfreie Stromversorgung (USV) · redundante Netzteile · RAID-Verbund ·\nCluster oder zweiter Server als Failover · regelmäßige Datensicherung mit getestetem Wiederanlauf ·\nWartungsvertrag mit garantierter Reaktionszeit · Klimatisierung und Überwachung des Serverraums"
+          }
+        ]
+      }
+    ]
+  }
+]
