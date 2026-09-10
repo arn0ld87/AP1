@@ -54,6 +54,11 @@ Es existiert ein genehmigter Plan, dieses statische Material in eine Lovable-App
 
 - Spec: `docs/superpowers/specs/2026-09-10-lovable-ap1-plattform-design.md`
 - Plan: `docs/superpowers/plans/2026-09-10-lovable-ap1-plattform.md`
+- Warum/Ausgangslage: [docs/context.md](docs/context.md)
+- Produktvision & Nicht-Ziele: [docs/vision.md](docs/vision.md)
+- Architektur & Feature-Module: [docs/architecture.md](docs/architecture.md)
+- Datenmodell (Supabase/Postgres): [docs/data-model.md](docs/data-model.md)
+- API / KI-Bewertungs-Flow (Edge Function): [docs/api.md](docs/api.md)
 
 Der Plan sieht lokale Python-Migrationsskripte unter `scripts/migrate/` vor (reines Stdlib, keine
 Zusatzpakete), die die `.md`-Dateien nach `data/migration/*.json` überführen, sowie eine Serie von
