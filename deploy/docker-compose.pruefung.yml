@@ -1,0 +1,48 @@
+# =============================================================================
+# AP1-Lernplattform -- Frontend auf armserver (pruefung.alexle135.de)
+# =============================================================================
+# Liegt auf armserver unter /opt/pruefung-frontend/. Der Router dazu steht in
+# /opt/traefik/dynamic/pruefung.yml (Vorlage: deploy/traefik-pruefung.yml).
+#
+# Das Netz `proxy` ist extern und gehoert Traefik. Der Container veroeffentlicht
+# keinen Port auf dem Host -- erreichbar ist er ausschliesslich ueber Traefik
+# (Entry Point tswebsecure, also nur aus dem Tailscale-Netz).
+#
+# Supabase erreicht der Container ueber denselben Namen wie der Browser
+# (https://supabase.alexle135.de): die Adresse im Browser-Bundle und die
+# Adresse in der SSR-/Server-Laufzeit muessen identisch sein, sonst stimmen die
+# Sitzungs-Cookies nicht ueberein.
+#
+# .env neben dieser Datei (nie committen):
+#   VITE_SUPABASE_URL=https://supabase.alexle135.de
+#   VITE_SUPABASE_PUBLISHABLE_KEY=<anon-key, Vaultwarden: SUPABASE_ARMSERVER_ANON_KEY>
+# =============================================================================
+
+services:
+  pruefung-frontend:
+    build:
+      context: ../app
+      args:
+        # Wandern ins Browser-Bundle. Oeffentlich (anon-Key + RLS).
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+    image: pruefung-frontend:aktuell
+    container_name: pruefung-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+    networks:
+      - proxy
+    healthcheck:
+      # Node statt curl -- das Image bringt kein curl mit.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  proxy:
+    external: true
