@@ -1,9 +1,8 @@
 name: Bootstrap roadmap metadata
 
 on:
-  push:
-    paths:
-      - .github/workflows/bootstrap-roadmap.yml
+  issues:
+    types: [opened]
 
 permissions:
   issues: write
