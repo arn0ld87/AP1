@@ -11,6 +11,17 @@ AUFGABE_RE = re.compile(r"^## (\d+)\. Aufgabe \((\d+) Punkte\)\s*$", re.MULTILIN
 TEIL_Q_RE = re.compile(r"\*\*([a-z]{1,2})\)\*\*")
 TEIL_L_RE = re.compile(r"\*\*([a-z]{1,2})\)\s*(\d+)\s*Punkte?\*\*")
 TRAILING_PUNKTE_RE = re.compile(r"\*\*(\d+)\s*Punkte?\*\*\s*$")
+TRAILING_DIVIDER_RE = re.compile(r"\n?-{3,}\s*(?:\*Ende der Probepr[üu]fung[^\n]*\*)?\s*$")
+
+
+def strip_trailing_noise(span: str) -> str:
+    """Drop the section divider (and, for a file's final teilaufgabe, the
+    closing '*Ende der Probeprüfung N*' line) that split_aufgaben's last
+    teilaufgabe of each Aufgabe inherits from the source markdown, then
+    the now-exposed trailing points annotation."""
+    span = TRAILING_DIVIDER_RE.sub("", span).strip()
+    span = TRAILING_PUNKTE_RE.sub("", span).strip()
+    return span
 
 
 def split_aufgaben(text: str) -> list[tuple[int, int, str]]:
@@ -33,7 +44,7 @@ def parse_question_aufgabe(block: str) -> tuple[str, dict[str, str]]:
         start = m.end()
         end = markers[i + 1].start() if i + 1 < len(markers) else len(block)
         span = block[start:end].strip()
-        span = TRAILING_PUNKTE_RE.sub("", span).strip()
+        span = strip_trailing_noise(span)
         teile[letter] = span
     return intro, teile
 

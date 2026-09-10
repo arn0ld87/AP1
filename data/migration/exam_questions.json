@@ -35,7 +35,7 @@
           },
           {
             "teil": "e",
-            "frage": "Grundlage des Auftrags ist ein Lastenheft der VeloWerk GmbH.\nBenennen Sie vier inhaltliche Aspekte, die üblicherweise in einem Lastenheft enthalten sind. **4 Punkte**\n\n---",
+            "frage": "Grundlage des Auftrags ist ein Lastenheft der VeloWerk GmbH.\nBenennen Sie vier inhaltliche Aspekte, die üblicherweise in einem Lastenheft enthalten sind.",
             "max_punkte": 4,
             "musterloesung": "(je 1 Punkt)\nKurzvorstellung des Auftraggebers · Definition des Projektziels · Beschreibung der bestehenden\nIT-Infrastruktur · funktionale Anforderungen · Zeitrahmen · Rahmenbedingungen zu IT-Sicherheit und\nDatenschutz · Abnahmekriterien · Budgetrahmen\n\n---"
           }
@@ -78,7 +78,7 @@
           },
           {
             "teil": "f",
-            "frage": "Nennen Sie drei weitere Maßnahmen zur Senkung der Energiekosten an IT-Arbeitsplätzen. **3 Punkte**\n\n---",
+            "frage": "Nennen Sie drei weitere Maßnahmen zur Senkung der Energiekosten an IT-Arbeitsplätzen.",
             "max_punkte": 3,
             "musterloesung": "(je 1 Punkt)\nschaltbare Steckdosenleisten gegen Standby-Verbrauch · Energiesparoptionen des Betriebssystems\naktivieren · Geräte mit guter Energieeffizienzklasse beschaffen · Thin Clients statt vollwertiger PCs ·\nMonitore mit LED-Hintergrundbeleuchtung · Servervirtualisierung zur Reduzierung der Gerätezahl ·\nAbschaltung nicht benötigter Geräte außerhalb der Arbeitszeit\n\n---"
           }
@@ -121,7 +121,7 @@
           },
           {
             "teil": "f",
-            "frage": "Die Kameras erhalten Adressen aus dem Bereich 192.168.30.0/24.\nBeschreiben Sie, wie sich diese Adressen hinsichtlich ihrer Erreichbarkeit aus dem Internet verhalten. **3 Punkte**\n\n---",
+            "frage": "Die Kameras erhalten Adressen aus dem Bereich 192.168.30.0/24.\nBeschreiben Sie, wie sich diese Adressen hinsichtlich ihrer Erreichbarkeit aus dem Internet verhalten.",
             "max_punkte": 3,
             "musterloesung": "Es handelt sich um **private IP-Adressen** (1 P). Sie werden im Internet nicht geroutet (1 P) und\nsind daher von außen nicht direkt erreichbar; ein Zugriff nach außen erfolgt nur über NAT am Router (1 P).\n\n---"
           }
@@ -170,7 +170,7 @@
           },
           {
             "teil": "eb",
-            "frage": "Die Konstruktionsdaten werden derzeit freitags beim Herunterfahren auf eine zweite Partition\nderselben Festplatte gesichert.\n\n-\n\nUnterbreiten Sie einen konkreten Verbesserungsvorschlag. **3 Punkte**\n\n---\n\n*Ende der Probeprüfung 01*",
+            "frage": "Die Konstruktionsdaten werden derzeit freitags beim Herunterfahren auf eine zweite Partition\nderselben Festplatte gesichert.\n\n-\n\nUnterbreiten Sie einen konkreten Verbesserungsvorschlag.",
             "max_punkte": 3,
             "musterloesung": "Sicherung auf ein **externes Medium** (1 P), das nach dem Sichern getrennt und **an einem anderen Ort**\nverwahrt wird (1 P), mit mindestens **täglicher** Sicherung der veränderten Daten nach dem\nGenerationenprinzip und regelmäßigem Test der Rücksicherung (1 P)."
           }
@@ -214,7 +214,7 @@
           },
           {
             "teil": "e",
-            "frage": "Nennen Sie zwei Kaufvertragsstörungen und geben Sie zu jeder eine Maßnahme an,\nmit der der Kunde ihr vorbeugen kann. **4 Punkte**\n\n---",
+            "frage": "Nennen Sie zwei Kaufvertragsstörungen und geben Sie zu jeder eine Maßnahme an,\nmit der der Kunde ihr vorbeugen kann.",
             "max_punkte": 4,
             "musterloesung": "(je Störung 1 P, je Maßnahme 1 P)\n- **Lieferverzug** → Liefertermin vertraglich fixieren, Vertragsstrafe vereinbaren, Lieferanten sorgfältig auswählen, frühzeitig mahnen\n- **Mangelhafte Lieferung** → Ware unverzüglich prüfen, Qualitätsanforderungen im Vertrag festhalten, Referenzen einholen\n- weitere zulässig: Annahmeverzug, Zahlungsverzug, Nichtlieferung\n\n---"
           }
@@ -257,7 +257,7 @@
           },
           {
             "teil": "f",
-            "frage": "Für einen Arbeitsplatzrechner soll das Netzteil ausgewählt werden. Netzteile stehen von\n400 W bis 1.200 W in 50-W-Schritten zur Verfügung. Zur ermittelten Leistungsaufnahme ist ein\nPuffer von **15 %** hinzuzurechnen.\n\n| Komponente | max. Leistungsaufnahme je Stück | Anzahl |\n|---|---:|---:|\n| Prozessor | 125 W | 1 |\n| Grafikkarte | 220 W | 1 |\n| Mainboard inkl. RAM | 60 W | 1 |\n| SSD | 8 W | 2 |\n| Gehäuselüfter | 4 W | 3 |\n\nBerechnen Sie die Leistungsaufnahme mit Puffer und benennen Sie das auszuwählende Netzteil. **5 Punkte**\n\n---",
+            "frage": "Für einen Arbeitsplatzrechner soll das Netzteil ausgewählt werden. Netzteile stehen von\n400 W bis 1.200 W in 50-W-Schritten zur Verfügung. Zur ermittelten Leistungsaufnahme ist ein\nPuffer von **15 %** hinzuzurechnen.\n\n| Komponente | max. Leistungsaufnahme je Stück | Anzahl |\n|---|---:|---:|\n| Prozessor | 125 W | 1 |\n| Grafikkarte | 220 W | 1 |\n| Mainboard inkl. RAM | 60 W | 1 |\n| SSD | 8 W | 2 |\n| Gehäuselüfter | 4 W | 3 |\n\nBerechnen Sie die Leistungsaufnahme mit Puffer und benennen Sie das auszuwählende Netzteil.",
             "max_punkte": 5,
             "musterloesung": "```\nProzessor       1 × 125 W = 125 W\nGrafikkarte     1 × 220 W = 220 W\nMainboard/RAM   1 ×  60 W =  60 W\nSSD             2 ×   8 W =  16 W\nGehäuselüfter   3 ×   4 W =  12 W\n------------------------------------\nSumme                     = 433 W                                (2 P)\nPuffer 15 %:  433 W × 1,15 = 497,95 W                            (2 P)\nNächste verfügbare Stufe: 500-W-Netzteil                         (1 P)\n```\n\n---"
           }
@@ -318,7 +318,7 @@
           },
           {
             "teil": "g",
-            "frage": "Erläutern Sie anhand eines Beispiels die grundlegende Aufgabe des Address Resolution Protocol (ARP). **3 Punkte**\n\n---",
+            "frage": "Erläutern Sie anhand eines Beispiels die grundlegende Aufgabe des Address Resolution Protocol (ARP).",
             "max_punkte": 3,
             "musterloesung": "ARP ermittelt zu einer bekannten **IP-Adresse** die zugehörige **MAC-Adresse** im lokalen Netz (2 P).\nBeispiel: Der Rechner will 10.42.16.193 erreichen, kennt aber nur dessen IP. Er sendet einen\nARP-Broadcast „Wer hat 10.42.16.193?\". Das Zielgerät antwortet mit seiner MAC-Adresse, die\nanschließend im ARP-Cache hinterlegt wird (1 P).\n\n---"
           }
@@ -361,7 +361,7 @@
           },
           {
             "teil": "d",
-            "frage": "Beim Import eines fremden Kundenbestands stellen Sie Redundanzen fest.\nErklären Sie den Begriff und beschreiben Sie ein Problem, das durch Redundanzen entstehen kann. **3 Punkte**\n\n---\n\n*Ende der Probeprüfung 02*",
+            "frage": "Beim Import eines fremden Kundenbestands stellen Sie Redundanzen fest.\nErklären Sie den Begriff und beschreiben Sie ein Problem, das durch Redundanzen entstehen kann.",
             "max_punkte": 3,
             "musterloesung": "Redundanz bedeutet, dass dieselbe Information **mehrfach** in der Datenbank gespeichert ist (1 P).\nProblem: **Inkonsistenz** — wird eine Angabe nur an einer Stelle geändert, widersprechen sich die\nDatensätze, Auswertungen werden falsch (1 P). Zusätzlich steigen Speicherbedarf und Pflegeaufwand (1 P).\nAbhilfe: Normalisierung, Auslagerung in eigene Tabellen mit Fremdschlüsselbeziehung."
           }
@@ -417,7 +417,7 @@
           },
           {
             "teil": "g",
-            "frage": "Die Kameras sollen über einen einzigen Switch versorgt werden. Nennen Sie zwei Angaben, die Sie\nfür die Auswahl dieses Switches zwingend benötigen. **2 Punkte**\n\n---",
+            "frage": "Die Kameras sollen über einen einzigen Switch versorgt werden. Nennen Sie zwei Angaben, die Sie\nfür die Auswahl dieses Switches zwingend benötigen.",
             "max_punkte": 2,
             "musterloesung": "(je 1 Punkt)\n- **Gesamtes PoE-Leistungsbudget** des Switches (8 Kameras × 51 W = 408 W zuzüglich Reserve)\n- Unterstützter **PoE-Standard je Port** (hier 802.3bt Type 3)\n- ebenfalls zulässig: Anzahl benötigter Ports · Portgeschwindigkeit (mindestens 1 Gbit/s wegen 299 Mbit/s je Kamera)\n\n---"
           }
@@ -460,7 +460,7 @@
           },
           {
             "teil": "f",
-            "frage": "Nennen Sie zwei Möglichkeiten, die nach Ablauf der Leasingdauer bestehen. **2 Punkte**\n\n---",
+            "frage": "Nennen Sie zwei Möglichkeiten, die nach Ablauf der Leasingdauer bestehen.",
             "max_punkte": 2,
             "musterloesung": "(je 1 Punkt)\nKauf der Anlage zum Restwert · Verlängerung des bestehenden Leasingvertrags ·\nAbschluss eines neuen Leasingvertrags über modernere Technik · Rückgabe der Anlage\n\n---"
           }
@@ -497,7 +497,7 @@
           },
           {
             "teil": "e",
-            "frage": "Ergänzen Sie das Entity-Relationship-Modell für folgenden Sachverhalt.\nKennzeichnen Sie die Primärschlüssel und geben Sie die Kardinalitäten an. **5 Punkte**\n\n> Ein Kunde kann mehrere Lizenzen besitzen, eine Lizenz gehört zu genau einem Kunden.\n> Gespeichert werden: Kundennummer, Firmenname, Ansprechpartner sowie\n> Lizenznummer, Lizenztyp, Gültigkeitsbeginn und Gültigkeitsende.\n\n---",
+            "frage": "Ergänzen Sie das Entity-Relationship-Modell für folgenden Sachverhalt.\nKennzeichnen Sie die Primärschlüssel und geben Sie die Kardinalitäten an. **5 Punkte**\n\n> Ein Kunde kann mehrere Lizenzen besitzen, eine Lizenz gehört zu genau einem Kunden.\n> Gespeichert werden: Kundennummer, Firmenname, Ansprechpartner sowie\n> Lizenznummer, Lizenztyp, Gültigkeitsbeginn und Gültigkeitsende.",
             "max_punkte": 5,
             "musterloesung": "```\n   KUNDE                                     LIZENZ\n   ---------------------                     ---------------------\n   Kundennummer (PK)                         Lizenznummer (PK)\n   Firmenname               1        n       Lizenztyp\n   Ansprechpartner  -------< besitzt >------ Gueltigkeitsbeginn\n                                             Gueltigkeitsende\n                                             Kundennummer (FK)\n```\nBewertung: zwei Entitäten mit vollständigen Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nKardinalität **1 : n** 1 P.\n\n---"
           }
@@ -558,7 +558,7 @@
           },
           {
             "teil": "g",
-            "frage": "Nennen Sie zwei Maßnahmen, mit denen die Verfügbarkeit des Aufzeichnungsservers erhöht werden kann. **2 Punkte**\n\n---\n\n*Ende der Probeprüfung 03*",
+            "frage": "Nennen Sie zwei Maßnahmen, mit denen die Verfügbarkeit des Aufzeichnungsservers erhöht werden kann.",
             "max_punkte": 2,
             "musterloesung": "(je 1 Punkt)\nunterbrechungsfreie Stromversorgung (USV) · redundante Netzteile · RAID-Verbund ·\nCluster oder zweiter Server als Failover · regelmäßige Datensicherung mit getestetem Wiederanlauf ·\nWartungsvertrag mit garantierter Reaktionszeit · Klimatisierung und Überwachung des Serverraums"
           }
