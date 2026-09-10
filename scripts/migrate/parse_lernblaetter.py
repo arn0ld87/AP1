@@ -47,6 +47,7 @@ def parse_file(path: Path) -> dict:
         m = re.match(r"^## (.+)$", line)
         if m:
             flush()
+            buf = []
             heading = m.group(1).strip()
             key = match_canonical(heading)
             if not seen_first_heading:
@@ -56,7 +57,6 @@ def parse_file(path: Path) -> dict:
                 )
             if key is not None:
                 current_key = key
-                buf = []
             else:
                 buf.append(line)
         else:
