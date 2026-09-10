@@ -56,6 +56,10 @@ migriert unter `data/migration/*.json` bzw. in der `exam_questions`-Tabelle vor.
   `ap1.alexle135.de` hinter Traefik auf dem armserver — ursprünglich als „bewusst out of scope"
   geplant, seit dem Pivot weg von Lovables eigenem Live-Deploy das tatsächliche Ziel (noch nicht
   live).
+- CI: PR-Checks via GitHub Actions (`.github/workflows/pr-check.yml`, [PR #38](https://github.com/arn0ld87/AP1/pull/38))
+  — fünf parallele Jobs: ESLint + Prettier, `tsc --noEmit`, Vite-Build, `deno check` der Edge
+  Function, `py_compile` der Migrationsskripte. Kein Deploy-Workflow — Deploy erfolgt weiterhin
+  manuell (Task 16).
 
 ## Design-System
 
