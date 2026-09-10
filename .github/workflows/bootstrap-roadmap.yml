@@ -1,0 +1,66 @@
+name: Bootstrap roadmap metadata
+
+on:
+  push:
+    paths:
+      - .github/workflows/bootstrap-roadmap.yml
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create roadmap labels and milestones
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$GITHUB_REPOSITORY"
+
+          ensure_label() {
+            local name="$1" color="$2" description="$3"
+            if gh api "repos/$repo/labels/$name" >/dev/null 2>&1; then
+              gh api -X PATCH "repos/$repo/labels/$name" -f new_name="$name" -f color="$color" -f description="$description" >/dev/null
+            else
+              gh api -X POST "repos/$repo/labels" -f name="$name" -f color="$color" -f description="$description" >/dev/null
+            fi
+          }
+
+          ensure_milestone() {
+            local title="$1" description="$2" due_on="$3"
+            local number
+            number="$(gh api --paginate "repos/$repo/milestones?state=all&per_page=100" --jq ".[] | select(.title == \"$title\") | .number" | head -n1 || true)"
+            if [[ -n "$number" ]]; then
+              gh api -X PATCH "repos/$repo/milestones/$number" -f title="$title" -f description="$description" -f due_on="$due_on" >/dev/null
+            else
+              gh api -X POST "repos/$repo/milestones" -f title="$title" -f description="$description" -f due_on="$due_on" >/dev/null
+            fi
+          }
+
+          ensure_label "priority:P0" "B60205" "Kritisch / blockierend"
+          ensure_label "priority:P1" "D93F0B" "Hoher Nutzen"
+          ensure_label "priority:P2" "FBCA04" "Sinnvolle Verbesserung"
+          ensure_label "priority:P3" "C5DEF5" "Nice-to-have"
+
+          ensure_label "effort:XS" "EDEDED" "Sehr kleiner Aufwand"
+          ensure_label "effort:S" "D4C5F9" "Kleiner Aufwand"
+          ensure_label "effort:M" "BFDADC" "Mittlerer Aufwand"
+          ensure_label "effort:L" "BFD4F2" "Großer Aufwand"
+          ensure_label "effort:XL" "5319E7" "Sehr großer Aufwand"
+
+          ensure_label "type:feature" "A2EEEF" "Neue Funktion"
+          ensure_label "type:content" "0E8A16" "Lern- oder Prüfungsinhalt"
+          ensure_label "type:bug" "D73A4A" "Fehler oder problematische Annahme"
+          ensure_label "type:documentation" "0075CA" "Dokumentation"
+          ensure_label "type:testing" "1D76DB" "Tests und Validierung"
+          ensure_label "type:refactor" "C2E0C6" "Strukturverbesserung ohne Funktionsänderung"
+          ensure_label "type:automation" "7057FF" "Automatisierung / CI"
+
+          ensure_milestone "M1 – Verlässliche Datenbasis" "Bis 13.09.: Quellen, Prüfungsdaten und Berechnungen nachvollziehbar strukturieren und automatisch validierbar machen. Fundament für alle weiteren Funktionen." "2026-09-13T21:59:59Z"
+          ensure_milestone "M2 – Trainings-MVP" "Bis 18.09.: Aus den vorhandenen Inhalten ein lokal nutzbares, interaktives Training mit automatischer Auswertung der wichtigsten AP1-Aufgabentypen machen." "2026-09-18T21:59:59Z"
+          ensure_milestone "M3 – Prüfungssimulator & Fehlertraining" "Bis 24.09.: Realistische 90-Minuten-Simulation, Punkteauswertung, Fehlerhistorie und gezielte Wiederholung der Schwächen bereitstellen." "2026-09-24T21:59:59Z"
+          ensure_milestone "M4 – Prüfungsversion 30.09.2026" "Bis 28.09.: Inhalte, Prognose und Bedienung für die letzten zwei Tage stabilisieren; Offline-/Export-Fallback und Release-Check durchführen." "2026-09-28T21:59:59Z"
