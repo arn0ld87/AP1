@@ -70,21 +70,10 @@ Kompetenz entspricht den Originalprüfungen.
 
 ## AP1 Trainer — die Web-App (`app/`)
 
-> [!NOTE]
-> Die Web-App wird auf einem separaten Branch entwickelt und ist noch **nicht** in `main` gemerged.
-> Dieser Abschnitt beschreibt den Zielzustand und den aktuellen Baustand aus
-> [PR #33](https://github.com/arn0ld87/AP1/pull/33) (Branch `worktree-ap1-lovable-plattform`). Bis
-> zum Merge bleiben die `.md`-Dateien und `AP1-Trainer.html` die primäre Arbeitsgrundlage.
-
-Die hier abgelegten Markdown-Unterlagen sind die Quelle für eine begleitende Lern-Web-App: dunkles
-Theme im Discord-Look, Sidebar mit sieben Modulen, serverseitiger Fortschritt statt `localStorage`,
-KI-Bewertung der Probeprüfungen statt manueller Korrektur. Details zu Motivation und Scope:
-[docs/vision.md](docs/vision.md).
-
-Sie wurde zunächst mit [Lovable](https://lovable.dev) gebaut (Prompts unter `docs/lovable/prompts/`).
-Nach Erreichen des Lovable-Credit-Limits wurde der komplette Projektstand exportiert und wird seither
-lokal in `app/` weiterentwickelt — Architektur und Deploy-Ziel haben sich dadurch gegenüber der
-ursprünglichen Planung geändert, siehe [docs/architecture.md](docs/architecture.md).
+Die hier abgelegten Markdown-Unterlagen sind die Quelle für eine begleitende
+Lern-Web-App: dunkles Theme im Discord-Look, Sidebar mit sieben Modulen.
+Sie wurde zuerst in Lovable gebaut (Prompts in `docs/lovable/prompts/`),
+nach dessen Credit-Limit aber exportiert und lokal weiterentwickelt.
 
 ### Architektur
 
@@ -114,7 +103,6 @@ Voraussetzungen: [Bun](https://bun.sh) ≥ 1.2, Netzwerkzugriff auf
 `supabase.alexle135.de` (Tailscale oder öffentlich).
 
 ```bash
-git checkout worktree-ap1-lovable-plattform   # bis zum Merge nach main
 cd app
 bun install          # Dependencies
 
@@ -129,39 +117,20 @@ bun run preview      # gebauten Output lokal ansehen
 bun run lint         # ESLint
 ```
 
-Login: der eine angelegte Account (Zugangsdaten in Vaultwarden, nicht im Repo). Ohne Login erscheint
-nur der Login-Screen — alle Modulrouten liegen hinter dem Auth-Gate
-(`app/src/routes/_authenticated/route.tsx`).
+Login: der eine angelegte Account (Zugangsdaten in Vaultwarden, nicht im Repo).
+Ohne Login erscheint nur der Login-Screen — alle Modulrouten liegen hinter
+dem Auth-Gate (`src/routes/_authenticated/route.tsx`).
 
 ### Datenbank
 
-Schema-Migration und Seed liegen in `app/supabase/migrations/` bzw. werden über
-`docs/lovable/prompts/03-content-import.md` beschrieben (77 Prüfungsaufgaben: 24/26/27 je
-Probeprüfung, je 100 Punkte). Angewendet werden sie direkt per `psql` im Container `supabase-db`
-auf dem armserver — kein Lovable-verwaltetes Supabase-Projekt mehr.
+Schema-Migration und Seed liegen in `app/supabase/migrations/` bzw. werden
+über `docs/lovable/prompts/03-content-import.md` beschrieben (77
+Prüfungsaufgaben: 24/26/27 je Probeprüfung, je 100 Punkte). Angewendet
+werden sie direkt per `psql` im Container `supabase-db` auf dem armserver.
 
 ### Historie
 
-Tasks 1–9 des SDD-Plans (`.superpowers/sdd/2026-09-10-lovable-ap1-plattform/`, Details in
-[docs/architecture.md](docs/architecture.md)) liefen über Lovable-MCP; seit dem Credit-Stopp wird
-direkt in `app/` implementiert. Der PR dazu: [arn0ld87/AP1#33](https://github.com/arn0ld87/AP1/pull/33).
+Tasks 1–9 des SDD-Plans (`.superpowers/sdd/2026-09-10-lovable-ap1-plattform/`)
+liefen über Lovable-MCP; seit dem Credit-Stopp wird direkt in `app/`
+implementiert. Der PR dazu: arn0ld87/AP1#33.
 
-## Aktueller Stand
-
-- **Lernmaterial** (`.md`-Dateien, `AP1-Trainer.html`): vollständig und sofort einsatzbereit.
-- **Web-App** (`app/`): 2 von 7 Feature-Modulen fertig (Rechnen üben, Wissenskarten), Rest geplant.
-  Backend/Deploy laufen self-hosted auf dem armserver, noch nicht live unter `ap1.alexle135.de`.
-  Läuft auf `worktree-ap1-lovable-plattform`, offen als [PR #33](https://github.com/arn0ld87/AP1/pull/33).
-
-Solange die Web-App nicht vollständig ist, bleiben die `.md`-Dateien und `AP1-Trainer.html` die
-verbindliche Arbeitsgrundlage — siehe [docs/vision.md](docs/vision.md) für den Grundsatz „kein
-Big-Bang-Cutover".
-
-## Dokumentation
-
-- [`docs/context.md`](docs/context.md) — Ausgangslage und Motivation der Migration
-- [`docs/vision.md`](docs/vision.md) — Zielbild, Erfolgskriterium, Nicht-Ziele
-- [`docs/architecture.md`](docs/architecture.md) — Architektur der Web-App, Feature-Module, Auth/Deploy
-- [`docs/data-model.md`](docs/data-model.md) — Supabase-Datenmodell
-- [`docs/api.md`](docs/api.md) — KI-Bewertungs-Flow für die Probeprüfungen
-- [`CLAUDE.md`](CLAUDE.md) — Repo-Guidance für Claude Code

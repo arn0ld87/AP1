@@ -1,0 +1,709 @@
+{
+  "days": [
+    {
+      "day": 1,
+      "date_label": "Do 10.09.",
+      "title": "Einheiten und Datenmengen I",
+      "week": 1,
+      "items": [
+        {
+          "dauer": "30 min",
+          "thema": "bit/Byte, Ki/Mi/Gi/Ti vs. k/M/G/T",
+          "ziel": "Umrechnung ohne Nachdenken beherrschen; wissen: **Speicher = 1024er, Datenraten = 1000er**",
+          "lernform": "Lernen (`lernen/datenmengen.md`)"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "Speicherbedarf aus Auflösung × Farbtiefe",
+          "ziel": "Formel `Breite × Höhe × Farbtiefe / 8` sicher anwenden",
+          "lernform": "Rechenaufgaben"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "**Original: F2024 Aufg. 3da/db/dc** (3.840 Punkte, RGB, Prozent)",
+          "ziel": "Originalniveau kennenlernen",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "15 min",
+          "thema": "Kontrolle + Fehlerliste",
+          "ziel": "–",
+          "lernform": "Rückrechnung"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 2,
+      "date_label": "Fr 11.09.",
+      "title": "Datenmengen II (dpi, Video)",
+      "week": 1,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 1",
+          "ziel": "Kurztest ohne Hilfsmittel",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "dpi → Pixel (cm ÷ 2,54 × dpi)",
+          "ziel": "Scan-Aufgaben sicher lösen",
+          "lernform": "Lernen + Übung"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "**Original: H2022 Aufg. 2a/2ba/2bb** (Karton-Scan, MiB → TiB)",
+          "ziel": "die schwerste belegte Datenmengen-Aufgabe schaffen",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "20 min",
+          "thema": "Video-Bitrate: `B × H × Farbtiefe × fps × Kompression`",
+          "ziel": "Formel sitzt",
+          "lernform": "Rechenaufgaben"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 3,
+      "date_label": "Sa 12.09.",
+      "title": "Übertragungszeit & Datenrate",
+      "week": 1,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 2",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "`t = Datenmenge (bit) / Datenrate (bit/s)`; **Upload ≠ Download!**",
+          "ziel": "die klassische Falle vermeiden",
+          "lernform": "Lernen + Übung"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "**Originale: F2022 4e (100 MiB @ 40 Mbit/s) + F2024 4f (1 GiB @ 50,02 Mbit/s)**",
+          "ziel": "beide auf Anhieb richtig",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "**Original: F2026 1ad + 1b** (Kamera-Bitrate → 53 TiB)",
+          "ziel": "Kombination Datenrate + Speicher",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "20 min",
+          "thema": "Fehlerliste + Rückrechnung",
+          "ziel": "–",
+          "lernform": "Kontrolle"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 4,
+      "date_label": "So 13.09.",
+      "title": "Strom, Leistung, Energiekosten",
+      "week": 1,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 3",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "`P = U · I`, `P_zu = P_ab / η`, `E[kWh] = P[kW] · t[h]`, `Kosten = E · Preis`",
+          "ziel": "vier Formeln auswendig",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "**Original: H2021 Aufg. 2a/2b/2d** (Wirkungsgrad, Amortisation, 16-A-Steckdose)",
+          "ziel": "14 Punkte sicher",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "35 min",
+          "thema": "**Originale: F2024 3e/3f (Netzteil + 10 % Puffer, Stromkosten) und F2026 1ac (PoE, I = P/U)**",
+          "ziel": "Varianten erkennen",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "20 min",
+          "thema": "Amortisation: `t = Mehrpreis / Ersparnis je Periode`",
+          "ziel": "–",
+          "lernform": "Rechenaufgaben"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 5,
+      "date_label": "Mo 14.09.",
+      "title": "Subnetting I",
+      "week": 1,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 4",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "50 min",
+          "thema": "CIDR /24 bis /30: Maske, Blockgröße, Netz-, Broadcast-, erste/letzte Hostadresse, `2^h − 2`",
+          "ziel": "ohne Tabelle rechnen können",
+          "lernform": "Lernen (`lernen/subnetting.md`)"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "**Originale: F2026 2a (/25), F2025 1d (/26), F2022 3fb (/24)**",
+          "ziel": "alle drei richtig",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "10 min",
+          "thema": "Fehlerliste",
+          "ziel": "–",
+          "lernform": "–"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 6,
+      "date_label": "Di 15.09.",
+      "title": "Subnetting II + Adressarten",
+      "week": 1,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 5",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "35 min",
+          "thema": "private Bereiche (10/8, 172.16/12, 192.168/16), **APIPA 169.254.x.x**, Loopback, DHCP-Range beachten",
+          "ziel": "H2024 1da/1db sicher beantworten",
+          "lernform": "Lernen + Altprüfung"
+        },
+        {
+          "dauer": "35 min",
+          "thema": "**Original: H2024 Aufg. 1da–1dd** (APIPA, statische Konfiguration, MAC ermitteln)",
+          "ziel": "15 Punkte",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "eigene Übungsaufgaben: 10 × Netz/Broadcast/Hosts bestimmen",
+          "ziel": "Tempo aufbauen",
+          "lernform": "Drill"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 7,
+      "date_label": "Mi 16.09.",
+      "title": "Netzplantechnik I",
+      "week": 1,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 6",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "Knotenaufbau, Vorwärtsrechnung (FAZ, FEZ), Rückwärtsrechnung (SEZ, SAZ), GP, FP",
+          "ziel": "Reihenfolge sitzt: erst alle FAZ/FEZ vorwärts, dann alle SEZ/SAZ rückwärts",
+          "lernform": "Lernen (`lernen/netzplan.md`)"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "**Original: H2021 Aufg. 1c/1d/1e** (14 + 1 + 2 Punkte)",
+          "ziel": "vollständiger Netzplan fehlerfrei",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "10 min",
+          "thema": "Fehlerliste",
+          "ziel": "–",
+          "lernform": "–"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 8,
+      "date_label": "Do 17.09.",
+      "title": "Netzplantechnik II",
+      "week": 2,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 7",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "**Original: F2025 Aufg. 3aa/3ab** (Netzplan + kritischer Pfad A-B-D-E-I-J)",
+          "ziel": "10 Punkte",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "**Original: F2026 Aufg. 2e** – die *schwierige* Variante: **Fehler im fertigen Netzplan finden**",
+          "ziel": "Prüfstrategie: jeden Knoten gegen die Formeln gegenrechnen",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "15 min",
+          "thema": "Gantt vs. Netzplan (H2023 4aa)",
+          "ziel": "4 Punkte geschenkt",
+          "lernform": "Lernen"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 9,
+      "date_label": "Fr 18.09.",
+      "title": "Wirtschaftliche Kalkulation",
+      "week": 2,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 8",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "Kostenvergleich mit Nutzungsdauer/Abschreibung, Rabatt, Wartung; Netto→Brutto (× 1,19); effektiver Stundensatz",
+          "ziel": "Rechenschema aufschreiben können",
+          "lernform": "Lernen (`lernen/wirtschaftsrechnung.md`)"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "**Originale: F2024 1b (laufende Kosten CAD), F2025 1ac (Kosten/Monat), H2024 2f (5 Jahre netto/brutto)**",
+          "ziel": "16 Punkte",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "15 min",
+          "thema": "**Original: H2022 1e** (effektiver Stundensatz) + **H2023 2e** (Minutensatz Hotline)",
+          "ziel": "–",
+          "lernform": "Altprüfung"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 10,
+      "date_label": "Sa 19.09.",
+      "title": "Nutzwertanalyse + Zwischenstand",
+      "week": 2,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 9",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "Nutzwertanalyse: Bewertungsskala, Gewichtung × Punktwert, Spaltensumme, **KO-Kriterium prüfen**",
+          "ziel": "Schema in 5 Minuten aufbauen",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "**Originale: H2022 3g (Bezugspreis + Angebotsvergleich, 10 P), F2024 1aa/1ab, F2025 1aa/1ab**",
+          "ziel": "23 Punkte",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "60 min",
+          "thema": "**Probeprüfung 1 (verkürzt, 45 Min):** Schwerpunkt Rechenaufgaben A1–A6",
+          "ziel": "Standortbestimmung Rechenteil",
+          "lernform": "Probeprüfung"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "Auswertung + `04_LERNFORTSCHRITT.md` aktualisieren",
+          "ziel": "–",
+          "lernform": "Korrektur"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 11,
+      "date_label": "So 20.09.",
+      "title": "IT-Sicherheit & Datenschutz I",
+      "week": 2,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 10",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "50 min",
+          "thema": "**Schutzziele Vertraulichkeit / Integrität / Verfügbarkeit** – je 3 Maßnahmen + Begründung; Schutzbedarfskategorien (normal/hoch/sehr hoch)",
+          "ziel": "Zuordnung + Begründung frei formulieren",
+          "lernform": "Lernen (`lernen/it-sicherheit.md`)"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "**DSGVO/BDSG**, personenbezogene Daten, Videoüberwachung, weitere Rechtsgrundlagen (StGB, GG Art. 10)",
+          "ziel": "Rechtsgrundlage in einem Satz nennen können",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "**Originale: H2021 Aufg. 4a–4e (24 P) + F2026 3a**",
+          "ziel": "die punktstärkste Aufgabe der Prüfung sicher",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "10 min",
+          "thema": "Fehlerliste",
+          "ziel": "–",
+          "lernform": "–"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 12,
+      "date_label": "Mo 21.09.",
+      "title": "IT-Sicherheit II",
+      "week": 2,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 11",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "Symmetrisch vs. asymmetrisch (wer verschlüsselt womit?), **Hashwert = Integrität**, digitales Zertifikat, VPN, SSH vs. Telnet, IMAP vs. POP3",
+          "ziel": "Ablauf asym. Verschlüsselung in 4 Sätzen erklären",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "35 min",
+          "thema": "Phishing (Anzeichen + Maßnahmen), Malware-Arten (Virus, Trojaner, Wurm, Spyware, Ransomware, Keylogger, Backdoor) + je ein Merkmal",
+          "ziel": "9 Punkte aus H2024 3c abrufbar",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "BSI-Grundschutz, Passwortkriterien, Backup (Generationenprinzip, räumliche/zeitliche Trennung)",
+          "ziel": "–",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "10 min",
+          "thema": "Fehlerliste",
+          "ziel": "–",
+          "lernform": "–"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 13,
+      "date_label": "Di 22.09.",
+      "title": "Netzwerkdiagnose & OSI",
+      "week": 2,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 12",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "**OSI-Tabelle**: Schicht ↔ Protokoll ↔ Adresse ↔ typischer Fehler (Schichten 1, 2, 3, 4, 7)",
+          "ziel": "Tabelle aus dem Kopf",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "35 min",
+          "thema": "Konsolenbefehle: `ipconfig /all`, `ifconfig`, `ping`, `arp -a`, `nslookup`, `tracert`, `getmac` – **und was sie jeweils beweisen**",
+          "ziel": "zu jedem Fehlerbild den passenden Befehl nennen",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "**Originale: F2022 Aufg. 3 (komplett), F2024 Aufg. 2 (komplett), F2026 2b (Fehlertabelle 8 P)**",
+          "ziel": "Fehler → Überprüfung → Behebung als Dreischritt",
+          "lernform": "Altprüfung"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 14,
+      "date_label": "Mi 23.09.",
+      "title": "IPv6 + Hardware/Schnittstellen",
+      "week": 2,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 13",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "IPv6: 128 Bit, Kürzungsregeln (und Rückweg!), Präfixlänge, Interface-ID, `fe80::` Link-Local, Dual-Stack/Tunneling",
+          "ziel": "ungekürzte Darstellung fehlerfrei schreiben",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "**Originale: F2024 2c (5 P), H2022 3b/3c/3f, F2026 2c/2d**",
+          "ziel": "–",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "Schnittstellen: HDMI, DisplayPort, DVI, USB-A/-C, RJ-45, Kaltgerätebuchse; RAM DDR4/DDR5 + Taktkompatibilität; SSD vs. HDD; PoE-Klassen",
+          "ziel": "Bilder zuordnen können",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "10 min",
+          "thema": "Fehlerliste",
+          "ziel": "–",
+          "lernform": "–"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 15,
+      "date_label": "Do 24.09.",
+      "title": "ERM + SQL-Grundlagen",
+      "week": 3,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 14",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "ERM: Entität, Attribut, Primärschlüssel (unterstrichen), Fremdschlüssel (#), Beziehung, **Kardinalitäten 1:1 / 1:n / n:m**",
+          "ziel": "Modell aus Textbeschreibung ableiten",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "35 min",
+          "thema": "**Originale: F2026 4c, H2024 4b, H2022 4c**",
+          "ziel": "18 Punkte",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "20 min",
+          "thema": "SQL: `SELECT … FROM … WHERE`, `COUNT()`, `COUNT(DISTINCT …)`, `SUM()`, `GROUP BY`, `ORDER BY`",
+          "ziel": "einfache Abfrage schreiben (Syntaxblatt liegt in der Prüfung bei!)",
+          "lernform": "Lernen"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 16,
+      "date_label": "Fr 25.09.",
+      "title": "Pseudocode, Struktogramm, UML",
+      "week": 3,
+      "items": [
+        {
+          "dauer": "20 min",
+          "thema": "Wiederholung Tag 15",
+          "ziel": "–",
+          "lernform": "Kurztest"
+        },
+        {
+          "dauer": "50 min",
+          "thema": "**Schreibtischtest**: Wertetabelle anlegen, Zeile für Zeile durchgehen, Zwischenwerte notieren",
+          "ziel": "Methode beherrschen, nicht „im Kopf\" rechnen",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "**Originale: F2026 4bb (Versandkosten, 10 P!) + H2024 2e (2D-Array, 6 P)**",
+          "ziel": "beide fehlerfrei",
+          "lernform": "Altprüfung"
+        },
+        {
+          "dauer": "25 min",
+          "thema": "UML: Use-Case (Akteur, Anwendungsfall, `<<include>>`) und Klassendiagramm (`-` privat, `+` öffentlich, Attribut: Datentyp)",
+          "ziel": "**Originale: H2024 2d, F2026 4ba**",
+          "lernform": "Altprüfung"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 17,
+      "date_label": "Sa 26.09.",
+      "title": "Probeprüfung 2 (voll)",
+      "week": 3,
+      "items": [
+        {
+          "dauer": "90 min",
+          "thema": "**Probeprüfung 2: realistische gemischte Prüfung, 100 Punkte, 90 Minuten, Uhr mitlaufen lassen**",
+          "ziel": "Zeitgefühl aufbauen: **ca. 1 Minute pro Punkt**",
+          "lernform": "Probeprüfung"
+        },
+        {
+          "dauer": "45 min",
+          "thema": "Selbstkorrektur mit Lösungsbogen, Punkte eintragen",
+          "ziel": "ehrlich bewerten",
+          "lernform": "Korrektur"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "Fehler klassifizieren: Wissenslücke / Rechenfehler / Flüchtigkeit / Zeitmangel",
+          "ziel": "`05_FEHLERLISTE.md` füllen",
+          "lernform": "Analyse"
+        },
+        {
+          "dauer": "15 min",
+          "thema": "Lernplan Tag 18 anpassen",
+          "ziel": "–",
+          "lernform": "–"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 18,
+      "date_label": "So 27.09.",
+      "title": "Gezielte Fehlerbehebung + B-Restthemen",
+      "week": 3,
+      "items": [
+        {
+          "dauer": "60 min",
+          "thema": "**Die drei schwächsten Themen aus Probeprüfung 2** erneut durcharbeiten",
+          "ziel": "von „unsicher\" auf „ausreichend\"",
+          "lernform": "gezielte Wiederholung"
+        },
+        {
+          "dauer": "35 min",
+          "thema": "RAID 0/1/5/6/10 + NAS/SAN/JBOD; Nettokapazität `(n−1)·kleinste Platte`",
+          "ziel": "**Originale: H2021 3e, H2022 2ca/cb/cc**",
+          "lernform": "Lernen + Altprüfung"
+        },
+        {
+          "dauer": "35 min",
+          "thema": "Projektmanagement-Vokabular: Lasten-/Pflichtenheft, SMART, Projektmerkmale, Phasen, Stakeholder",
+          "ziel": "in Stichpunkten abrufbar",
+          "lernform": "Lernen"
+        },
+        {
+          "dauer": "20 min",
+          "thema": "Wirtschaft & Recht: Kaufvertrag (2 Willenserklärungen), Lieferverzug, Mängel, Leasing, Dienst-/Werkvertrag",
+          "ziel": "–",
+          "lernform": "Lernen"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 19,
+      "date_label": "Mo 28.09.",
+      "title": "Probeprüfung 3",
+      "week": 3,
+      "items": [
+        {
+          "dauer": "90 min",
+          "thema": "**Probeprüfung 3: etwas über Prüfungsniveau**",
+          "ziel": "Sicherheitspuffer schaffen",
+          "lernform": "Probeprüfung"
+        },
+        {
+          "dauer": "40 min",
+          "thema": "Korrektur + Auswertung",
+          "ziel": "–",
+          "lernform": "Korrektur"
+        },
+        {
+          "dauer": "20 min",
+          "thema": "Formelsammlung `02_FORMELSAMMLUNG.md` komplett durchgehen",
+          "ziel": "jede Formel laut erklären",
+          "lernform": "Wiederholung"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 20,
+      "date_label": "Di 29.09.",
+      "title": "Ruhiger Feinschliff",
+      "week": 3,
+      "items": [
+        {
+          "dauer": "30 min",
+          "thema": "Formelsammlung, nur laut vorsprechen",
+          "ziel": "Sicherheit",
+          "lernform": "Wiederholung"
+        },
+        {
+          "dauer": "30 min",
+          "thema": "`05_FEHLERLISTE.md` von oben nach unten durchgehen",
+          "ziel": "keine Wiederholungsfehler",
+          "lernform": "Wiederholung"
+        },
+        {
+          "dauer": "20 min",
+          "thema": "Einheiten-Blitzrunde (20 Umrechnungen)",
+          "ziel": "–",
+          "lernform": "Drill"
+        },
+        {
+          "dauer": "20 min",
+          "thema": "Standardantworten IT-Sicherheit einmal durchlesen",
+          "ziel": "–",
+          "lernform": "Wiederholung"
+        },
+        {
+          "dauer": "–",
+          "thema": "**Danach Schluss.** Taschenrechner, Ausweis, Stifte bereitlegen. Früh schlafen.",
+          "ziel": "–",
+          "lernform": "–"
+        }
+      ],
+      "raw_text": ""
+    },
+    {
+      "day": 21,
+      "date_label": "Mi 30.09.",
+      "title": "**Prüfungstag**",
+      "week": 3,
+      "items": [],
+      "raw_text": "**Prüfungsstrategie (aus den analysierten Prüfungen abgeleitet):**\n\n1. **Erst alle vier Aufgaben überfliegen** (2 Min). Die Punktzahlen stehen an jeder Teilaufgabe.\n2. **Rechenaufgaben zuerst** – dort verlierst du Punkte durch Zeitdruck, bei Wissensfragen nicht.\n3. **Rechenweg immer aufschreiben.** In den Lösungsbändern gibt es durchgehend Teilpunkte für den Weg, auch bei falschem Endergebnis.\n4. **Ersatzwerte nutzen.** Bei mehrstufigen Rechnungen steht regelmäßig „Falls Sie a) nicht lösen konnten, rechnen Sie mit …\" – damit sind die Folgepunkte trotzdem erreichbar (belegt in H2021 2b, H2022 2bb, F2024 3f, F2026 1b).\n5. **Anzahl beachten.** „Nennen Sie drei …\" – wenn du fünf nennst, werden nur die ersten drei gewertet.\n6. **Einheiten und Rundungsvorgabe** („auf volle Sekunden aufrunden\", „auf zwei Stellen\") wörtlich befolgen.\n7. **Nichts leer lassen.** Stichwortartige Antworten sind ausdrücklich zugelassen.\n8. Faustregel Zeit: **1 Punkt ≈ 1 Minute**, plus 10 Minuten Puffer zum Schluss.\n\n---"
+    }
+  ],
+  "wenn_weniger_zeit": "Reihenfolge, in der gestrichen wird (von hinten):\n1. Tag 15 SQL-Teil\n2. Tag 14 IPv6-Vertiefung\n3. Tag 18 RAID\n4. Probeprüfung 3\n\n**Niemals streichen:** Tage 1–4 (Rechenkern), Tag 5–6 (Subnetting), Tag 11–12 (IT-Sicherheit), Tag 17 (Probeprüfung 2)."
+}
