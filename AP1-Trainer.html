@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Übungs- und Fortschrittstool für die AP1 Fachinformatiker Systemintegration am 30.09.2026.">
+<title>Korrekturrand</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#EDEFEA; --surface:#FFFFFF; --surface-2:#F6F7F4;
+  --ink:#1B241F; --ink-soft:#5A6660; --ink-faint:#8B958F;
+  --rule:#D4DAD4; --rule-soft:#E4E8E3;
+  --accent:#0E6E63; --accent-soft:#D9EAE7; --accent-ink:#0A4F47;
+  --good:#2E7D4F; --good-soft:#DDEEE2;
+  --mid:#B0721A; --mid-soft:#F3E7D2;
+  --bad:#A3352C; --bad-soft:#F4DEDB;
+  --none:#A9B2AC; --none-soft:#E7EAE7;
+  --shadow:0 1px 2px rgba(27,36,31,.06),0 8px 24px -12px rgba(27,36,31,.18);
+  --r:10px;
+  --f-disp:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#121815; --surface:#1A211D; --surface-2:#202823;
+    --ink:#E5EAE5; --ink-soft:#9AA69F; --ink-faint:#6E7A73;
+    --rule:#2E3831; --rule-soft:#262F29;
+    --accent:#4FB8AA; --accent-soft:#16332F; --accent-ink:#8FD9CF;
+    --good:#5DBB83; --good-soft:#16301F;
+    --mid:#D89B45; --mid-soft:#332612;
+    --bad:#D97166; --bad-soft:#361A17;
+    --none:#59635C; --none-soft:#222B25;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#121815; --surface:#1A211D; --surface-2:#202823;
+  --ink:#E5EAE5; --ink-soft:#9AA69F; --ink-faint:#6E7A73;
+  --rule:#2E3831; --rule-soft:#262F29;
+  --accent:#4FB8AA; --accent-soft:#16332F; --accent-ink:#8FD9CF;
+  --good:#5DBB83; --good-soft:#16301F;
+  --mid:#D89B45; --mid-soft:#332612;
+  --bad:#D97166; --bad-soft:#361A17;
+  --none:#59635C; --none-soft:#222B25;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-disp); font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding-inline:20px; padding-block:0 64px}
+h1,h2,h3{text-wrap:balance; margin:0}
+button{font:inherit; color:inherit; cursor:pointer}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+.mono{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ---------- Kopf ---------- */
+header{
+  border-bottom:1px solid var(--rule); background:var(--surface);
+  position:sticky; top:0; z-index:20;
+}
+.head-in{
+  max-width:1080px; margin:0 auto; padding-inline:20px;
+  padding-block:14px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+}
+.brand{display:flex; align-items:baseline; gap:10px; margin-right:auto}
+.brand b{font-size:19px; font-weight:700; letter-spacing:-.015em}
+.brand span{font-size:12px; color:var(--ink-faint)}
+.countdown{display:flex; align-items:baseline; gap:7px}
+.countdown .n{font-family:var(--f-mono); font-size:26px; font-weight:600; line-height:1; color:var(--accent)}
+.countdown .t{font-size:12px; color:var(--ink-soft); max-width:9ch; line-height:1.2}
+.readiness{display:flex; align-items:center; gap:9px}
+.rmeter{width:110px; height:7px; border-radius:99px; background:var(--none-soft); overflow:hidden; display:flex}
+.rmeter i{display:block; height:100%}
+.rmeter .g{background:var(--good)} .rmeter .m{background:var(--mid)} .rmeter .b{background:var(--bad)}
+.rlabel{font-family:var(--f-mono); font-size:13px; font-weight:600}
+.iconbtn{
+  background:none; border:1px solid var(--rule); border-radius:8px;
+  width:34px; height:34px; display:grid; place-items:center; color:var(--ink-soft);
+}
+.iconbtn:hover{border-color:var(--accent); color:var(--accent)}
+
+nav.tabs{
+  max-width:1080px; margin:0 auto; padding-inline:20px;
+  display:flex; gap:2px; overflow-x:auto; scrollbar-width:none;
+}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{
+  background:none; border:0; border-bottom:2px solid transparent;
+  padding:11px 13px 10px; font-size:14px; font-weight:500; color:var(--ink-soft);
+  white-space:nowrap;
+}
+nav.tabs button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--accent); font-weight:600}
+
+/* ---------- Karten mit Korrekturrand ---------- */
+.sheet{
+  background:var(--surface); border:1px solid var(--rule); border-radius:var(--r);
+  box-shadow:var(--shadow); position:relative; overflow:hidden;
+}
+.sheet::before{
+  content:""; position:absolute; inset:0 auto 0 0; width:5px; background:var(--none);
+}
+.sheet.k-good::before{background:var(--good)}
+.sheet.k-mid::before{background:var(--mid)}
+.sheet.k-bad::before{background:var(--bad)}
+.sheet.k-accent::before{background:var(--accent)}
+.sheet-in{padding:20px 22px 22px 26px}
+
+.grid{display:grid; gap:14px}
+@media(min-width:720px){ .grid.two{grid-template-columns:1fr 1fr} .grid.three{grid-template-columns:repeat(3,1fr)} }
+
+/* ---------- Üben ---------- */
+.chiprow{display:flex; flex-wrap:wrap; gap:7px; margin-block:16px 18px}
+.chip{
+  border:1px solid var(--rule); background:var(--surface); border-radius:99px;
+  padding:6px 13px; font-size:13px; font-weight:500; color:var(--ink-soft);
+  display:inline-flex; align-items:center; gap:7px;
+}
+.chip:hover{border-color:var(--accent); color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+.chip[aria-pressed="true"] .dot{background:#fff; opacity:.85}
+.dot{width:6px; height:6px; border-radius:99px; background:var(--none); flex:none}
+.dot.good{background:var(--good)} .dot.mid{background:var(--mid)} .dot.bad{background:var(--bad)}
+
+.qmeta{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px}
+.tag{
+  font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+  padding:3px 8px; border-radius:5px; background:var(--accent-soft); color:var(--accent-ink);
+}
+.tag.pts{background:var(--surface-2); color:var(--ink-soft)}
+.qtext{
+  font-family:var(--f-body); font-size:19px; line-height:1.55; margin:0 0 6px;
+  max-width:62ch;
+}
+.given{
+  margin:14px 0 0; padding:13px 15px; background:var(--surface-2);
+  border-radius:8px; border:1px solid var(--rule-soft);
+  display:grid; gap:5px;
+}
+.given div{display:flex; justify-content:space-between; gap:16px; font-size:14px}
+.given dt{color:var(--ink-soft)}
+.given .v{font-family:var(--f-mono); font-weight:600; text-align:right}
+
+.answer{display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-top:18px}
+.answer input{
+  font-family:var(--f-mono); font-size:17px; padding:10px 13px; width:220px;
+  border:1px solid var(--rule); border-radius:8px; background:var(--surface);
+  color:var(--ink);
+}
+.answer input:focus{outline:2px solid var(--accent); outline-offset:0; border-color:transparent}
+.unit{font-family:var(--f-mono); font-size:15px; color:var(--ink-soft)}
+.btn{
+  border:1px solid var(--accent); background:var(--accent); color:#fff;
+  border-radius:8px; padding:10px 18px; font-size:14px; font-weight:600;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:none; color:var(--accent)}
+.btn.ghost:hover{background:var(--accent-soft); filter:none}
+.btn.quiet{background:none; border-color:var(--rule); color:var(--ink-soft)}
+.btn.quiet:hover{border-color:var(--ink-soft); color:var(--ink)}
+
+.verdict{margin-top:16px; padding:14px 16px; border-radius:8px; font-size:15px}
+.verdict.ok{background:var(--good-soft); color:var(--good)}
+.verdict.no{background:var(--bad-soft); color:var(--bad)}
+.verdict b{font-family:var(--f-mono)}
+.steps{margin-top:14px; border-top:1px solid var(--rule-soft); padding-top:14px}
+.steps ol{margin:8px 0 0; padding-left:20px; display:grid; gap:6px}
+.steps li{font-size:14.5px; line-height:1.5}
+.steps code{font-family:var(--f-mono); font-size:13.5px; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+.trap{
+  margin-top:12px; font-size:13.5px; color:var(--ink-soft);
+  border-left:3px solid var(--mid); padding-left:11px;
+}
+
+/* ---------- Karteikarten ---------- */
+.card-face{min-height:150px; display:flex; flex-direction:column; justify-content:center}
+.card-q{font-family:var(--f-body); font-size:20px; line-height:1.5; max-width:58ch}
+.card-a{margin-top:14px; padding-top:14px; border-top:1px solid var(--rule-soft); font-size:15px; line-height:1.6; max-width:64ch}
+.card-a ul{margin:6px 0 0; padding-left:18px; display:grid; gap:4px}
+.rate{display:flex; gap:8px; flex-wrap:wrap; margin-top:18px}
+.rate button{border-radius:8px; padding:9px 15px; font-size:14px; font-weight:600; border:1px solid}
+.rate .r-no{border-color:var(--bad); color:var(--bad); background:var(--bad-soft)}
+.rate .r-mid{border-color:var(--mid); color:var(--mid); background:var(--mid-soft)}
+.rate .r-ok{border-color:var(--good); color:var(--good); background:var(--good-soft)}
+.rate button:hover{filter:brightness(.97)}
+
+/* ---------- Fortschritt ---------- */
+.trow{
+  display:grid; grid-template-columns:1fr auto; gap:4px 16px; align-items:center;
+  padding:13px 0; border-bottom:1px solid var(--rule-soft);
+}
+.trow:last-child{border-bottom:0}
+.tname{font-size:15px; font-weight:600; display:flex; align-items:center; gap:9px; grid-column:1/2; grid-row:1/2}
+.tsub{font-size:12.5px; color:var(--ink-faint); grid-column:1/2; grid-row:2/3}
+.tright{display:flex; align-items:center; gap:12px; grid-column:2/3; grid-row:1/3; justify-content:flex-end}
+.bar{width:120px; height:6px; border-radius:99px; background:var(--none-soft); overflow:hidden}
+.bar i{display:block; height:100%; background:var(--accent)}
+.status{
+  font-size:11.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+  padding:3px 9px; border-radius:99px; min-width:88px; text-align:center;
+}
+.st-good{background:var(--good-soft); color:var(--good)}
+.st-mid{background:var(--mid-soft); color:var(--mid)}
+.st-bad{background:var(--bad-soft); color:var(--bad)}
+.st-none{background:var(--none-soft); color:var(--ink-faint)}
+.prio{display:grid; gap:10px; margin-top:4px}
+.prio a{
+  display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit;
+  padding:11px 13px; border:1px solid var(--rule); border-radius:8px; background:var(--surface);
+}
+.prio a:hover{border-color:var(--accent)}
+.prio .num{font-family:var(--f-mono); font-size:13px; color:var(--ink-faint); width:2ch}
+.prio .why{font-size:12.5px; color:var(--ink-faint); margin-left:auto; text-align:right}
+
+/* ---------- Heute ---------- */
+.day{display:grid; gap:9px}
+.task{display:flex; gap:11px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--rule-soft)}
+.task:last-child{border-bottom:0}
+.task input{margin-top:4px; width:17px; height:17px; accent-color:var(--accent); flex:none}
+.task .dur{font-family:var(--f-mono); font-size:12.5px; color:var(--ink-faint); width:7ch; flex:none; padding-top:2px}
+.task .what{font-size:15px}
+.task .goal{font-size:13px; color:var(--ink-soft)}
+.task.done .what,.task.done .goal{text-decoration:line-through; color:var(--ink-faint)}
+
+.note{font-size:13px; color:var(--ink-faint); margin-top:22px; max-width:70ch}
+.hidden{display:none!important}
+h2.sec{font-size:22px; font-weight:700; letter-spacing:-.015em; margin:30px 0 4px}
+p.lede{color:var(--ink-soft); font-size:14.5px; margin:0 0 14px; max-width:66ch}
+.savepill{
+  font-size:11.5px; color:var(--ink-faint); font-family:var(--f-mono);
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-in">
+    <div class="brand">
+      <b>Korrekturrand</b>
+      <span>AP1 · Fachinformatikerin Systemintegration</span>
+    </div>
+    <div class="countdown">
+      <span class="n" id="cd">–</span>
+      <span class="t" id="cdt">Tage bis<br>30.09.2026</span>
+    </div>
+    <div class="readiness" title="Anteil sicherer, wackeliger und schwacher Themen">
+      <div class="rmeter" id="rmeter"><i class="g" style="width:0"></i><i class="m" style="width:0"></i><i class="b" style="width:0"></i></div>
+      <span class="rlabel" id="rlabel">0 %</span>
+    </div>
+    <button class="iconbtn" id="theme" title="Hell / dunkel umschalten" aria-label="Hell oder dunkel umschalten">◐</button>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-view="ueben">Rechnen üben</button>
+    <button role="tab" aria-selected="false" data-view="wissen">Wissenskarten</button>
+    <button role="tab" aria-selected="false" data-view="fortschritt">Fortschritt</button>
+    <button role="tab" aria-selected="false" data-view="heute">Tagesplan</button>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- ÜBEN -->
+  <section id="v-ueben">
+    <h2 class="sec">Rechnen üben</h2>
+    <p class="lede">Jede Aufgabe wird mit neuen Zahlen erzeugt — du trainierst den Lösungsweg, nicht die Antwort. Der Punkt links an der Themenwahl zeigt deinen Stand.</p>
+    <div class="chiprow" id="calcTopics"></div>
+    <div class="sheet k-accent" id="calcSheet"><div class="sheet-in" id="calcBody"></div></div>
+    <p class="note">Kommazahlen mit Komma oder Punkt, egal. Bei IP-Adressen reicht die Adresse selbst, z. B. <span class="mono">192.168.16.127</span>. Toleranz bei gerundeten Ergebnissen: ein Prozent.</p>
+  </section>
+
+  <!-- WISSEN -->
+  <section id="v-wissen" class="hidden">
+    <h2 class="sec">Wissenskarten</h2>
+    <p class="lede">Erst selbst antworten, dann aufdecken und ehrlich bewerten. Karten, die du nicht wusstest, kommen häufiger wieder.</p>
+    <div class="chiprow" id="cardTopics"></div>
+    <div class="sheet k-accent" id="cardSheet"><div class="sheet-in" id="cardBody"></div></div>
+  </section>
+
+  <!-- FORTSCHRITT -->
+  <section id="v-fortschritt" class="hidden">
+    <h2 class="sec">Was sitzt, was nicht</h2>
+    <p class="lede">Der Stand ergibt sich aus deiner Trefferquote und daraus, wie oft du ein Thema schon geübt hast. Unter vier Versuchen bleibt ein Thema „kaum geübt“ — eine einzelne richtige Antwort ist noch kein Kenntnisstand.</p>
+
+    <div class="sheet k-accent" style="margin-bottom:18px">
+      <div class="sheet-in">
+        <div class="eyebrow">Zuerst dran</div>
+        <p class="lede" style="margin:6px 0 12px">Sortiert nach Prüfungsrelevanz mal Lücke — oben steht, was dir jetzt die meisten Punkte bringt.</p>
+        <div class="prio" id="prio"></div>
+      </div>
+    </div>
+
+    <div class="sheet"><div class="sheet-in">
+      <div class="eyebrow" style="margin-bottom:6px">Alle Themen</div>
+      <div id="topicTable"></div>
+    </div></div>
+
+    <div style="display:flex; gap:10px; align-items:center; margin-top:18px; flex-wrap:wrap">
+      <button class="btn quiet" id="reset">Fortschritt zurücksetzen</button>
+      <span class="savepill" id="savepill">–</span>
+    </div>
+  </section>
+
+  <!-- HEUTE -->
+  <section id="v-heute" class="hidden">
+    <h2 class="sec" id="dayTitle">Tagesplan</h2>
+    <p class="lede" id="dayLede"></p>
+    <div class="sheet k-accent"><div class="sheet-in"><div class="day" id="dayList"></div></div></div>
+    <p class="note">Der Plan folgt <span class="mono">01_LERNPLAN.md</span> aus deinem Prüfungspaket. Jeder Tag beginnt bewusst mit einem Kurztest zum Vortag — das ist der Teil, der den Stoff hält.</p>
+  </section>
+
+</main>
+
+<script>
+"use strict";
+const EXAM = new Date(2026,8,30);
+const el = id => document.getElementById(id);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const de = (n,d=2) => n.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const de0 = n => n.toLocaleString('de-DE');
+
+/* ============ Themen ============ */
+const TOPICS = [
+  {id:'subnetting',  name:'Subnetting / IPv4',        rel:5, prio:'A', kind:'calc', hint:'Maske, Netz, Broadcast, Hosts'},
+  {id:'datenmengen', name:'Datenmengen & Speicher',   rel:5, prio:'A', kind:'calc', hint:'Auflösung, Farbtiefe, TiB'},
+  {id:'uebertragung',name:'Übertragungszeit',         rel:5, prio:'A', kind:'calc', hint:'Datenmenge durch Datenrate'},
+  {id:'strom',       name:'Strom & Energiekosten',    rel:4, prio:'A', kind:'calc', hint:'P=U·I, Wirkungsgrad, kWh'},
+  {id:'wirtschaft',  name:'Kalkulation',              rel:5, prio:'A', kind:'calc', hint:'Bezugspreis, MwSt, Amortisation'},
+  {id:'netzplan',    name:'Netzplantechnik',          rel:4, prio:'A', kind:'calc', hint:'FAZ, FEZ, SAZ, SEZ, GP, FP'},
+  {id:'raid',        name:'RAID-Kapazität',           rel:3, prio:'B', kind:'calc', hint:'RAID 0/1/5/6/10, JBOD'},
+  {id:'sicherheit',  name:'IT-Sicherheit & Datenschutz',rel:5,prio:'A', kind:'card',hint:'Schutzziele, DSGVO, Malware'},
+  {id:'netzwerk',    name:'Netzwerkdiagnose & OSI',   rel:5, prio:'A', kind:'card', hint:'Befehle, Schichten, Fehlersuche'},
+  {id:'ipv6',        name:'IPv6',                     rel:3, prio:'B', kind:'card', hint:'Notation, Präfix, Link-Local'},
+  {id:'hardware',    name:'Hardware & Schnittstellen',rel:4, prio:'B', kind:'card', hint:'Anschlüsse, RAM, PoE, SSD'},
+  {id:'projekt',     name:'Projektmanagement',        rel:4, prio:'B', kind:'card', hint:'Lastenheft, SMART, Phasen'},
+  {id:'recht',       name:'Wirtschaft & Recht',       rel:4, prio:'B', kind:'card', hint:'Kaufvertrag, Verzug, Leasing'},
+  {id:'daten',       name:'Datenbanken & Code',       rel:4, prio:'B', kind:'card', hint:'ERM, SQL, Pseudocode'}
+];
+const T = Object.fromEntries(TOPICS.map(t=>[t.id,t]));
+
+/* ============ Zustand ============ */
+let state = {topics:{}, cards:{}, plan:{}, v:1};
+TOPICS.forEach(t=> state.topics[t.id]={right:0,wrong:0,last:null});
+let db=null, saveTimer=null, dirty=false;
+
+function mastery(id){
+  const s=state.topics[id]||{right:0,wrong:0};
+  const n=s.right+s.wrong;
+  if(n<4) return {n, rate:n?s.right/n:0, key:'none', label:'kaum geübt', pct:n?Math.round(100*s.right/n):0};
+  const r=s.right/n, pct=Math.round(r*100);
+  const key = r>=.8 ? 'good' : r>=.55 ? 'mid' : 'bad';
+  const label = r>=.8 ? 'sicher' : r>=.55 ? 'wackelig' : 'schwach';
+  return {n, rate:r, key, label, pct};
+}
+function saveSoon(){
+  dirty=true; el('savepill').textContent='speichert …';
+  clearTimeout(saveTimer); saveTimer=setTimeout(save,900);
+}
+async function save(){
+  try{ localStorage.setItem('ap1state', JSON.stringify(state)); }catch(e){}
+  if(db){ try{ await db.doc('fortschritt/state').set(state); }catch(e){} }
+  dirty=false; el('savepill').textContent='gespeichert '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+}
+function merge(inc){
+  if(!inc||typeof inc!=='object') return;
+  TOPICS.forEach(t=>{ if(inc.topics&&inc.topics[t.id]) state.topics[t.id]=Object.assign({right:0,wrong:0,last:null},inc.topics[t.id]); });
+  state.cards = Object.assign({}, inc.cards||{});
+  state.plan  = Object.assign({}, inc.plan||{});
+}
+
+/* ============ Rechenaufgaben ============ */
+const M=1024, MI=1048576, GI=1073741824, TI=1099511627776;
+function maskOf(p){const m=[0,0,0,0];for(let i=0;i<32;i++) if(i<p) m[i>>3]|=128>>(i%8);return m.join('.')}
+function ipInt(ip){return ip.split('.').reduce((a,o)=>a*256+ +o,0)}
+function intIp(v){return [v>>>24,(v>>>16)&255,(v>>>8)&255,v&255].join('.')}
+
+const GEN = {
+  subnetting(){
+    const p = pick([25,26,27,28,29]);
+    const base = pick(['192.168.','172.20.','10.42.','192.168.']);
+    const o3 = rnd(0,60), o4 = rnd(1,254);
+    const ip = base+o3+'.'+o4;
+    const bits=32-p, block=Math.pow(2,bits);
+    const net = Math.floor(o4/block)*block, bc = net+block-1;
+    const netIp = base+o3+'.'+net, bcIp = base+o3+'.'+bc;
+    const hosts = block-2;
+    const q = pick(['net','bc','hosts','mask','last']);
+    const map={
+      net:  {t:'Geben Sie die <b>Netzadresse</b> an.', a:netIp, u:'', ip:true},
+      bc:   {t:'Geben Sie die <b>Broadcast-Adresse</b> an.', a:bcIp, u:'', ip:true},
+      hosts:{t:'Geben Sie die <b>Anzahl nutzbarer Hostadressen</b> an.', a:hosts, u:'Adressen'},
+      mask: {t:'Geben Sie die <b>Subnetzmaske</b> in Dezimalschreibweise an.', a:maskOf(p), u:'', ip:true},
+      last: {t:'Geben Sie die <b>letzte nutzbare Hostadresse</b> an.', a:base+o3+'.'+(bc-1), u:'', ip:true}
+    };
+    const s=map[q];
+    return {
+      topic:'subnetting', pts:rnd(1,2),
+      lead:'Ein Arbeitsplatzrechner hat die folgende Konfiguration erhalten.',
+      q:s.t, given:[['IP-Adresse mit Präfix', ip+'/'+p]],
+      answer:s.a, unit:s.u, ip:!!s.ip,
+      steps:[
+        `Präfix /${p} bedeutet <code>${bits}</code> Hostbits.`,
+        `Subnetzmaske: <code>${maskOf(p)}</code>`,
+        `Blockgröße: <code>256 − ${maskOf(p).split('.')[3]} = ${block}</code>`,
+        `Der Block, in dem .${o4} liegt: <code>${net} – ${bc}</code>`,
+        `Netzadresse <code>${netIp}</code>, Broadcast <code>${bcIp}</code>, Hosts <code>2^${bits} − 2 = ${hosts}</code>`
+      ],
+      trap:'Anzahl der Hosts ist 2^h <b>minus zwei</b> — Netz- und Broadcastadresse sind nicht vergebbar.'
+    };
+  },
+
+  datenmengen(){
+    const modes=['rate','speicher','bild'];
+    const mode=pick(modes);
+    if(mode==='bild'){
+      const w=pick([1920,2560,3840,4096]), h=Math.round(w*9/16);
+      const bt=pick([16,24,32]);
+      const bytes = w*h*bt/8;
+      return {
+        topic:'datenmengen', pts:3,
+        lead:'Ein unkomprimiertes Einzelbild soll gespeichert werden.',
+        q:'Berechnen Sie den <b>Speicherbedarf in MiB</b>. Runden Sie auf zwei Stellen.',
+        given:[['Auflösung',w+' × '+h+' px'],['Farbtiefe',bt+' bit']],
+        answer:bytes/MI, unit:'MiB', dec:2,
+        steps:[
+          `Pixel: <code>${de0(w)} × ${de0(h)} = ${de0(w*h)}</code>`,
+          `Bit: <code>${de0(w*h)} × ${bt} = ${de0(w*h*bt)}</code>`,
+          `Byte: <code>÷ 8 = ${de0(bytes)}</code>`,
+          `MiB: <code>÷ 1024 ÷ 1024 = ${de(bytes/MI,2)}</code>`
+        ],
+        trap:'Speicher rechnet in 1024er-Schritten — nicht in 1000ern.'
+      };
+    }
+    const w=pick([1280,1920,2560,3840]), h=Math.round(w*9/16);
+    const bt=24, fps=pick([15,20,25,30]), k=pick([5,8,10,20,30]);
+    const bps = w*h*bt*fps*(k/100);
+    if(mode==='rate'){
+      return {
+        topic:'datenmengen', pts:4,
+        lead:'Eine Netzwerkkamera überträgt einen Live-Stream.',
+        q:'Berechnen Sie die erforderliche <b>Datenübertragungsrate in Mbit/s</b>. Runden Sie auf volle Mbit/s auf.',
+        given:[['Auflösung',w+' × '+h+' px'],['Farbtiefe',bt+' bit'],['Bildrate',fps+' fps'],['Komprimierung auf',k+' %']],
+        answer:Math.ceil(bps/1e6), unit:'Mbit/s', dec:0,
+        steps:[
+          `Pixel je Bild: <code>${de0(w)} × ${de0(h)} = ${de0(w*h)}</code>`,
+          `Bit je Bild: <code>× ${bt} = ${de0(w*h*bt)}</code>`,
+          `Bit je Sekunde: <code>× ${fps} = ${de0(w*h*bt*fps)}</code>`,
+          `Komprimierung: <code>× ${(k/100).toString().replace('.',',')} = ${de0(Math.round(bps))} bit/s</code>`,
+          `In Mbit/s: <code>÷ 1.000.000 = ${de(bps/1e6,4)} → ${de0(Math.ceil(bps/1e6))}</code>`
+        ],
+        trap:'Datenraten sind dezimal: durch 1.000.000 teilen, nicht durch 1024².'
+      };
+    }
+    const cams=rnd(2,8), days=pick([1,3,7,14,30]);
+    const rate=Math.ceil(bps/1e6)*1e6, secs=days*86400;
+    const tib = rate*cams*secs/8/TI;
+    return {
+      topic:'datenmengen', pts:5,
+      lead:'Die Aufnahmen mehrerer Kameras sollen vorgehalten werden.',
+      q:'Berechnen Sie die notwendige <b>Speicherkapazität in TiB</b>. Runden Sie auf.',
+      given:[['Datenrate je Kamera',de0(rate/1e6)+' Mbit/s'],['Anzahl Kameras',cams],['Aufbewahrung',days+' Tage']],
+      answer:Math.ceil(tib), unit:'TiB', dec:0,
+      steps:[
+        `Sekunden: <code>${days} × 24 × 3.600 = ${de0(secs)}</code>`,
+        `Bit gesamt: <code>${de0(rate/1e6)}.000.000 × ${cams} × ${de0(secs)} = ${(rate*cams*secs).toExponential(4).replace('.',',')} bit</code>`,
+        `Byte: <code>÷ 8</code>`,
+        `TiB: <code>÷ 1024⁴ = ${de(tib,2)} → ${de0(Math.ceil(tib))}</code>`
+      ],
+      trap:'Datenrate dezimal umrechnen, Speicher binär. In derselben Aufgabe beides — genau darauf zielt die Prüfung.'
+    };
+  },
+
+  uebertragung(){
+    const gi = Math.random()<.5;
+    const size = gi ? pick([1,2,4,5]) : pick([100,250,500,750]);
+    const bits = gi ? size*GI*8 : size*MI*8;
+    const rate = pick([25.5,40,50.02,75.78,100,250,1000]);
+    const secs = bits/(rate*1e6);
+    const up = Math.ceil(secs);
+    return {
+      topic:'uebertragung', pts:4,
+      lead:'Eine Datei soll über die Internetleitung hochgeladen werden.',
+      q:'Berechnen Sie die <b>Übertragungsdauer in Sekunden</b>. Runden Sie auf volle Sekunden auf.',
+      given:[['Dateigröße',de0(size)+' '+(gi?'GiB':'MiB')],['Download',de(rate*2,2).replace(',00','')+' Mbit/s'],['Upload',String(rate).replace('.',',')+' Mbit/s']],
+      answer:up, unit:'s', dec:0,
+      steps:[
+        `Maßgeblich ist der <b>Upload</b>: <code>${String(rate).replace('.',',')} Mbit/s = ${de0(rate*1e6)} bit/s</code>`,
+        `Datenmenge in Bit: <code>${de0(size)} × ${gi?'1024³':'1024²'} × 8 = ${de0(bits)}</code>`,
+        `Zeit: <code>${de0(bits)} ÷ ${de0(rate*1e6)} = ${de(secs,2)} s</code>`,
+        `Aufgerundet: <code>${up} s</code>` + (up>60?` = <code>${Math.floor(up/60)} min ${up%60} s</code>`:'')
+      ],
+      trap:'Beim Hochladen zählt die Upload-Rate. Das ist der häufigste Fehler in dieser Aufgabenfamilie.'
+    };
+  },
+
+  strom(){
+    const mode=pick(['kosten','poe','steckdose']);
+    if(mode==='poe'){
+      const P=pick([13,24,32,45,51,57]), U=48;
+      const std = P<=15.4?'IEEE 802.3af':P<=30?'IEEE 802.3at':P<=60?'IEEE 802.3bt (Type 3)':'IEEE 802.3bt (Type 4)';
+      return {
+        topic:'strom', pts:3,
+        lead:'Ein Gerät wird über das Netzwerkkabel mit Strom versorgt (PoE).',
+        q:'Berechnen Sie die maximale <b>Stromstärke in mA</b>.',
+        given:[['Leistungsaufnahme',de(P,1).replace(',0','')+' W'],['Spannung',U+' V']],
+        answer:P/U*1000, unit:'mA', dec:1,
+        steps:[
+          `Formel: <code>I = P ÷ U</code>`,
+          `<code>${de(P,1).replace(',0','')} W ÷ ${U} V = ${de(P/U,4)} A</code>`,
+          `In mA: <code>× 1.000 = ${de(P/U*1000,1)} mA</code>`,
+          `Passender Standard: <b>${std}</b>`
+        ],
+        trap:'Nach der Stromstärke wird in mA gefragt — das Ergebnis in Ampere ist noch mal 1.000 zu nehmen.'
+      };
+    }
+    if(mode==='steckdose'){
+      const A=16, U=230, max=A*U;
+      const pcs=rnd(2,4), pcW=pick([180,200,220,250]);
+      const dev1=pick([400,900,1100]), dev2=pick([1800,2000,2200,2400]);
+      const sum=pcs*pcW+dev1+dev2;
+      return {
+        topic:'strom', pts:3,
+        lead:'Mehrere Geräte hängen an einer Mehrfachsteckdose mit der Aufschrift „maximal 16 A“.',
+        q:'Berechnen Sie die <b>maximal zulässige Leistung in Watt</b>.',
+        given:[['Absicherung',A+' A'],['Netzspannung',U+' V'],['angeschlossen',de0(pcs)+' × '+pcW+' W + '+dev1+' W + '+dev2+' W']],
+        answer:max, unit:'W', dec:0,
+        steps:[
+          `Formel: <code>P = U × I</code>`,
+          `<code>${A} A × ${U} V = ${de0(max)} W</code> zulässig`,
+          `Angeschlossen: <code>${pcs} × ${pcW} + ${dev1} + ${dev2} = ${de0(sum)} W</code>`,
+          sum>max ? `<b>${de0(sum)} W > ${de0(max)} W</b> → gleichzeitiger Betrieb nicht möglich`
+                  : `<b>${de0(sum)} W ≤ ${de0(max)} W</b> → gleichzeitiger Betrieb möglich`
+        ],
+        trap:'Die Prüfung will den Nachweis: zulässige Last berechnen und der tatsächlichen gegenüberstellen.'
+      };
+    }
+    const P=pick([60,120,250,450,600]), eta=pick([43,76,82,87,90,94]);
+    const hd=pick([8,9,10,24]), days=pick([200,220,250,365]);
+    const price=pick([0.28,0.30,0.34,0.40]);
+    const pzu=P/(eta/100), kwh=pzu/1000*hd*days, cost=kwh*price;
+    return {
+      topic:'strom', pts:5,
+      lead:'Für einen Rechner sollen die jährlichen Stromkosten ermittelt werden.',
+      q:'Berechnen Sie die <b>jährlichen Stromkosten in EUR</b>. Runden Sie auf zwei Stellen.',
+      given:[['Leistung der Komponenten',P+' W'],['Wirkungsgrad des Netzteils',eta+' %'],['Betrieb',days+' Tage × '+hd+' h'],['Strompreis',de(price,2)+' EUR/kWh']],
+      answer:cost, unit:'EUR', dec:2,
+      steps:[
+        `Aus dem Netz bezogen: <code>${P} W ÷ ${de(eta/100,2)} = ${de(pzu,2)} W</code>`,
+        `Betriebsstunden: <code>${days} × ${hd} = ${de0(days*hd)} h</code>`,
+        `Energie: <code>${de(pzu/1000,5)} kW × ${de0(days*hd)} h = ${de(kwh,2)} kWh</code>`,
+        `Kosten: <code>${de(kwh,2)} kWh × ${de(price,2)} EUR = ${de(cost,2)} EUR</code>`
+      ],
+      trap:'Der Wirkungsgrad wird <b>geteilt</b>, nicht multipliziert — das Netzteil zieht mehr, als der Rechner braucht.'
+    };
+  },
+
+  wirtschaft(){
+    const mode=pick(['bezug','brutto','amort','monat']);
+    if(mode==='bezug'){
+      const lp=pick([890,1190,1250,1320,1480]), rab=pick([0,3,5,8,10]), lief=pick([0,9,12,18,25]);
+      const bp=lp*(1-rab/100)+lief;
+      return {
+        topic:'wirtschaft', pts:3,
+        lead:'Für eine Beschaffung liegt ein Angebot vor.',
+        q:'Berechnen Sie den <b>Bezugspreis pro Stück in EUR</b>.',
+        given:[['Listenpreis',de(lp,2)+' EUR'],['Rabatt',rab+' %'],['Lieferkosten je Stück',de(lief,2)+' EUR']],
+        answer:bp, unit:'EUR', dec:2,
+        steps:[
+          `Rabatt abziehen: <code>${de(lp,2)} × ${de(1-rab/100,2)} = ${de(lp*(1-rab/100),2)} EUR</code>`,
+          `Lieferkosten addieren: <code>+ ${de(lief,2)} = ${de(bp,2)} EUR</code>`
+        ],
+        trap:'Reihenfolge: erst Rabatt vom Listenpreis, dann Bezugskosten dazu.'
+      };
+    }
+    if(mode==='brutto'){
+      const items=[[rnd(8,40),pick([39,120,489,512])],[rnd(1,6),pick([640,1290,2450])]];
+      const netto=items.reduce((a,[n,p])=>a+n*p,0);
+      return {
+        topic:'wirtschaft', pts:4,
+        lead:'Für ein Angebot ist der Bruttobetrag zu ermitteln.',
+        q:'Berechnen Sie den <b>Bruttobetrag in EUR</b> bei 19 % Umsatzsteuer.',
+        given:[[de0(items[0][0])+' Stück à '+de(items[0][1],2)+' EUR', de(items[0][0]*items[0][1],2)+' EUR'],
+               [de0(items[1][0])+' Stück à '+de(items[1][1],2)+' EUR', de(items[1][0]*items[1][1],2)+' EUR']],
+        answer:netto*1.19, unit:'EUR', dec:2,
+        steps:[
+          `Nettobetrag: <code>${de(items[0][0]*items[0][1],2)} + ${de(items[1][0]*items[1][1],2)} = ${de(netto,2)} EUR</code>`,
+          `Brutto: <code>${de(netto,2)} × 1,19 = ${de(netto*1.19,2)} EUR</code>`
+        ],
+        trap:'Brutto ist <b>mal</b> 1,19. Vom Brutto zum Netto wird <b>geteilt</b>, nicht 19 % abgezogen.'
+      };
+    }
+    if(mode==='amort'){
+      const mehr=pick([100,140,180,240,320]);
+      const spar=+(Math.random()*22+4).toFixed(2);
+      const mon=mehr/spar;
+      return {
+        topic:'wirtschaft', pts:3,
+        lead:'Ein teureres, aber sparsameres Gerät steht zur Auswahl.',
+        q:'Berechnen Sie, nach wie vielen <b>vollen Monaten</b> sich der Mehrpreis amortisiert hat.',
+        given:[['Mehrpreis in der Anschaffung',de(mehr,2)+' EUR'],['Ersparnis pro Monat',de(spar,2)+' EUR']],
+        answer:Math.ceil(mon), unit:'Monate', dec:0,
+        steps:[
+          `Formel: <code>Mehrpreis ÷ Ersparnis je Periode</code>`,
+          `<code>${de(mehr,2)} ÷ ${de(spar,2)} = ${de(mon,2)} Monate</code>`,
+          `Aufgerundet: <b>${Math.ceil(mon)} Monate</b>`
+        ],
+        trap:'Immer aufrunden — nach 30,6 Monaten hat sich nichts amortisiert, erst nach 31.'
+      };
+    }
+    const stk=pick([5,10,12,20,24]), preis=pick([450,720,1202,180]), jahre=pick([3,4,5]);
+    const miete=pick([22,35,50]), wartJ=pick([1200,2400,2880]);
+    const abschr=stk*preis/(jahre*12), soft=stk*miete, wart=wartJ/12;
+    const total=abschr+soft+wart;
+    return {
+      topic:'wirtschaft', pts:6,
+      lead:'Für eine Arbeitsplatzausstattung sind die laufenden Monatskosten zu ermitteln.',
+      q:'Berechnen Sie die <b>laufenden Kosten pro Monat in EUR</b>.',
+      given:[['Geräte',de0(stk)+' × '+de(preis,2)+' EUR'],['Nutzungsdauer',jahre+' Jahre'],['Softwaremiete je Platz',de(miete,2)+' EUR/Monat'],['Wartungspauschale',de(wartJ,2)+' EUR/Jahr']],
+      answer:total, unit:'EUR', dec:2,
+      steps:[
+        `Geräte: <code>${de0(stk)} × ${de(preis,2)} = ${de(stk*preis,2)} EUR ÷ ${jahre*12} Monate = ${de(abschr,2)} EUR</code>`,
+        `Software: <code>${de0(stk)} × ${de(miete,2)} = ${de(soft,2)} EUR</code>`,
+        `Wartung: <code>${de(wartJ,2)} ÷ 12 = ${de(wart,2)} EUR</code>`,
+        `Summe: <code>${de(total,2)} EUR pro Monat</code>`
+      ],
+      trap:'Die Nutzungsdauer steht in Jahren, gefragt sind Monatskosten — mal zwölf nehmen.'
+    };
+  },
+
+  netzplan(){
+    const mode=pick(['fez','saz','gp','fp']);
+    const d=rnd(2,8), faz=rnd(0,14);
+    const fez=faz+d, gp=pick([0,0,1,2,3,4]);
+    const saz=faz+gp, sez=saz+d;
+    const fazN=fez+pick([0,0,1,2,3]);
+    const map={
+      fez:{q:'Berechnen Sie den <b>frühesten Endzeitpunkt (FEZ)</b>.', a:fez, g:[['FAZ',faz],['Dauer',d]],
+           s:[`Formel: <code>FEZ = FAZ + Dauer</code>`,`<code>${faz} + ${d} = ${fez}</code>`]},
+      saz:{q:'Berechnen Sie den <b>spätesten Anfangszeitpunkt (SAZ)</b>.', a:sez-d, g:[['SEZ',sez],['Dauer',d]],
+           s:[`Formel: <code>SAZ = SEZ − Dauer</code>`,`<code>${sez} − ${d} = ${sez-d}</code>`]},
+      gp:{q:'Berechnen Sie den <b>Gesamtpuffer (GP)</b>.', a:gp, g:[['FAZ',faz],['SAZ',saz],['FEZ',fez],['SEZ',sez]],
+          s:[`Formel: <code>GP = SAZ − FAZ</code>`,`<code>${saz} − ${faz} = ${gp}</code>`,
+             `Gegenprobe: <code>SEZ − FEZ = ${sez} − ${fez} = ${gp}</code>`,
+             gp===0?'GP = 0 → der Vorgang liegt auf dem <b>kritischen Pfad</b>.':'GP > 0 → der Vorgang ist nicht kritisch.']},
+      fp:{q:'Berechnen Sie den <b>freien Puffer (FP)</b>.', a:fazN-fez, g:[['FEZ dieses Vorgangs',fez],['FAZ des Nachfolgers',fazN]],
+          s:[`Formel: <code>FP = FAZ des Nachfolgers − FEZ</code>`,`<code>${fazN} − ${fez} = ${fazN-fez}</code>`]}
+    };
+    const m=map[mode];
+    return {
+      topic:'netzplan', pts:2,
+      lead:'Aus einem Netzplan ist ein einzelner Wert zu ergänzen.',
+      q:m.q, given:m.g.map(([k,v])=>[k,String(v)+' Tage']),
+      answer:m.a, unit:'Tage', dec:0, steps:m.s,
+      trap:'Bei mehreren Vorgängern ist FAZ das <b>Maximum</b>, bei mehreren Nachfolgern SEZ das <b>Minimum</b>.'
+    };
+  },
+
+  raid(){
+    const big=rnd(2,4), bigC=pick([6,8,10]);
+    const small=rnd(3,6), smallC=pick([2,3,4]);
+    const n=big+small, k=Math.min(bigC,smallC);
+    const lvl=pick(['5','6','0','1','10','JBOD']);
+    const calc={'0':n*k,'1':k,'5':(n-1)*k,'6':(n-2)*k,'10':Math.floor(n/2)*k,'JBOD':big*bigC+small*smallC};
+    const expl={
+      '0':`RAID 0 nutzt alle Platten: <code>${n} × ${k} TB</code>`,
+      '1':`RAID 1 spiegelt vollständig, nutzbar ist die Kapazität einer Platte: <code>${k} TB</code>`,
+      '5':`RAID 5 opfert eine Platte für die Parität: <code>(${n} − 1) × ${k} TB</code>`,
+      '6':`RAID 6 opfert zwei Platten: <code>(${n} − 2) × ${k} TB</code>`,
+      '10':`RAID 10 spiegelt paarweise, nutzbar ist die Hälfte: <code>${Math.floor(n/2)} × ${k} TB</code>`,
+      'JBOD':`JBOD verkettet einfach alle Platten: <code>${big} × ${bigC} + ${small} × ${smallC} TB</code>`
+    };
+    return {
+      topic:'raid', pts:3,
+      lead:'Aus den vorhandenen Festplatten soll ein Verbund gebildet werden.',
+      q:`Berechnen Sie die <b>Nettospeicherkapazität in TB</b> für ${lvl==='JBOD'?'einen <b>JBOD</b>-Verbund':'<b>RAID '+lvl+'</b>'}.`,
+      given:[['große Platten',big+' × '+bigC+' TB'],['kleine Platten',small+' × '+smallC+' TB'],['Platten gesamt',String(n)]],
+      answer:calc[lvl], unit:'TB', dec:0,
+      steps:[
+        lvl==='JBOD' ? 'Bei JBOD zählt jede Platte mit ihrer vollen Kapazität.'
+                     : `Maßgeblich ist die <b>kleinste</b> Plattenkapazität: <code>${k} TB</code>`,
+        expl[lvl],
+        `Ergebnis: <b>${de0(calc[lvl])} TB</b>`
+      ],
+      trap:'Außer bei JBOD zählt immer die <b>kleinste</b> Platte — der Rest der großen Platten bleibt ungenutzt.'
+    };
+  }
+};
+
+/* ============ Wissenskarten ============ */
+const CARDS = [
+ ['sicherheit','Welche drei Schutzziele der Informationssicherheit gibt es, und was fragt jedes ab?',
+  '<b>Vertraulichkeit</b> — wer darf es sehen?<br><b>Integrität</b> — ist es unverändert?<br><b>Verfügbarkeit</b> — komme ich dran?'],
+ ['sicherheit','Ordne zu: Festplattenverschlüsselung, tägliches Backup, Hashwertprüfung, USV.',
+  '<ul><li>Festplattenverschlüsselung → Vertraulichkeit</li><li>Tägliches Backup → Verfügbarkeit</li><li>Hashwertprüfung → Integrität</li><li>USV → Verfügbarkeit</li></ul>'],
+ ['sicherheit','Wozu dient ein Hashwert beim Softwaredownload?',
+  'Zur <b>Integritätsprüfung</b>. Der selbst berechnete Hash wird mit dem veröffentlichten verglichen. Stimmen beide überein, wurde die Datei weder beschädigt noch manipuliert.'],
+ ['sicherheit','Beschreibe den Ablauf, wenn du jemandem eine vertraulich verschlüsselte E-Mail schickst.',
+  '<ul><li>Der Empfänger schickt dir seinen <b>öffentlichen</b> Schlüssel.</li><li>Du verschlüsselst mit dem <b>öffentlichen Schlüssel des Empfängers</b>.</li><li>Die Mail wird übertragen.</li><li>Der Empfänger entschlüsselt mit seinem <b>privaten</b> Schlüssel.</li></ul>Erreichtes Schutzziel: Vertraulichkeit.'],
+ ['sicherheit','Ein Vorteil und ein Nachteil der asymmetrischen gegenüber der symmetrischen Verschlüsselung?',
+  '<b>Vorteil:</b> Der geheime Schlüssel muss nie übertragen werden — kein Problem des sicheren Schlüsselaustauschs.<br><b>Nachteil:</b> deutlich rechenintensiver und damit langsamer.'],
+ ['sicherheit','Nenne fünf Malware-Arten mit je einem Merkmal.',
+  '<ul><li><b>Virus</b> — hängt sich an ein Wirtsprogramm</li><li><b>Wurm</b> — verbreitet sich selbstständig übers Netz</li><li><b>Trojaner</b> — versteckt in nützlicher Software</li><li><b>Ransomware</b> — verschlüsselt Daten, fordert Lösegeld</li><li><b>Keylogger / Spyware</b> — späht Eingaben und Verhalten aus</li></ul>'],
+ ['sicherheit','Drei Anzeichen für eine Phishing-Mail?',
+  'Unpersönliche Anrede · Druck und Drohung · Rechtschreibfehler · Absenderadresse passt nicht zur Organisation · Linkziel weicht vom Anzeigetext ab · unerwarteter Anhang · Aufforderung zur Eingabe von Zugangsdaten.'],
+ ['sicherheit','Warum sollen Anwender keine Administratorrechte haben?',
+  'Weil dann auch <b>Schadsoftware mit vollen Rechten läuft</b> und Systemdateien ändern, Schutzfunktionen abschalten und sich im Netz ausbreiten kann. Prinzip der minimalen Rechtevergabe: Adminrechte nur bei Bedarf und zeitlich begrenzt.'],
+ ['sicherheit','Was ist beim Backup auf externe Festplatten zu beachten?',
+  '<ul><li><b>Räumliche und zeitliche Trennung</b> vom Original</li><li>Mehrere Datenträger im Wechsel — <b>Generationenprinzip</b> (Großvater-Vater-Sohn)</li><li>Datenträger verschlüsseln</li><li>Rücksicherung regelmäßig <b>testen</b></li></ul>'],
+ ['sicherheit','Welche rechtliche Grundlage schützt personenbezogene Daten, und wozu?',
+  '<b>DSGVO</b>, ergänzend das <b>BDSG</b>. Sie schützt personenbezogene Daten vor unbefugter Erhebung, Verarbeitung, Veränderung und Weitergabe und gibt Betroffenen Rechte auf Auskunft, Berichtigung und Löschung.'],
+ ['sicherheit','Was ist ein VPN, in einem Satz?',
+  'Ein VPN baut über ein unsicheres Netz einen <b>verschlüsselten Tunnel</b> auf, sodass ein Client so arbeiten kann, als wäre er im Firmennetz.'],
+
+ ['netzwerk','Welcher Befehl zeigt IP, Maske, Gateway, DNS und MAC — und welche OSI-Schichten belegt er damit?',
+  '<code>ipconfig /all</code> (Windows) bzw. <code>ifconfig</code> / <code>ip addr</code> (Linux). Belegt Schicht <b>2</b> (MAC) und <b>3</b> (IP).'],
+ ['netzwerk','Was beweist ein erfolgreicher <code>ping</code> — und was nicht?',
+  'Er beweist Erreichbarkeit auf <b>Schicht 3</b>. Er beweist <b>nicht</b>, dass ein Dienst läuft oder die Namensauflösung funktioniert.'],
+ ['netzwerk','Wofür ist <code>nslookup</code> da?',
+  'Für die <b>Namensauflösung</b> über DNS — also OSI-Schicht 7. Typischer Test: <code>ping</code> auf die IP klappt, auf den Namen nicht → DNS-Problem.'],
+ ['netzwerk','Erkläre die Aufgabe von ARP in einem Satz.',
+  'ARP ermittelt zu einer bekannten <b>IP-Adresse</b> die zugehörige <b>MAC-Adresse</b> im lokalen Netz, damit das Paket auf Schicht 2 zugestellt werden kann.'],
+ ['netzwerk','OSI-Schichten 1, 2, 3, 4 und 7 — Name, Adresse, typischer Fehler.',
+  '<ul><li><b>7 Anwendung</b> — keine Adresse — Serverkonfiguration fehlerhaft</li><li><b>4 Transport</b> — Ports — Segment verloren</li><li><b>3 Vermittlung</b> — IP-Adressen — falsche IP oder Gateway</li><li><b>2 Sicherung</b> — MAC-Adressen — Netzwerkkarte defekt</li><li><b>1 Bitübertragung</b> — keine Adresse — Medium getrennt</li></ul>'],
+ ['netzwerk','Ein PC zeigt 169.254.87.13, obwohl ein DHCP-Server läuft. Was bedeutet das?',
+  'Die Adresse stammt aus dem <b>APIPA-Bereich 169.254.0.0/16</b>. Das System hat sie sich selbst vergeben, weil <b>kein DHCP-Server erreichbar</b> war. Ursachen: DHCP ausgefallen, Kabel nicht gesteckt, Dose nicht gepatcht, Adressbereich erschöpft.'],
+ ['netzwerk','Welche IPv4-Bereiche sind privat?',
+  '<code>10.0.0.0/8</code> · <code>172.16.0.0/12</code> · <code>192.168.0.0/16</code><br>Sie werden im Internet nicht geroutet und sind von außen nicht direkt erreichbar. Zugriff nach außen nur über NAT.'],
+ ['netzwerk','Was sagt eine dauerhaft leuchtende gegenüber einer unregelmäßig blinkenden LED an der RJ-45-Buchse?',
+  'Dauerhaft leuchtend = <b>physikalische Verbindung besteht</b> (Link). Unregelmäßig blinkend = <b>Datenverkehr</b>. Aus = kein Link, Kabel oder Gegenstelle prüfen.'],
+ ['netzwerk','Eine ping-Statistik zeigt 0 % Verlust, aber 512 ms Mittelwert. Kritisch?',
+  'Ja. Der kritische Wert ist die <b>Antwortzeit</b>. Folge: spürbare Verzögerungen, Timeouts bei Datenbankzugriffen, ruckelnde Übertragungen, abbrechende Sitzungen.'],
+ ['netzwerk','Fehler → Überprüfung → Behebung: „Die Netzwerkdose ist nicht gepatcht.“',
+  '<b>Überprüfung:</b> funktionierenden Rechner an der Dose anschließen oder Kabeltester/Network-Analyzer einsetzen, Patchfeld kontrollieren.<br><b>Behebung:</b> Dose im Patchfeld auflegen lassen oder eine andere Dose nutzen.'],
+
+ ['ipv6','Wie lang ist eine IPv6-Adresse, und wie ist sie aufgebaut?',
+  '<b>128 Bit</b>, hexadezimal in 8 Blöcken à 16 Bit, getrennt durch Doppelpunkte. Bei /64: erste 64 Bit Netz, letzte 64 Bit <b>Interface-Identifier</b>.'],
+ ['ipv6','Kürzungsregeln für IPv6?',
+  'Führende Nullen im Block weglassen. <b>Eine</b> zusammenhängende Folge von Nullblöcken durch <code>::</code> ersetzen — nur einmal pro Adresse.'],
+ ['ipv6','Schreibe <code>2001:db8:4f1a:27::8a2</code> ungekürzt.',
+  '<code>2001:0db8:4f1a:0027:0000:0000:0000:08a2</code>'],
+ ['ipv6','Was ist <code>fe80::…</code> und woher kommt die Adresse?',
+  'Eine <b>Link-Local-Adresse</b> aus <code>fe80::/10</code>. Jedes IPv6-fähige Interface erzeugt sie automatisch selbst (SLAAC). Sie gilt nur im lokalen Segment und wird nicht geroutet.'],
+ ['ipv6','Zwei Wege, IPv4 und IPv6 parallel zu betreiben?',
+  '<b>Dual-Stack:</b> Geräte haben gleichzeitig eine IPv4- und eine IPv6-Adresse.<br><b>Tunneling:</b> IPv6-Pakete werden in IPv4-Pakete gekapselt und über das bestehende Netz transportiert.'],
+
+ ['hardware','Nenne drei Vorteile einer SSD gegenüber einer HDD.',
+  'Kürzere Zugriffszeiten und höhere Datenrate · keine beweglichen Teile, unempfindlich gegen Erschütterungen · geringerer Energieverbrauch · geräuschlos · leichter und kompakter.'],
+ ['hardware','Zwei DDR4-Riegel sollen im Dual-Channel laufen. Worauf achten?',
+  'Im Handbuch die <b>Kanalbelegung</b> nachsehen (z. B. A1 und B1 oder A2 und B2) und die Riegel farblich passend paaren. Beide Riegel sollten <b>gleiche Größe</b> und Spezifikation haben.'],
+ ['hardware','Ein Laptop hat DDR4-3200. Passt ein DDR5-6000-Riegel?',
+  'Nein. <b>DDR5 ist mechanisch und elektrisch inkompatibel</b> zu DDR4-Slots. Ein DDR4-Riegel mit höherem Takt passt zwar, läuft aber nur mit dem niedrigeren Takt des Systems.'],
+ ['hardware','PoE: Welche Leistung liefern 802.3af, 802.3at und 802.3bt?',
+  '<code>802.3af</code> bis <b>15,4 W</b> · <code>802.3at</code> (PoE+) bis <b>30 W</b> · <code>802.3bt</code> Type 3 bis <b>60 W</b>, Type 4 bis <b>90 W</b>.'],
+ ['hardware','Wie dimensionierst du ein Netzteil?',
+  'Maximale Leistungsaufnahme aller Komponenten addieren, den geforderten <b>Puffer</b> aufschlagen (z. B. 10–15 %) und die <b>nächsthöhere</b> verfügbare Stufe wählen.'],
+ ['hardware','Wozu dient Wärmeleitpaste zwischen CPU und Kühler?',
+  'Sie gleicht kleine Unebenheiten der Kontaktflächen aus. Luft in diesen Spalten wäre ein schlechter Wärmeleiter — die Paste verbessert den Wärmeübergang.'],
+
+ ['projekt','Vier Merkmale eines Projekts?',
+  'Einmaligkeit · klare Zielvorgabe · zeitliche Begrenzung · begrenzte Ressourcen · eigene Projektorganisation · Komplexität.'],
+ ['projekt','Wofür stehen die SMART-Kriterien?',
+  '<b>S</b>pecific — spezifisch<br><b>M</b>easurable — messbar<br><b>A</b>ccepted / attainable — akzeptiert, erreichbar<br><b>R</b>easonable — realistisch<br><b>T</b>ime-bound — terminiert'],
+ ['projekt','Lastenheft oder Pflichtenheft — wer schreibt was?',
+  'Das <b>Lastenheft</b> schreibt der <b>Auftraggeber</b>: Anforderungen und Erwartungen, also das <b>„Was“</b>.<br>Das <b>Pflichtenheft</b> schreibt der <b>Auftragnehmer</b>: die technische Umsetzung, also das <b>„Wie“</b>.'],
+ ['projekt','Fünf typische Inhalte eines Lastenhefts?',
+  'Kurzvorstellung des Auftraggebers · Projektziel · Beschreibung der bestehenden IT-Infrastruktur · funktionale Anforderungen · Zeitrahmen · Anforderungen an IT-Sicherheit und Datenschutz · Abnahmekriterien.'],
+ ['projekt','Gantt-Diagramm gegenüber Netzplan — je ein Vorteil?',
+  '<b>Gantt:</b> zeigt den zeitlichen Ablauf als Balken sehr anschaulich, gut für die Terminplanung.<br><b>Netzplan:</b> zeigt <b>Abhängigkeiten</b>, Puffer und den kritischen Pfad.'],
+ ['projekt','Wie erkennst du den kritischen Pfad?',
+  'An allen Vorgängen mit <b>Gesamtpuffer GP = 0</b>. Eine Verzögerung dort verschiebt unmittelbar das Projektende.'],
+
+ ['recht','Wann kommt ein Kaufvertrag zustande?',
+  'Durch <b>zwei übereinstimmende Willenserklärungen</b> — Antrag und Annahme. Fehlt eine Auftragsbestätigung, gilt die Lieferung als Annahme durch schlüssiges Handeln.'],
+ ['recht','Nenne zwei Kaufvertragsstörungen und je eine Gegenmaßnahme.',
+  '<b>Lieferverzug</b> → Liefertermin vertraglich fixieren, Vertragsstrafe vereinbaren, mahnen.<br><b>Mangelhafte Lieferung</b> → Ware unverzüglich prüfen, Qualitätsanforderungen im Vertrag festhalten.'],
+ ['recht','Welche Rechte hat ein Kunde bei Lieferverzug?',
+  'Auf Lieferung bestehen · nach Fristsetzung vom Vertrag zurücktreten · <b>Schadensersatz</b> für den entstandenen Verzugsschaden verlangen.'],
+ ['recht','Drei Vorteile der Beschaffung über Leasing?',
+  'Planbare, gleichbleibende Kosten · keine hohe Anfangsinvestition, Liquidität bleibt erhalten · stets aktuelle Technik · Wartung oft im Vertrag enthalten · Raten als Betriebsausgaben absetzbar.'],
+ ['recht','Dienstvertrag oder Werkvertrag — worin liegt der Unterschied?',
+  'Beim <b>Dienstvertrag</b> wird das <b>Tätigwerden</b> geschuldet (z. B. Beratung nach Stunden).<br>Beim <b>Werkvertrag</b> wird ein <b>Ergebnis</b> geschuldet (z. B. ein fertig installiertes Netzwerk).'],
+
+ ['daten','Was bedeuten die Kardinalitäten 1:1, 1:n und n:m?',
+  '<b>1:1</b> — genau ein Datensatz je Seite.<br><b>1:n</b> — ein Datensatz auf der einen Seite, beliebig viele auf der anderen.<br><b>n:m</b> — viele zu vielen; wird über eine <b>Zwischentabelle</b> aufgelöst.'],
+ ['daten','Wie kennzeichnest du Primär- und Fremdschlüssel im ERM?',
+  'Der <b>Primärschlüssel</b> wird unterstrichen (oder mit PK markiert). Der <b>Fremdschlüssel</b> bekommt ein nachgestelltes Hash-Zeichen <code>#</code> (oder FK).'],
+ ['daten','SQL: Anzahl der Aufträge je Status?',
+  '<code>SELECT Status, COUNT(*) AS Anzahl<br>FROM Auftrag<br>GROUP BY Status;</code>'],
+ ['daten','SQL: Summe aller Beträge mit Status „offen“?',
+  '<code>SELECT SUM(Betrag)<br>FROM Auftrag<br>WHERE Status = \'offen\';</code>'],
+ ['daten','SQL: Anzahl verschiedener Kunden in der Tabelle Ticket?',
+  '<code>SELECT COUNT(DISTINCT KundenID)<br>FROM Ticket;</code>'],
+ ['daten','Was sind Redundanzen, und welches Problem entsteht daraus?',
+  'Mehrfach gespeicherte identische Informationen. Hauptproblem ist die <b>Inkonsistenz</b>: Wird nur eine Stelle geändert, widersprechen sich die Datensätze und Auswertungen werden falsch. Dazu unnötiger Speicherbedarf und Pflegeaufwand.'],
+ ['daten','Compiler oder Interpreter — wo liegt der Unterschied?',
+  'Der <b>Compiler</b> übersetzt den gesamten Quelltext einmal vorab in Maschinencode; das Programm läuft danach eigenständig und schnell.<br>Der <b>Interpreter</b> übersetzt und führt zur Laufzeit Anweisung für Anweisung aus — flexibler, aber langsamer.'],
+ ['daten','Wie gehst du einen Schreibtischtest an?',
+  'Eine <b>Wertetabelle</b> anlegen und Zeile für Zeile durchgehen, jeden Zwischenwert notieren. Nicht im Kopf rechnen. Besonders auf <code>&gt;=</code> gegenüber <code>&gt;</code> und auf <code>SONST WENN</code> achten — dort greift nur <b>ein</b> Zweig.'],
+ ['daten','Zwei Vorteile objektorientierter gegenüber prozeduraler Programmierung?',
+  'Wiederverwendbarkeit durch Klassen und Vererbung · Kapselung schützt Daten vor unkontrolliertem Zugriff · bessere Wartbarkeit großer Programme · realitätsnähere Modellierung.']
+].map((c,i)=>({id:'c'+i, topic:c[0], q:c[1], a:c[2]}));
+
+/* ============ Tagesplan ============ */
+const PLAN = [
+ ['10.09.','Einheiten und Datenmengen I',[['30 min','Einheiten bit/Byte, Ki/Mi/Gi/Ti','Umrechnung ohne Nachdenken'],['45 min','Speicherbedarf aus Auflösung × Farbtiefe','Formel sicher anwenden'],['30 min','Original F2024 Aufgabe 3da–3dc','Originalniveau kennenlernen'],['15 min','Kontrolle und Fehlerliste','Rückrechnung']]],
+ ['11.09.','Datenmengen II — dpi und Video',[['20 min','Wiederholung Tag 1','Kurztest'],['40 min','dpi → Pixel','Scan-Aufgaben lösen'],['40 min','Original H2022 Aufgabe 2a–2bb','die schwerste belegte Datenmengen-Aufgabe'],['20 min','Video-Bitrate','Formel sitzt']]],
+ ['12.09.','Übertragungszeit und Datenrate',[['20 min','Wiederholung Tag 2','Kurztest'],['45 min','t = Datenmenge ÷ Datenrate','Upload ≠ Download'],['45 min','Originale F2022 4e und F2024 4f','beide auf Anhieb richtig'],['40 min','Original F2026 1ad und 1b','Datenrate plus Speicher'],['20 min','Fehlerliste','Rückrechnung']]],
+ ['13.09.','Strom, Leistung, Energiekosten',[['20 min','Wiederholung Tag 3','Kurztest'],['40 min','P=U·I, η, kWh, Kosten','vier Formeln auswendig'],['45 min','Original H2021 2a, 2b, 2d','14 Punkte sicher'],['35 min','Originale F2024 3e/3f und F2026 1ac','Varianten erkennen'],['20 min','Amortisation','Rechenaufgaben']]],
+ ['14.09.','Subnetting I',[['20 min','Wiederholung Tag 4','Kurztest'],['50 min','CIDR /24 bis /30','ohne Tabelle rechnen'],['40 min','Originale F2026 2a, F2025 1d, F2022 3fb','alle drei richtig'],['10 min','Fehlerliste','—']]],
+ ['15.09.','Subnetting II und Adressarten',[['20 min','Wiederholung Tag 5','Kurztest'],['35 min','Private Bereiche, APIPA, DHCP','H2024 1da/1db sicher'],['35 min','Original H2024 Aufgabe 1da–1dd','15 Punkte'],['30 min','10 × Netz/Broadcast/Hosts','Tempo aufbauen']]],
+ ['16.09.','Netzplantechnik I',[['20 min','Wiederholung Tag 6','Kurztest'],['45 min','Vorwärts, rückwärts, Puffer','Reihenfolge sitzt'],['45 min','Original H2021 1c–1e','Netzplan fehlerfrei'],['10 min','Fehlerliste','—']]],
+ ['17.09.','Netzplantechnik II',[['20 min','Wiederholung Tag 7','Kurztest'],['40 min','Original F2025 3aa/3ab','10 Punkte'],['45 min','Original F2026 2e — Fehler im Netzplan finden','die schwierige Variante'],['15 min','Gantt gegenüber Netzplan','4 Punkte geschenkt']]],
+ ['18.09.','Wirtschaftliche Kalkulation',[['20 min','Wiederholung Tag 8','Kurztest'],['40 min','Abschreibung, Rabatt, MwSt, Stundensatz','Rechenschema aufschreiben'],['45 min','Originale F2024 1b, F2025 1ac, H2024 2f','16 Punkte'],['15 min','Originale H2022 1e und H2023 2e','—']]],
+ ['19.09.','Nutzwertanalyse und Zwischenstand',[['20 min','Wiederholung Tag 9','Kurztest'],['30 min','Nutzwertanalyse und KO-Kriterium','Schema in 5 Minuten aufbauen'],['40 min','Originale H2022 3g, F2024 1aa, F2025 1aa','23 Punkte'],['60 min','Probeprüfung 1 (Rechenteil, 45 Min)','Standortbestimmung'],['30 min','Auswertung','Fortschritt aktualisieren']]],
+ ['20.09.','IT-Sicherheit und Datenschutz I',[['20 min','Wiederholung Tag 10','Kurztest'],['50 min','Schutzziele und Schutzbedarf','Zuordnung mit Begründung'],['40 min','DSGVO, BDSG, weitere Rechtsgrundlagen','Grundlage in einem Satz'],['40 min','Originale H2021 4a–4e und F2026 3a','die punktstärkste Aufgabe'],['10 min','Fehlerliste','—']]],
+ ['21.09.','IT-Sicherheit II',[['20 min','Wiederholung Tag 11','Kurztest'],['45 min','Symmetrisch/asymmetrisch, Hash, Zertifikat, VPN','Ablauf in 4 Sätzen'],['35 min','Phishing und Malware-Arten','9 Punkte aus H2024 3c'],['30 min','BSI-Grundschutz, Passwörter, Backup','—'],['10 min','Fehlerliste','—']]],
+ ['22.09.','Netzwerkdiagnose und OSI',[['20 min','Wiederholung Tag 12','Kurztest'],['40 min','OSI-Tabelle','aus dem Kopf'],['35 min','ipconfig, ping, arp, nslookup','zu jedem Fehlerbild der Befehl'],['45 min','Originale F2022 Aufg. 3, F2024 Aufg. 2, F2026 2b','Fehler → Prüfung → Behebung']]],
+ ['23.09.','IPv6 und Hardware',[['20 min','Wiederholung Tag 13','Kurztest'],['40 min','IPv6-Notation, Präfix, Link-Local, Dual-Stack','ungekürzt fehlerfrei'],['30 min','Originale F2024 2c, H2022 3b/3c/3f, F2026 2c/2d','—'],['30 min','Schnittstellen, RAM, SSD, PoE','Bilder zuordnen'],['10 min','Fehlerliste','—']]],
+ ['24.09.','ERM und SQL',[['20 min','Wiederholung Tag 14','Kurztest'],['45 min','Entität, Attribut, PK, FK, Kardinalitäten','Modell aus Text ableiten'],['35 min','Originale F2026 4c, H2024 4b, H2022 4c','18 Punkte'],['20 min','SQL-Grundabfragen','Syntaxblatt liegt bei']]],
+ ['25.09.','Pseudocode, Struktogramm, UML',[['20 min','Wiederholung Tag 15','Kurztest'],['50 min','Schreibtischtest mit Wertetabelle','Methode beherrschen'],['45 min','Originale F2026 4bb und H2024 2e','beide fehlerfrei'],['25 min','UML Use-Case und Klassendiagramm','H2024 2d, F2026 4ba']]],
+ ['26.09.','Probeprüfung 2',[['90 min','Probeprüfung 2, volle 90 Minuten','1 Punkt ≈ 1 Minute'],['45 min','Selbstkorrektur mit Lösungsbogen','ehrlich bewerten'],['30 min','Fehler klassifizieren','Fehlerliste füllen'],['15 min','Plan für morgen anpassen','—']]],
+ ['27.09.','Fehlerbehebung und B-Restthemen',[['60 min','Die drei schwächsten Themen aus PP2','von unsicher auf ausreichend'],['35 min','RAID, NAS, SAN, JBOD','H2021 3e, H2022 2ca–2cc'],['35 min','Projektmanagement-Vokabular','in Stichpunkten abrufbar'],['20 min','Kaufvertrag, Verzug, Leasing','—']]],
+ ['28.09.','Probeprüfung 3',[['90 min','Probeprüfung 3, über Prüfungsniveau','Sicherheitspuffer schaffen'],['40 min','Korrektur und Auswertung','—'],['20 min','Formelsammlung komplett','jede Formel laut erklären']]],
+ ['29.09.','Ruhiger Feinschliff',[['30 min','Formelsammlung laut vorsprechen','Sicherheit'],['30 min','Fehlerliste von oben nach unten','keine Wiederholungsfehler'],['20 min','Einheiten-Blitzrunde, 20 Umrechnungen','—'],['20 min','Standardantworten IT-Sicherheit','—'],['—','Danach Schluss. Taschenrechner, Ausweis, Stifte bereitlegen.','früh schlafen']]],
+ ['30.09.','Prüfungstag',[['—','Erst alle vier Aufgaben überfliegen','2 Minuten'],['—','Rechenaufgaben zuerst','dort kostet Zeitdruck Punkte'],['—','Rechenweg immer aufschreiben','es gibt Teilpunkte für den Weg'],['—','Ersatzwerte nutzen','„Falls Sie a) nicht lösen konnten …“'],['—','Geforderte Anzahl beachten','nur die ersten Antworten zählen'],['—','Nichts leer lassen','Stichworte sind zugelassen']]]
+];
+
+/* ============ Rendern ============ */
+let calcTopic = 'subnetting', cardTopic = 'alle', curCalc=null, curCard=null, cardShown=false;
+
+function daysLeft(){
+  const t=new Date(); t.setHours(0,0,0,0);
+  return Math.max(0, Math.round((EXAM-t)/86400000));
+}
+function renderHead(){
+  const d=daysLeft();
+  el('cd').textContent=d;
+  el('cdt').innerHTML = (d===1?'Tag bis':'Tage bis')+'<br>30.09.2026';
+  let g=0,m=0,b=0,n=0;
+  TOPICS.forEach(t=>{const k=mastery(t.id).key; if(k==='good')g++; else if(k==='mid')m++; else if(k==='bad')b++; else n++;});
+  const tot=TOPICS.length;
+  const meter=el('rmeter');
+  meter.children[0].style.width=(g/tot*100)+'%';
+  meter.children[1].style.width=(m/tot*100)+'%';
+  meter.children[2].style.width=(b/tot*100)+'%';
+  el('rlabel').textContent = g+'/'+tot+' sicher';
+}
+
+function topicChips(container, list, current, onPick, withAll){
+  container.innerHTML='';
+  const mk=(id,label,key)=>{
+    const b=document.createElement('button');
+    b.className='chip'; b.setAttribute('aria-pressed', String(current===id));
+    b.innerHTML = (key!==null?`<span class="dot ${key}"></span>`:'')+label;
+    b.onclick=()=>onPick(id);
+    container.appendChild(b);
+  };
+  if(withAll) mk('alle','Alle Themen',null);
+  list.forEach(t=> mk(t.id, t.name, mastery(t.id).key==='none'?'':mastery(t.id).key));
+}
+
+function renderCalcTopics(){
+  topicChips(el('calcTopics'), TOPICS.filter(t=>t.kind==='calc'), calcTopic, id=>{calcTopic=id; newCalc();}, false);
+}
+function newCalc(){
+  renderCalcTopics();
+  curCalc = GEN[calcTopic]();
+  const q=curCalc;
+  el('calcSheet').className='sheet k-'+(mastery(q.topic).key==='none'?'accent':mastery(q.topic).key);
+  el('calcBody').innerHTML = `
+    <div class="qmeta">
+      <span class="tag">${T[q.topic].name}</span>
+      <span class="tag pts">${q.pts} ${q.pts===1?'Punkt':'Punkte'}</span>
+    </div>
+    <p class="qtext" style="color:var(--ink-soft); font-size:16px; margin-bottom:10px">${q.lead}</p>
+    <p class="qtext">${q.q}</p>
+    <div class="given">${q.given.map(([k,v])=>`<div><dt>${k}</dt><span class="v">${v}</span></div>`).join('')}</div>
+    <div class="answer">
+      <input id="calcInput" inputmode="decimal" autocomplete="off" placeholder="Ergebnis" aria-label="Dein Ergebnis">
+      ${q.unit?`<span class="unit">${q.unit}</span>`:''}
+      <button class="btn" id="calcCheck">Prüfen</button>
+      <button class="btn quiet" id="calcSkip">Lösungsweg zeigen</button>
+    </div>
+    <div id="calcOut"></div>`;
+  const inp=el('calcInput');
+  inp.focus();
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); check(); }});
+  el('calcCheck').onclick=check;
+  el('calcSkip').onclick=()=>reveal(null);
+}
+function normNum(s){
+  s=(s||'').trim().replace(/\s/g,'').replace(/\.(?=\d{3}\b)/g,'').replace(',','.');
+  const v=parseFloat(s); return isNaN(v)?null:v;
+}
+function check(){
+  const q=curCalc, raw=el('calcInput').value.trim();
+  if(!raw) return;
+  let ok;
+  if(q.ip){ ok = raw.replace(/\s/g,'') === String(q.answer); }
+  else{
+    const v=normNum(raw);
+    if(v===null) ok=false;
+    else{
+      const a=+q.answer;
+      const tol = q.dec===0 ? 0.001 : Math.max(Math.abs(a)*0.01, Math.pow(10,-(q.dec||2))*1.01);
+      ok = Math.abs(v-a) <= tol;
+    }
+  }
+  const s=state.topics[q.topic];
+  ok ? s.right++ : s.wrong++;
+  s.last=Date.now();
+  saveSoon(); renderHead(); renderCalcTopics();
+  reveal(ok);
+}
+function reveal(ok){
+  const q=curCalc;
+  const shown = q.ip ? q.answer : (q.dec===0 ? de0(Math.round(+q.answer)) : de(+q.answer, q.dec||2));
+  el('calcOut').innerHTML = `
+    ${ok===null?'':`<div class="verdict ${ok?'ok':'no'}">${ok?'Richtig.':'Noch nicht.'} Ergebnis: <b>${shown}${q.unit?' '+q.unit:''}</b></div>`}
+    ${ok===null?`<div class="verdict no" style="background:var(--surface-2); color:var(--ink-soft)">Ergebnis: <b>${shown}${q.unit?' '+q.unit:''}</b></div>`:''}
+    <div class="steps"><div class="eyebrow">Lösungsweg</div><ol>${q.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+      ${q.trap?`<p class="trap">${q.trap}</p>`:''}
+    </div>
+    <div class="answer"><button class="btn" id="calcNext">Nächste Aufgabe</button></div>`;
+  el('calcCheck').disabled=true; el('calcSkip').disabled=true; el('calcInput').disabled=true;
+  el('calcNext').onclick=newCalc; el('calcNext').focus();
+}
+
+function cardPool(){
+  return cardTopic==='alle' ? CARDS : CARDS.filter(c=>c.topic===cardTopic);
+}
+function renderCardTopics(){
+  topicChips(el('cardTopics'), TOPICS.filter(t=>t.kind==='card'), cardTopic, id=>{cardTopic=id; newCard();}, true);
+}
+function newCard(){
+  renderCardTopics();
+  const pool=cardPool();
+  const weighted=[];
+  pool.forEach(c=>{
+    const box=(state.cards[c.id]&&state.cards[c.id].box)||0;
+    const w = box===0?3 : box===1?4 : box===2?2 : 1;
+    for(let i=0;i<w;i++) weighted.push(c);
+  });
+  let next = pick(weighted);
+  if(pool.length>1 && curCard && next.id===curCard.id) next = pick(weighted.filter(c=>c.id!==curCard.id)) || next;
+  curCard=next; cardShown=false; drawCard();
+}
+function drawCard(){
+  const c=curCard;
+  el('cardSheet').className='sheet k-'+(mastery(c.topic).key==='none'?'accent':mastery(c.topic).key);
+  el('cardBody').innerHTML=`
+    <div class="qmeta"><span class="tag">${T[c.topic].name}</span></div>
+    <div class="card-face">
+      <div class="card-q">${c.q}</div>
+      ${cardShown?`<div class="card-a">${c.a}</div>`:''}
+    </div>
+    ${cardShown
+      ? `<div class="rate">
+           <button class="r-no" data-r="0">Nicht gewusst</button>
+           <button class="r-mid" data-r="1">Unsicher</button>
+           <button class="r-ok" data-r="2">Wusste ich</button>
+         </div>`
+      : `<div class="answer"><button class="btn" id="flip">Antwort aufdecken</button>
+         <button class="btn quiet" id="skipCard">Überspringen</button></div>`}`;
+  if(!cardShown){
+    el('flip').onclick=()=>{cardShown=true; drawCard();};
+    el('skipCard').onclick=newCard;
+    el('flip').focus();
+  }else{
+    el('cardBody').querySelectorAll('.rate button').forEach(b=>{
+      b.onclick=()=>{
+        const r=+b.dataset.r, s=state.topics[c.topic];
+        if(r===2) s.right++; else if(r===0) s.wrong++; else {s.right+=0.5; s.wrong+=0.5;}
+        s.last=Date.now();
+        state.cards[c.id]={box: r===2?3:r===1?2:1, seen:Date.now()};
+        saveSoon(); renderHead(); newCard();
+      };
+    });
+  }
+}
+
+function renderProgress(){
+  const rows=TOPICS.map(t=>{
+    const m=mastery(t.id);
+    const cls={good:'st-good',mid:'st-mid',bad:'st-bad',none:'st-none'}[m.key];
+    const last = state.topics[t.id].last ? new Date(state.topics[t.id].last).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}) : '–';
+    return `<div class="trow">
+      <div class="tname"><span class="dot ${m.key==='none'?'':m.key}"></span>${t.name}
+        <span class="eyebrow" style="letter-spacing:.06em">${t.prio}</span></div>
+      <div class="tsub">${t.hint} · ${m.n} Versuche · zuletzt ${last}</div>
+      <div class="tright">
+        <div class="bar" title="${m.pct} % richtig"><i style="width:${m.n?m.pct:0}%"></i></div>
+        <span class="status ${cls}">${m.label}</span>
+      </div>
+    </div>`;
+  }).join('');
+  el('topicTable').innerHTML=rows;
+
+  const ranked=TOPICS.map(t=>{
+    const m=mastery(t.id);
+    const gap = m.key==='none' ? 0.75 : 1-m.rate;
+    return {t, m, score: t.rel*gap};
+  }).sort((a,b)=>b.score-a.score).slice(0,4);
+  el('prio').innerHTML = ranked.map((r,i)=>`
+    <a href="#" data-topic="${r.t.id}" data-kind="${r.t.kind}">
+      <span class="num">${i+1}</span>
+      <span><b>${r.t.name}</b><br><span style="font-size:12.5px;color:var(--ink-soft)">${r.t.hint}</span></span>
+      <span class="why">${r.m.key==='none'?'noch nicht geübt':r.m.pct+' % richtig'}<br>Relevanz ${r.t.rel}/5</span>
+    </a>`).join('');
+  el('prio').querySelectorAll('a').forEach(a=>{
+    a.onclick=e=>{
+      e.preventDefault();
+      const id=a.dataset.topic;
+      if(a.dataset.kind==='calc'){ calcTopic=id; show('ueben'); newCalc(); }
+      else { cardTopic=id; show('wissen'); newCard(); }
+    };
+  });
+}
+
+function renderDay(){
+  const left=daysLeft();
+  let idx = PLAN.length-1-left;
+  if(idx<0) idx=0; if(idx>PLAN.length-1) idx=PLAN.length-1;
+  const [date,title,tasks]=PLAN[idx];
+  el('dayTitle').textContent = `Tag ${idx+1} · ${date} — ${title}`;
+  el('dayLede').textContent = left===0 ? 'Heute ist Prüfungstag. Unten steht deine Bearbeitungsstrategie.'
+    : `Noch ${left} ${left===1?'Tag':'Tage'}. Jeder Tag beginnt mit einem Kurztest zum Vortag — den nicht streichen.`;
+  el('dayList').innerHTML = tasks.map((t,i)=>{
+    const key=idx+'-'+i, done=!!state.plan[key];
+    return `<label class="task ${done?'done':''}">
+      <input type="checkbox" id="task-${key}" ${done?'checked':''} data-key="${key}">
+      <span class="dur">${t[0]}</span>
+      <span><span class="what">${t[1]}</span><br><span class="goal">${t[2]}</span></span>
+    </label>`;
+  }).join('');
+  el('dayList').querySelectorAll('input').forEach(cb=>{
+    cb.onchange=()=>{ state.plan[cb.dataset.key]=cb.checked; saveSoon(); renderDay(); };
+  });
+}
+
+function show(v){
+  ['ueben','wissen','fortschritt','heute'].forEach(x=>{
+    el('v-'+x).classList.toggle('hidden', x!==v);
+  });
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.view===v)));
+  if(v==='fortschritt') renderProgress();
+  if(v==='heute') renderDay();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('nav.tabs button').forEach(b=> b.onclick=()=>show(b.dataset.view));
+
+el('theme').onclick=()=>{
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme');
+  const sysDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const next = cur ? (cur==='dark'?'light':'dark') : (sysDark?'light':'dark');
+  r.setAttribute('data-theme',next);
+  try{ localStorage.setItem('ap1theme',next); }catch(e){}
+};
+try{ const th=localStorage.getItem('ap1theme'); if(th) document.documentElement.setAttribute('data-theme',th); }catch(e){}
+
+el('reset').onclick=()=>{
+  if(!confirm('Fortschritt wirklich zurücksetzen? Alle Versuche und Kartenbewertungen gehen verloren.')) return;
+  TOPICS.forEach(t=> state.topics[t.id]={right:0,wrong:0,last:null});
+  state.cards={}; state.plan={};
+  saveSoon(); renderHead(); renderProgress(); renderCalcTopics();
+};
+
+/* ---- Start ---- */
+try{ const raw=localStorage.getItem('ap1state'); if(raw) merge(JSON.parse(raw)); }catch(e){}
+renderHead(); newCalc(); renderCardTopics(); newCard();
+el('savepill').textContent='lokal in diesem Browser gespeichert';
+
+/* Eigenständige Fassung: Speicherung ausschließlich lokal im Browser. */
+if (typeof claude !== 'undefined' && claude && typeof claude.use === 'function') {
+  claude.use('db').then(async d=>{
+    if(!d) return;
+    db=d;
+    try{
+      const snap=await db.doc('fortschritt/state').get();
+      if(snap.exists){
+        merge(snap.data());
+        renderHead(); renderCalcTopics(); renderCardTopics();
+        if(!el('v-fortschritt').classList.contains('hidden')) renderProgress();
+        if(!el('v-heute').classList.contains('hidden')) renderDay();
+      }
+      el('savepill').textContent='mit deinem Konto synchronisiert';
+      db.doc('fortschritt/state').onSnapshot(s=>{
+        if(!s.exists || dirty) return;
+        merge(s.data()); renderHead(); renderCalcTopics();
+        if(!el('v-fortschritt').classList.contains('hidden')) renderProgress();
+        if(!el('v-heute').classList.contains('hidden')) renderDay();
+      }, ()=>{});
+    }catch(e){}
+  }).catch(()=>{});
+}
+</script>
+</body>
+</html>
