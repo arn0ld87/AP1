@@ -110,6 +110,8 @@ export type Database = {
           exam_id: string | null;
           frage: string | null;
           id: string;
+          intro: string | null;
+          ausgangssituation: string | null;
           max_punkte: number | null;
           musterloesung: string | null;
           teil: string | null;
