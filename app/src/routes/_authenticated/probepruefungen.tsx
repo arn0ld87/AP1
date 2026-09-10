@@ -269,12 +269,9 @@ function ProbepruefungenPage() {
           </h1>
           <p className="text-sm text-muted-foreground">
             {gesamtpunkte} / {maxP} Punkte · Note{" "}
-            <span
-              className={cn("font-semibold", bestanden ? "text-emerald-400" : "text-amber-400")}
-            >
+            <span className="font-semibold text-foreground">
               {n}
-            </span>{" "}
-            ({bestanden ? "bestanden" : "nicht bestanden"})
+            </span>
           </p>
         </header>
         <section className="space-y-4">
