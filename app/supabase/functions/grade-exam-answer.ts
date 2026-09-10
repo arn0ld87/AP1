@@ -41,7 +41,8 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok-v2", { headers: cors });
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "nur POST" }), {
-      status: 405, headers: { ...cors, "Content-Type": "application/json" },
+      status: 405,
+      headers: { ...cors, "Content-Type": "application/json" },
     });
   }
 
@@ -51,7 +52,8 @@ Deno.serve(async (req: Request) => {
   const auth = req.headers.get("authorization");
   if (!auth?.startsWith("Bearer ")) {
     return new Response(JSON.stringify({ error: "nicht angemeldet" }), {
-      status: 401, headers: { ...cors, "Content-Type": "application/json" },
+      status: 401,
+      headers: { ...cors, "Content-Type": "application/json" },
     });
   }
   const jwt = auth.slice(7);
@@ -62,59 +64,89 @@ Deno.serve(async (req: Request) => {
     body = await req.json();
   } catch {
     return new Response(JSON.stringify({ error: "ungültiges JSON" }), {
-      status: 400, headers: { ...cors, "Content-Type": "application/json" },
+      status: 400,
+      headers: { ...cors, "Content-Type": "application/json" },
     });
   }
   const questionId = body.question_id;
   const antworttext = body.antworttext ?? "";
   if (!questionId) {
     return new Response(JSON.stringify({ error: "question_id fehlt" }), {
-      status: 400, headers: { ...cors, "Content-Type": "application/json" },
+      status: 400,
+      headers: { ...cors, "Content-Type": "application/json" },
     });
   }
 
   // 1) Frage laden (Service-Rolle umgeht RLS bewusst; user wurde oben geprüft)
   const rest = Deno.env.get("SUPABASE_URL")!;
   const qRes = await fetch(
-    rest + "/rest/v1/exam_questions?id=eq." + encodeURIComponent(questionId) +
+    rest +
+      "/rest/v1/exam_questions?id=eq." +
+      encodeURIComponent(questionId) +
       "&select=frage,musterloesung,max_punkte,exam_id,aufgabe_nr,teil",
-    { headers: { apikey: key, Authorization: "Bearer " + key }, signal: AbortSignal.timeout(10_000) },
+    {
+      headers: { apikey: key, Authorization: "Bearer " + key },
+      signal: AbortSignal.timeout(10_000),
+    },
   );
   if (!qRes.ok) {
-    return new Response(JSON.stringify({ punkte: null, begruendung: "KI-Bewertung nicht verfügbar." }), {
-      status: 200, headers: { ...cors, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ punkte: null, begruendung: "KI-Bewertung nicht verfügbar." }),
+      {
+        status: 200,
+        headers: { ...cors, "Content-Type": "application/json" },
+      },
+    );
   }
   const rows: ExamQuestion[] = await qRes.json();
   const q = rows[0];
   if (!q) {
-    return new Response(JSON.stringify({ punkte: null, begruendung: "KI-Bewertung nicht verfügbar." }), {
-      status: 200, headers: { ...cors, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ punkte: null, begruendung: "KI-Bewertung nicht verfügbar." }),
+      {
+        status: 200,
+        headers: { ...cors, "Content-Type": "application/json" },
+      },
+    );
   }
 
   // 2) Bedrock aufrufen
   const bedrockKey = Deno.env.get("BEDROCK_API_KEY") ?? "";
-  const system = "Du bist Prüfer für die IHK-Abschlussprüfung AP1 Fachinformatiker Systemintegration. Bewerte nach der Musterlösung, vergib anteilige Punkte für teilweise richtige Antworten, antworte ausschließlich mit dem geforderten JSON.";
+  const system =
+    "Du bist Prüfer für die IHK-Abschlussprüfung AP1 Fachinformatiker Systemintegration. Bewerte nach der Musterlösung, vergib anteilige Punkte für teilweise richtige Antworten, antworte ausschließlich mit dem geforderten JSON.";
   const userPrompt =
-    "Aufgabe (Prüfung " + q.exam_id + ", Aufgabe " + q.aufgabe_nr + q.teil + "):\n" + q.frage +
-    "\n\nMusterlösung:\n" + q.musterloesung +
-    "\n\nMaximale Punktzahl: " + q.max_punkte +
-    "\n\nAntwort des Prüflings:\n" + (antworttext.trim() || "(leere Antwort)") +
-    "\n\nAntworte ausschließlich mit diesem JSON-Format: {\"punkte\": <ganzzahl 0.." + q.max_punkte + ">, \"begruendung\": \"<kurzer deutscher Text>\"}";
+    "Aufgabe (Prüfung " +
+    q.exam_id +
+    ", Aufgabe " +
+    q.aufgabe_nr +
+    q.teil +
+    "):\n" +
+    q.frage +
+    "\n\nMusterlösung:\n" +
+    q.musterloesung +
+    "\n\nMaximale Punktzahl: " +
+    q.max_punkte +
+    "\n\nAntwort des Prüflings:\n" +
+    (antworttext.trim() || "(leere Antwort)") +
+    '\n\nAntworte ausschließlich mit diesem JSON-Format: {"punkte": <ganzzahl 0..' +
+    q.max_punkte +
+    '>, "begruendung": "<kurzer deutscher Text>"}';
 
   let punkte: number | null = null;
   let begruendung = "KI-Bewertung nicht verfügbar.";
 
   try {
     const brRes = await fetch(
-      "https://bedrock-runtime." + AWS_REGION + ".amazonaws.com/model/" +
-        encodeURIComponent(MODEL_ID) + "/invoke",
+      "https://bedrock-runtime." +
+        AWS_REGION +
+        ".amazonaws.com/model/" +
+        encodeURIComponent(MODEL_ID) +
+        "/invoke",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + bedrockKey,
+          Authorization: "Bearer " + bedrockKey,
         },
         body: JSON.stringify({
           anthropic_version: "bedrock-2023-05-31",
@@ -153,11 +185,15 @@ Deno.serve(async (req: Request) => {
       try {
         const payload = JSON.parse(atob(jwt.split(".")[1]!)) as { sub?: string };
         userId = payload.sub ?? "";
-      } catch { /* leave empty */ }
+      } catch {
+        /* leave empty */
+      }
       await fetch(rest + "/rest/v1/exam_answers", {
         method: "POST",
         headers: {
-          apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json",
+          apikey: key,
+          Authorization: "Bearer " + key,
+          "Content-Type": "application/json",
           Prefer: "return=minimal",
         },
         body: JSON.stringify({
@@ -176,7 +212,9 @@ Deno.serve(async (req: Request) => {
         await fetch(rest + "/rest/v1/error_log", {
           method: "POST",
           headers: {
-            apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json",
+            apikey: key,
+            Authorization: "Bearer " + key,
+            "Content-Type": "application/json",
             Prefer: "return=minimal",
           },
           body: JSON.stringify({
@@ -193,6 +231,7 @@ Deno.serve(async (req: Request) => {
   }
 
   return new Response(JSON.stringify({ punkte, begruendung }), {
-    status: 200, headers: { ...cors, "Content-Type": "application/json" },
+    status: 200,
+    headers: { ...cors, "Content-Type": "application/json" },
   });
 });

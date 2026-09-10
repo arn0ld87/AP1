@@ -12,6 +12,7 @@ export type Database = {
         Row: {
           beschreibung: string | null;
           created_at: string;
+          erledigt: boolean | null;
           id: string;
           quelle: string | null;
           thema: string | null;
@@ -20,6 +21,7 @@ export type Database = {
         Insert: {
           beschreibung?: string | null;
           created_at?: string;
+          erledigt?: boolean | null;
           id?: string;
           quelle?: string | null;
           thema?: string | null;
@@ -28,6 +30,7 @@ export type Database = {
         Update: {
           beschreibung?: string | null;
           created_at?: string;
+          erledigt?: boolean | null;
           id?: string;
           quelle?: string | null;
           thema?: string | null;
@@ -47,6 +50,7 @@ export type Database = {
         Insert: {
           antworttext?: string | null;
           attempt_id: string;
+          erledigt?: boolean | null;
           id?: string;
           ki_feedback?: string | null;
           ki_punkte?: number | null;
@@ -55,6 +59,7 @@ export type Database = {
         Update: {
           antworttext?: string | null;
           attempt_id?: string;
+          erledigt?: boolean | null;
           id?: string;
           ki_feedback?: string | null;
           ki_punkte?: number | null;
@@ -90,6 +95,7 @@ export type Database = {
           exam_id?: string | null;
           finished_at?: string | null;
           gesamtpunkte?: number | null;
+          erledigt?: boolean | null;
           id?: string;
           started_at?: string;
           user_id: string;
@@ -98,6 +104,7 @@ export type Database = {
           exam_id?: string | null;
           finished_at?: string | null;
           gesamtpunkte?: number | null;
+          erledigt?: boolean | null;
           id?: string;
           started_at?: string;
           user_id?: string;
