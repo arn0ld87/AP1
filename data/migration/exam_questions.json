@@ -37,7 +37,7 @@
             "teil": "e",
             "frage": "Grundlage des Auftrags ist ein Lastenheft der VeloWerk GmbH.\nBenennen Sie vier inhaltliche Aspekte, die üblicherweise in einem Lastenheft enthalten sind.",
             "max_punkte": 4,
-            "musterloesung": "(je 1 Punkt)\nKurzvorstellung des Auftraggebers · Definition des Projektziels · Beschreibung der bestehenden\nIT-Infrastruktur · funktionale Anforderungen · Zeitrahmen · Rahmenbedingungen zu IT-Sicherheit und\nDatenschutz · Abnahmekriterien · Budgetrahmen\n\n---"
+            "musterloesung": "(je 1 Punkt)\nKurzvorstellung des Auftraggebers · Definition des Projektziels · Beschreibung der bestehenden\nIT-Infrastruktur · funktionale Anforderungen · Zeitrahmen · Rahmenbedingungen zu IT-Sicherheit und\nDatenschutz · Abnahmekriterien · Budgetrahmen"
           }
         ]
       },
@@ -80,7 +80,7 @@
             "teil": "f",
             "frage": "Nennen Sie drei weitere Maßnahmen zur Senkung der Energiekosten an IT-Arbeitsplätzen.",
             "max_punkte": 3,
-            "musterloesung": "(je 1 Punkt)\nschaltbare Steckdosenleisten gegen Standby-Verbrauch · Energiesparoptionen des Betriebssystems\naktivieren · Geräte mit guter Energieeffizienzklasse beschaffen · Thin Clients statt vollwertiger PCs ·\nMonitore mit LED-Hintergrundbeleuchtung · Servervirtualisierung zur Reduzierung der Gerätezahl ·\nAbschaltung nicht benötigter Geräte außerhalb der Arbeitszeit\n\n---"
+            "musterloesung": "(je 1 Punkt)\nschaltbare Steckdosenleisten gegen Standby-Verbrauch · Energiesparoptionen des Betriebssystems\naktivieren · Geräte mit guter Energieeffizienzklasse beschaffen · Thin Clients statt vollwertiger PCs ·\nMonitore mit LED-Hintergrundbeleuchtung · Servervirtualisierung zur Reduzierung der Gerätezahl ·\nAbschaltung nicht benötigter Geräte außerhalb der Arbeitszeit"
           }
         ]
       },
@@ -123,7 +123,7 @@
             "teil": "f",
             "frage": "Die Kameras erhalten Adressen aus dem Bereich 192.168.30.0/24.\nBeschreiben Sie, wie sich diese Adressen hinsichtlich ihrer Erreichbarkeit aus dem Internet verhalten.",
             "max_punkte": 3,
-            "musterloesung": "Es handelt sich um **private IP-Adressen** (1 P). Sie werden im Internet nicht geroutet (1 P) und\nsind daher von außen nicht direkt erreichbar; ein Zugriff nach außen erfolgt nur über NAT am Router (1 P).\n\n---"
+            "musterloesung": "Es handelt sich um **private IP-Adressen** (1 P). Sie werden im Internet nicht geroutet (1 P) und\nsind daher von außen nicht direkt erreichbar; ein Zugriff nach außen erfolgt nur über NAT am Router (1 P)."
           }
         ]
       },
@@ -152,25 +152,25 @@
           },
           {
             "teil": "da",
-            "frage": "In der Buchhaltung häufen sich verdächtige E-Mails.\n\n-\n\nNennen Sie drei Anzeichen, an denen ein Anwender eine Phishing-Mail erkennen kann. **3 Punkte**\n-",
+            "frage": "In der Buchhaltung häufen sich verdächtige E-Mails.\n\nNennen Sie drei Anzeichen, an denen ein Anwender eine Phishing-Mail erkennen kann.",
             "max_punkte": 3,
             "musterloesung": "(je 1 Punkt)\nunpersönliche Anrede · Druck und Drohung („Konto wird gesperrt\") · Rechtschreib- und Grammatikfehler ·\nAbsenderadresse weicht von der angezeigten Organisation ab · Linkziel stimmt nicht mit dem Anzeigetext\nüberein · unerwarteter Anhang · Aufforderung zur Eingabe von Zugangsdaten"
           },
           {
             "teil": "db",
-            "frage": "In der Buchhaltung häufen sich verdächtige E-Mails.\n\n-\n\nNennen Sie zwei technische oder organisatorische Maßnahmen, die das Unternehmen zum Schutz vor Phishing ergreifen kann.",
+            "frage": "In der Buchhaltung häufen sich verdächtige E-Mails.\n\nNennen Sie zwei technische oder organisatorische Maßnahmen, die das Unternehmen zum Schutz vor Phishing ergreifen kann.",
             "max_punkte": 2,
             "musterloesung": "(je 1 Punkt)\nSpamfilter und Mail-Gateway einsetzen · regelmäßige Awareness-Schulungen · Anhänge in einer Sandbox\nprüfen · SPF/DKIM/DMARC konfigurieren · klaren Meldeweg an die IT einrichten · Zwei-Faktor-Authentifizierung"
           },
           {
             "teil": "ea",
-            "frage": "Die Konstruktionsdaten werden derzeit freitags beim Herunterfahren auf eine zweite Partition\nderselben Festplatte gesichert.\n\n-\n\nBeschreiben Sie zwei Risiken dieses Vorgehens. **2 Punkte**\n-",
+            "frage": "Die Konstruktionsdaten werden derzeit freitags beim Herunterfahren auf eine zweite Partition\nderselben Festplatte gesichert.\n\nBeschreiben Sie zwei Risiken dieses Vorgehens.",
             "max_punkte": 2,
             "musterloesung": "(je 1 Punkt)\nKeine räumliche Trennung: Bei Diebstahl, Brand oder Defekt der Festplatte sind Original und Sicherung\ngleichzeitig verloren · zu langer Sicherungszyklus: Es können bis zu fünf Arbeitstage verloren gehen ·\nnur ein Sicherungsstand, ältere Versionen sind nicht wiederherstellbar · Verschlüsselungstrojaner\nbefällt die zweite Partition mit"
           },
           {
             "teil": "eb",
-            "frage": "Die Konstruktionsdaten werden derzeit freitags beim Herunterfahren auf eine zweite Partition\nderselben Festplatte gesichert.\n\n-\n\nUnterbreiten Sie einen konkreten Verbesserungsvorschlag.",
+            "frage": "Die Konstruktionsdaten werden derzeit freitags beim Herunterfahren auf eine zweite Partition\nderselben Festplatte gesichert.\n\nUnterbreiten Sie einen konkreten Verbesserungsvorschlag.",
             "max_punkte": 3,
             "musterloesung": "Sicherung auf ein **externes Medium** (1 P), das nach dem Sichern getrennt und **an einem anderen Ort**\nverwahrt wird (1 P), mit mindestens **täglicher** Sicherung der veränderten Daten nach dem\nGenerationenprinzip und regelmäßigem Test der Rücksicherung (1 P)."
           }
@@ -216,7 +216,7 @@
             "teil": "e",
             "frage": "Nennen Sie zwei Kaufvertragsstörungen und geben Sie zu jeder eine Maßnahme an,\nmit der der Kunde ihr vorbeugen kann.",
             "max_punkte": 4,
-            "musterloesung": "(je Störung 1 P, je Maßnahme 1 P)\n- **Lieferverzug** → Liefertermin vertraglich fixieren, Vertragsstrafe vereinbaren, Lieferanten sorgfältig auswählen, frühzeitig mahnen\n- **Mangelhafte Lieferung** → Ware unverzüglich prüfen, Qualitätsanforderungen im Vertrag festhalten, Referenzen einholen\n- weitere zulässig: Annahmeverzug, Zahlungsverzug, Nichtlieferung\n\n---"
+            "musterloesung": "(je Störung 1 P, je Maßnahme 1 P)\n- **Lieferverzug** → Liefertermin vertraglich fixieren, Vertragsstrafe vereinbaren, Lieferanten sorgfältig auswählen, frühzeitig mahnen\n- **Mangelhafte Lieferung** → Ware unverzüglich prüfen, Qualitätsanforderungen im Vertrag festhalten, Referenzen einholen\n- weitere zulässig: Annahmeverzug, Zahlungsverzug, Nichtlieferung"
           }
         ]
       },
@@ -259,7 +259,7 @@
             "teil": "f",
             "frage": "Für einen Arbeitsplatzrechner soll das Netzteil ausgewählt werden. Netzteile stehen von\n400 W bis 1.200 W in 50-W-Schritten zur Verfügung. Zur ermittelten Leistungsaufnahme ist ein\nPuffer von **15 %** hinzuzurechnen.\n\n| Komponente | max. Leistungsaufnahme je Stück | Anzahl |\n|---|---:|---:|\n| Prozessor | 125 W | 1 |\n| Grafikkarte | 220 W | 1 |\n| Mainboard inkl. RAM | 60 W | 1 |\n| SSD | 8 W | 2 |\n| Gehäuselüfter | 4 W | 3 |\n\nBerechnen Sie die Leistungsaufnahme mit Puffer und benennen Sie das auszuwählende Netzteil.",
             "max_punkte": 5,
-            "musterloesung": "```\nProzessor       1 × 125 W = 125 W\nGrafikkarte     1 × 220 W = 220 W\nMainboard/RAM   1 ×  60 W =  60 W\nSSD             2 ×   8 W =  16 W\nGehäuselüfter   3 ×   4 W =  12 W\n------------------------------------\nSumme                     = 433 W                                (2 P)\nPuffer 15 %:  433 W × 1,15 = 497,95 W                            (2 P)\nNächste verfügbare Stufe: 500-W-Netzteil                         (1 P)\n```\n\n---"
+            "musterloesung": "```\nProzessor       1 × 125 W = 125 W\nGrafikkarte     1 × 220 W = 220 W\nMainboard/RAM   1 ×  60 W =  60 W\nSSD             2 ×   8 W =  16 W\nGehäuselüfter   3 ×   4 W =  12 W\n------------------------------------\nSumme                     = 433 W                                (2 P)\nPuffer 15 %:  433 W × 1,15 = 497,95 W                            (2 P)\nNächste verfügbare Stufe: 500-W-Netzteil                         (1 P)\n```"
           }
         ]
       },
@@ -282,19 +282,19 @@
           },
           {
             "teil": "ca",
-            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\n-\n\nGeben Sie die Länge einer IPv6-Adresse in Bit an. **1 Punkt**\n-",
+            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\nGeben Sie die Länge einer IPv6-Adresse in Bit an.",
             "max_punkte": 1,
             "musterloesung": "— **128 Bit**"
           },
           {
             "teil": "cb",
-            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\n-\n\nGeben Sie die Adresse in ungekürzter hexadezimaler Schreibweise an. **2 Punkte**\n-",
+            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\nGeben Sie die Adresse in ungekürzter hexadezimaler Schreibweise an.",
             "max_punkte": 2,
             "musterloesung": "`2001:0db8:4f1a:0027:0000:0000:0000:08a2`"
           },
           {
             "teil": "cc",
-            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\n-\n\nNennen Sie die Präfixlänge und den Interface-Identifier.",
+            "frage": "Im Kundenzentrum wird zusätzlich IPv6 eingesetzt. Ein Gerät meldet die Adresse\n**2001:db8:4f1a:27::8a2/64**.\n\nNennen Sie die Präfixlänge und den Interface-Identifier.",
             "max_punkte": 2,
             "musterloesung": "Präfixlänge **/64** (1 P) · Interface-Identifier **0000:0000:0000:08a2** bzw. verkürzt `::8a2` (1 P)"
           },
@@ -320,7 +320,7 @@
             "teil": "g",
             "frage": "Erläutern Sie anhand eines Beispiels die grundlegende Aufgabe des Address Resolution Protocol (ARP).",
             "max_punkte": 3,
-            "musterloesung": "ARP ermittelt zu einer bekannten **IP-Adresse** die zugehörige **MAC-Adresse** im lokalen Netz (2 P).\nBeispiel: Der Rechner will 10.42.16.193 erreichen, kennt aber nur dessen IP. Er sendet einen\nARP-Broadcast „Wer hat 10.42.16.193?\". Das Zielgerät antwortet mit seiner MAC-Adresse, die\nanschließend im ARP-Cache hinterlegt wird (1 P).\n\n---"
+            "musterloesung": "ARP ermittelt zu einer bekannten **IP-Adresse** die zugehörige **MAC-Adresse** im lokalen Netz (2 P).\nBeispiel: Der Rechner will 10.42.16.193 erreichen, kennt aber nur dessen IP. Er sendet einen\nARP-Broadcast „Wer hat 10.42.16.193?\". Das Zielgerät antwortet mit seiner MAC-Adresse, die\nanschließend im ARP-Cache hinterlegt wird (1 P)."
           }
         ]
       },
@@ -337,19 +337,19 @@
           },
           {
             "teil": "ba",
-            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\n-\n\nAlle Aufträge mit einem Betrag über 500 EUR, absteigend nach Betrag sortiert. **3 Punkte**\n-",
+            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\nAlle Aufträge mit einem Betrag über 500 EUR, absteigend nach Betrag sortiert.",
             "max_punkte": 3,
             "musterloesung": "```sql\nSELECT * FROM Auftrag\nWHERE Betrag > 500\nORDER BY Betrag DESC;\n```"
           },
           {
             "teil": "bb",
-            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\n-\n\nDie Anzahl der Aufträge je Status. **3 Punkte**\n-",
+            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\nDie Anzahl der Aufträge je Status.",
             "max_punkte": 3,
             "musterloesung": "```sql\nSELECT Status, COUNT(*) AS Anzahl\nFROM Auftrag\nGROUP BY Status;\n```"
           },
           {
             "teil": "bc",
-            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\n-\n\nDie Summe aller Beträge der Aufträge mit dem Status `offen`.",
+            "frage": "Die Tabelle `Auftrag` hat die Spalten `AuftragID` (PK), `KundenID`, `Auftragsdatum`,\n`Betrag`, `Status`. Geben Sie den jeweils passenden SQL-Befehl an.\n\nDie Summe aller Beträge der Aufträge mit dem Status `offen`.",
             "max_punkte": 3,
             "musterloesung": "```sql\nSELECT SUM(Betrag) AS Gesamtbetrag\nFROM Auftrag\nWHERE Status = 'offen';\n```"
           },
@@ -419,7 +419,7 @@
             "teil": "g",
             "frage": "Die Kameras sollen über einen einzigen Switch versorgt werden. Nennen Sie zwei Angaben, die Sie\nfür die Auswahl dieses Switches zwingend benötigen.",
             "max_punkte": 2,
-            "musterloesung": "(je 1 Punkt)\n- **Gesamtes PoE-Leistungsbudget** des Switches (8 Kameras × 51 W = 408 W zuzüglich Reserve)\n- Unterstützter **PoE-Standard je Port** (hier 802.3bt Type 3)\n- ebenfalls zulässig: Anzahl benötigter Ports · Portgeschwindigkeit (mindestens 1 Gbit/s wegen 299 Mbit/s je Kamera)\n\n---"
+            "musterloesung": "(je 1 Punkt)\n- **Gesamtes PoE-Leistungsbudget** des Switches (8 Kameras × 51 W = 408 W zuzüglich Reserve)\n- Unterstützter **PoE-Standard je Port** (hier 802.3bt Type 3)\n- ebenfalls zulässig: Anzahl benötigter Ports · Portgeschwindigkeit (mindestens 1 Gbit/s wegen 299 Mbit/s je Kamera)"
           }
         ]
       },
@@ -462,7 +462,7 @@
             "teil": "f",
             "frage": "Nennen Sie zwei Möglichkeiten, die nach Ablauf der Leasingdauer bestehen.",
             "max_punkte": 2,
-            "musterloesung": "(je 1 Punkt)\nKauf der Anlage zum Restwert · Verlängerung des bestehenden Leasingvertrags ·\nAbschluss eines neuen Leasingvertrags über modernere Technik · Rückgabe der Anlage\n\n---"
+            "musterloesung": "(je 1 Punkt)\nKauf der Anlage zum Restwert · Verlängerung des bestehenden Leasingvertrags ·\nAbschluss eines neuen Leasingvertrags über modernere Technik · Rückgabe der Anlage"
           }
         ]
       },
@@ -499,7 +499,7 @@
             "teil": "e",
             "frage": "Ergänzen Sie das Entity-Relationship-Modell für folgenden Sachverhalt.\nKennzeichnen Sie die Primärschlüssel und geben Sie die Kardinalitäten an. **5 Punkte**\n\n> Ein Kunde kann mehrere Lizenzen besitzen, eine Lizenz gehört zu genau einem Kunden.\n> Gespeichert werden: Kundennummer, Firmenname, Ansprechpartner sowie\n> Lizenznummer, Lizenztyp, Gültigkeitsbeginn und Gültigkeitsende.",
             "max_punkte": 5,
-            "musterloesung": "```\n   KUNDE                                     LIZENZ\n   ---------------------                     ---------------------\n   Kundennummer (PK)                         Lizenznummer (PK)\n   Firmenname               1        n       Lizenztyp\n   Ansprechpartner  -------< besitzt >------ Gueltigkeitsbeginn\n                                             Gueltigkeitsende\n                                             Kundennummer (FK)\n```\nBewertung: zwei Entitäten mit vollständigen Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nKardinalität **1 : n** 1 P.\n\n---"
+            "musterloesung": "```\n   KUNDE                                     LIZENZ\n   ---------------------                     ---------------------\n   Kundennummer (PK)                         Lizenznummer (PK)\n   Firmenname               1        n       Lizenztyp\n   Ansprechpartner  -------< besitzt >------ Gueltigkeitsbeginn\n                                             Gueltigkeitsende\n                                             Kundennummer (FK)\n```\nBewertung: zwei Entitäten mit vollständigen Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nKardinalität **1 : n** 1 P."
           }
         ]
       },
@@ -522,19 +522,19 @@
           },
           {
             "teil": "ca",
-            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\n-\n\nBeschreiben Sie in vier Schritten den Ablauf, wenn der Betriebsleiter eine vertrauliche\n  E-Mail an den Dienstleister senden möchte. **4 Punkte**\n-",
+            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\nBeschreiben Sie in vier Schritten den Ablauf, wenn der Betriebsleiter eine vertrauliche\n  E-Mail an den Dienstleister senden möchte.",
             "max_punkte": 4,
             "musterloesung": "(je Schritt 1 Punkt)\n1. Der Dienstleister übermittelt seinen **öffentlichen** Schlüssel an den Betriebsleiter.\n2. Der Betriebsleiter verschlüsselt die E-Mail mit dem **öffentlichen Schlüssel des Dienstleisters**.\n3. Die verschlüsselte E-Mail wird übertragen; sie ist unterwegs nicht lesbar.\n4. Der Dienstleister entschlüsselt sie mit seinem **privaten** Schlüssel."
           },
           {
             "teil": "cb",
-            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\n-\n\nNennen Sie das damit erreichte IT-Schutzziel. **1 Punkt**\n-",
+            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\nNennen Sie das damit erreichte IT-Schutzziel.",
             "max_punkte": 1,
             "musterloesung": "— **Vertraulichkeit**"
           },
           {
             "teil": "cc",
-            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\n-\n\nNennen Sie einen Vorteil und einen Nachteil der asymmetrischen gegenüber der\n  symmetrischen Verschlüsselung.",
+            "frage": "Der Betriebsleiter erhält von einem Dienstleister einen öffentlichen Schlüssel zur\nverschlüsselten Kommunikation.\n\nNennen Sie einen Vorteil und einen Nachteil der asymmetrischen gegenüber der\n  symmetrischen Verschlüsselung.",
             "max_punkte": 2,
             "musterloesung": "Vorteil: Der geheime Schlüssel muss nicht übertragen werden, nur der öffentliche wird verteilt —\nkein Problem des sicheren Schlüsselaustauschs (1 P).\nNachteil: Das Verfahren ist rechenintensiver und damit deutlich langsamer als die symmetrische\nVerschlüsselung (1 P)."
           },
