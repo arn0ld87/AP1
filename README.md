@@ -55,4 +55,70 @@ Textebene. Sie sind deshalb aus allen Häufigkeitsangaben ausgenommen.
 Alle Zahlenwerte in den Probeprüfungen wurden programmatisch nachgerechnet und durch Rückrechnung
 kontrolliert. Szenarien, Firmen, Zahlen und IP-Adressen sind neu — die geforderte fachliche
 Kompetenz entspricht den Originalprüfungen.
-# AP1
+
+## AP1 Trainer — die Web-App (`app/`)
+
+Die hier abgelegten Markdown-Unterlagen sind die Quelle für eine begleitende
+Lern-Web-App: dunkles Theme im Discord-Look, Sidebar mit sieben Modulen.
+Sie wurde zuerst in Lovable gebaut (Prompts in `docs/lovable/prompts/`),
+nach dessen Credit-Limit aber exportiert und lokal weiterentwickelt.
+
+### Architektur
+
+- **Frontend:** TanStack Start (Vite + React 19 + TypeScript), Tailwind, shadcn/ui
+- **Backend:** self-hosted Supabase auf dem armserver (`supabase.alexle135.de`),
+  E-Mail+Passwort-Auth (ein Account), 6 Tabellen mit Row Level Security:
+  `topic_mastery`, `flashcard_progress`, `exam_questions` (read-only für den Client),
+  `exam_attempts`, `exam_answers`, `error_log`
+- **Build-Output:** Nitro (Cloudflare-Worker-kompatibel), Deploy-Ziel ist
+  `ap1.alexle135.de` hinter Traefik (Router-Vorlage liegt auf dem armserver)
+
+### Module
+
+| Modul | Route | Stand |
+|---|---|---|
+| Rechnen üben | `/rechnen` | fertig — 7 Aufgaben-Generatoren, `topic_mastery`-Upsert |
+| Wissenskarten | `/wissenskarten` | fertig — 47 Karten, Gewichtung `falsch/(r+f+1)`, `flashcard_progress`-Upsert |
+| Lernblätter | `/lernblaetter` | geplant (statischer Content aus `data/migration/`) |
+| Formelsammlung | `/formelsammlung` | geplant |
+| Tagesplan | `/tagesplan` | geplant |
+| Probeprüfungen | `/probepruefungen` | geplant (KI-Bewertung via Bedrock Edge-Function) |
+| Fortschritt & Fehlerliste | `/fortschritt` | geplant |
+
+### Installation
+
+Voraussetzungen: [Bun](https://bun.sh) ≥ 1.2, Netzwerkzugriff auf
+`supabase.alexle135.de` (Tailscale oder öffentlich).
+
+```bash
+cd app
+bun install          # Dependencies
+
+# .env anlegen (Supabase-Verbindung — Keys NICHT committen):
+#   VITE_SUPABASE_URL=https://supabase.alexle135.de
+#   VITE_SUPABASE_PUBLISHABLE_KEY=<publishable key, liegt in Vaultwarden>
+#   VITE_SUPABASE_PROJECT_ID=ap1-armserver
+
+bun run dev          # Dev-Server mit HMR
+bun run build        # Produktions-Build (Nitro-Output in .output/)
+bun run preview      # gebauten Output lokal ansehen
+bun run lint         # ESLint
+```
+
+Login: der eine angelegte Account (Zugangsdaten in Vaultwarden, nicht im Repo).
+Ohne Login erscheint nur der Login-Screen — alle Modulrouten liegen hinter
+dem Auth-Gate (`src/routes/_authenticated/route.tsx`).
+
+### Datenbank
+
+Schema-Migration und Seed liegen in `app/supabase/migrations/` bzw. werden
+über `docs/lovable/prompts/03-content-import.md` beschrieben (77
+Prüfungsaufgaben: 24/26/27 je Probeprüfung, je 100 Punkte). Angewendet
+werden sie direkt per `psql` im Container `supabase-db` auf dem armserver.
+
+### Historie
+
+Tasks 1–9 des SDD-Plans (`.superpowers/sdd/2026-09-10-lovable-ap1-plattform/`)
+liefen über Lovable-MCP; seit dem Credit-Stopp wird direkt in `app/`
+implementiert. Der PR dazu: arn0ld87/AP1#33.
+
