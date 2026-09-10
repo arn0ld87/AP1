@@ -9,14 +9,12 @@ export const Route = createFileRoute("/_authenticated/probepruefungen")({
       { title: "Probeprüfungen – AP1 Trainer" },
       {
         name: "description",
-        content:
-          "Simuliere die IHK AP1 Prüfung mit zeitbegrenzten Probeprüfungen.",
+        content: "Simuliere die IHK AP1 Prüfung mit zeitbegrenzten Probeprüfungen.",
       },
       { property: "og:title", content: "Probeprüfungen – AP1 Trainer" },
       {
         property: "og:description",
-        content:
-          "Simuliere die IHK AP1 Prüfung mit zeitbegrenzten Probeprüfungen.",
+        content: "Simuliere die IHK AP1 Prüfung mit zeitbegrenzten Probeprüfungen.",
       },
     ],
   }),

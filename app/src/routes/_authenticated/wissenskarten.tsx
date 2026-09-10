@@ -18,14 +18,12 @@ export const Route = createFileRoute("/_authenticated/wissenskarten")({
       { title: "Wissenskarten – AP1 Trainer" },
       {
         name: "description",
-        content:
-          "Lerne mit digitalen Karteikarten die wichtigsten Begriffe für die AP1.",
+        content: "Lerne mit digitalen Karteikarten die wichtigsten Begriffe für die AP1.",
       },
       { property: "og:title", content: "Wissenskarten – AP1 Trainer" },
       {
         property: "og:description",
-        content:
-          "Lerne mit digitalen Karteikarten die wichtigsten Begriffe für die AP1.",
+        content: "Lerne mit digitalen Karteikarten die wichtigsten Begriffe für die AP1.",
       },
     ],
   }),
@@ -36,9 +34,7 @@ const CARD_TOPICS = TOPICS.filter((t) => t.kind === "card");
 const T = Object.fromEntries(TOPICS.map((t) => [t.id, t]));
 
 /** Gewichtung laut Brief: p ∝ falsch / (richtig + falsch + 1). */
-function pickWeighted(
-  pool: { id: string; falsch: number; richtig: number }[],
-): string {
+function pickWeighted(pool: { id: string; falsch: number; richtig: number }[]): string {
   const weights = pool.map((c) => c.falsch / (c.richtig + c.falsch + 1));
   const total = weights.reduce((a, w) => a + w, 0);
   if (total <= 0) {
@@ -53,9 +49,7 @@ function pickWeighted(
 }
 
 function WissenskartenPage() {
-  const [selected, setSelected] = useState<string[]>(
-    CARD_TOPICS.map((t) => t.id),
-  );
+  const [selected, setSelected] = useState<string[]>(CARD_TOPICS.map((t) => t.id));
   const [rows, setRows] = useState<Record<string, FlashcardRow>>({});
   const [current, setCurrent] = useState<string | null>(null);
   const [flipped, setFlipped] = useState(false);
@@ -64,16 +58,12 @@ function WissenskartenPage() {
 
   useEffect(() => {
     fetchFlashcardProgress()
-      .then((data) =>
-        setRows(Object.fromEntries(data.map((r) => [r.card_id, r]))),
-      )
+      .then((data) => setRows(Object.fromEntries(data.map((r) => [r.card_id, r]))))
       .catch(() => undefined);
   }, []);
 
   const toggle = (id: string) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const nextCard = useCallback(() => {
@@ -103,8 +93,13 @@ function WissenskartenPage() {
       if (!current || lastResult) return;
       setLastResult(correct ? "right" : "wrong");
       try {
-        const row = await recordCardResult(current, correct);
-        setRows((prev) => ({ ...prev, [row.card_id]: row }));
+        await recordCardResult(current, correct);
+        setRows((prev) => {
+          const existing = prev[current];
+          const richtig = (existing?.richtig ?? 0) + (correct ? 1 : 0);
+          const falsch = (existing?.falsch ?? 0) + (correct ? 0 : 1);
+          return { ...prev, [current]: { card_id: current, richtig, falsch } };
+        });
       } catch {
         setSaveError("Bewertung konnte nicht gespeichert werden.");
       }
@@ -128,9 +123,7 @@ function WissenskartenPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Wissenskarten
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Wissenskarten</h1>
         <p className="text-sm text-muted-foreground">
           {stats.total > 0
             ? `${stats.right} richtig · ${stats.wrong} falsch · ${stats.total} Bewertungen insgesamt`
@@ -147,9 +140,7 @@ function WissenskartenPage() {
               type="button"
               onClick={() =>
                 setSelected((prev) =>
-                  prev.includes(t.id)
-                    ? prev.filter((x) => x !== t.id)
-                    : [...prev, t.id],
+                  prev.includes(t.id) ? prev.filter((x) => x !== t.id) : [...prev, t.id],
                 )
               }
               title={t.hint}
@@ -196,11 +187,7 @@ function WissenskartenPage() {
 
       {card && (
         <div className="flex flex-wrap gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setFlipped((f) => !f)}
-          >
+          <Button type="button" variant="outline" onClick={() => setFlipped((f) => !f)}>
             {flipped ? "Frage zeigen" : "Antwort zeigen"}
           </Button>
           {flipped && lastResult === null && (
@@ -208,11 +195,7 @@ function WissenskartenPage() {
               <Button type="button" onClick={() => rate(true)}>
                 <ThumbsUp className="mr-2 size-4" /> wusste ich
               </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => rate(false)}
-              >
+              <Button type="button" variant="destructive" onClick={() => rate(false)}>
                 <ThumbsDown className="mr-2 size-4" /> wusste ich nicht
               </Button>
             </>
@@ -222,9 +205,7 @@ function WissenskartenPage() {
               <ThumbsUp className="mr-2 size-4" /> Nächste Karte
             </Button>
           )}
-          {saveError && (
-            <p className="self-center text-sm text-destructive">{saveError}</p>
-          )}
+          {saveError && <p className="self-center text-sm text-destructive">{saveError}</p>}
         </div>
       )}
 

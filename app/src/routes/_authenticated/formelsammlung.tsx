@@ -9,14 +9,12 @@ export const Route = createFileRoute("/_authenticated/formelsammlung")({
       { title: "Formelsammlung – AP1 Trainer" },
       {
         name: "description",
-        content:
-          "Die wichtigsten Formeln für die IHK AP1 Prüfung auf einen Blick.",
+        content: "Die wichtigsten Formeln für die IHK AP1 Prüfung auf einen Blick.",
       },
       { property: "og:title", content: "Formelsammlung – AP1 Trainer" },
       {
         property: "og:description",
-        content:
-          "Die wichtigsten Formeln für die IHK AP1 Prüfung auf einen Blick.",
+        content: "Die wichtigsten Formeln für die IHK AP1 Prüfung auf einen Blick.",
       },
     ],
   }),

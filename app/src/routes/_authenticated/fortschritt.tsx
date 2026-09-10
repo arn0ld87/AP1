@@ -9,8 +9,7 @@ export const Route = createFileRoute("/_authenticated/fortschritt")({
       { title: "Fortschritt & Fehlerliste – AP1 Trainer" },
       {
         name: "description",
-        content:
-          "Behalte deinen Lernfortschritt und deine wiederkehrenden Fehler im Blick.",
+        content: "Behalte deinen Lernfortschritt und deine wiederkehrenden Fehler im Blick.",
       },
       {
         property: "og:title",
@@ -18,8 +17,7 @@ export const Route = createFileRoute("/_authenticated/fortschritt")({
       },
       {
         property: "og:description",
-        content:
-          "Behalte deinen Lernfortschritt und deine wiederkehrenden Fehler im Blick.",
+        content: "Behalte deinen Lernfortschritt und deine wiederkehrenden Fehler im Blick.",
       },
     ],
   }),

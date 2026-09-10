@@ -49,7 +49,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
     <aside
       className={cn(
         "flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-200 ease-out",
-        collapsed ? "w-16" : "w-64"
+        collapsed ? "w-16" : "w-64",
       )}
     >
       <div className="flex items-center gap-3 border-b border-sidebar-border px-4 py-5">
@@ -76,7 +76,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                     "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors duration-150 ease-out",
                     active
                       ? "bg-primary/10 text-primary"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                 >
                   <item.icon className="h-5 w-5 shrink-0" />

@@ -39,7 +39,7 @@ const TI = 1099511627776;
 
 function maskOf(p: number): string {
   const m = [0, 0, 0, 0];
-  for (let i = 0; i < 32; i++) if (i < p) m[i >> 3]! |= 128 >> i % 8;
+  for (let i = 0; i < 32; i++) if (i < p) m[i >> 3]! |= 128 >> (i % 8);
   return m.join(".");
 }
 
@@ -59,11 +59,36 @@ export const GEN: Record<string, () => Task> = {
     const hosts = block - 2;
     const q = pick(["net", "bc", "hosts", "mask", "last"] as const);
     const map = {
-      net: { t: "Geben Sie die <b>Netzadresse</b> an.", a: netIp as string | number, u: "", ip: true },
-      bc: { t: "Geben Sie die <b>Broadcast-Adresse</b> an.", a: bcIp as string | number, u: "", ip: true },
-      hosts: { t: "Geben Sie die <b>Anzahl nutzbarer Hostadressen</b> an.", a: hosts as string | number, u: "Adressen", ip: false },
-      mask: { t: "Geben Sie die <b>Subnetzmaske</b> in Dezimalschreibweise an.", a: maskOf(p) as string | number, u: "", ip: true },
-      last: { t: "Geben Sie die <b>letzte nutzbare Hostadresse</b> an.", a: (base + o3 + "." + (bc - 1)) as string | number, u: "", ip: true },
+      net: {
+        t: "Geben Sie die <b>Netzadresse</b> an.",
+        a: netIp as string | number,
+        u: "",
+        ip: true,
+      },
+      bc: {
+        t: "Geben Sie die <b>Broadcast-Adresse</b> an.",
+        a: bcIp as string | number,
+        u: "",
+        ip: true,
+      },
+      hosts: {
+        t: "Geben Sie die <b>Anzahl nutzbarer Hostadressen</b> an.",
+        a: hosts as string | number,
+        u: "Adressen",
+        ip: false,
+      },
+      mask: {
+        t: "Geben Sie die <b>Subnetzmaske</b> in Dezimalschreibweise an.",
+        a: maskOf(p) as string | number,
+        u: "",
+        ip: true,
+      },
+      last: {
+        t: "Geben Sie die <b>letzte nutzbare Hostadresse</b> an.",
+        a: (base + o3 + "." + (bc - 1)) as string | number,
+        u: "",
+        ip: true,
+      },
     };
     const s = map[q];
     return {
@@ -426,19 +451,30 @@ export const GEN: Record<string, () => Task> = {
       fez: {
         q: "Berechnen Sie den <b>frühesten Endzeitpunkt (FEZ)</b>.",
         a: fez,
-        g: [["FAZ", faz], ["Dauer", d]] as [string, number][],
+        g: [
+          ["FAZ", faz],
+          ["Dauer", d],
+        ] as [string, number][],
         s: [`Formel: <code>FEZ = FAZ + Dauer</code>`, `<code>${faz} + ${d} = ${fez}</code>`],
       },
       saz: {
         q: "Berechnen Sie den <b>spätesten Anfangszeitpunkt (SAZ)</b>.",
         a: sez - d,
-        g: [["SEZ", sez], ["Dauer", d]] as [string, number][],
+        g: [
+          ["SEZ", sez],
+          ["Dauer", d],
+        ] as [string, number][],
         s: [`Formel: <code>SAZ = SEZ − Dauer</code>`, `<code>${sez} − ${d} = ${sez - d}</code>`],
       },
       gp: {
         q: "Berechnen Sie den <b>Gesamtpuffer (GP)</b>.",
         a: gp,
-        g: [["FAZ", faz], ["SAZ", saz], ["FEZ", fez], ["SEZ", sez]] as [string, number][],
+        g: [
+          ["FAZ", faz],
+          ["SAZ", saz],
+          ["FEZ", fez],
+          ["SEZ", sez],
+        ] as [string, number][],
         s: [
           `Formel: <code>GP = SAZ − FAZ</code>`,
           `<code>${saz} − ${faz} = ${gp}</code>`,
@@ -451,7 +487,10 @@ export const GEN: Record<string, () => Task> = {
       fp: {
         q: "Berechnen Sie den <b>freien Puffer (FP)</b>.",
         a: fazN - fez,
-        g: [["FEZ dieses Vorgangs", fez], ["FAZ des Nachfolgers", fazN]] as [string, number][],
+        g: [
+          ["FEZ dieses Vorgangs", fez],
+          ["FAZ des Nachfolgers", fazN],
+        ] as [string, number][],
         s: [
           `Formel: <code>FP = FAZ des Nachfolgers − FEZ</code>`,
           `<code>${fazN} − ${fez} = ${fazN - fez}</code>`,

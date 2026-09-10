@@ -9,14 +9,12 @@ export const Route = createFileRoute("/_authenticated/lernblaetter")({
       { title: "Lernblätter – AP1 Trainer" },
       {
         name: "description",
-        content:
-          "Arbeite gezielt mit Lernblättern zu den AP1-Themenbereichen.",
+        content: "Arbeite gezielt mit Lernblättern zu den AP1-Themenbereichen.",
       },
       { property: "og:title", content: "Lernblätter – AP1 Trainer" },
       {
         property: "og:description",
-        content:
-          "Arbeite gezielt mit Lernblättern zu den AP1-Themenbereichen.",
+        content: "Arbeite gezielt mit Lernblättern zu den AP1-Themenbereichen.",
       },
     ],
   }),

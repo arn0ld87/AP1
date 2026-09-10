@@ -11,14 +11,12 @@ export const Route = createFileRoute("/auth")({
       { title: "Anmelden – AP1 Trainer" },
       {
         name: "description",
-        content:
-          "Melde dich mit E-Mail und Passwort an, um deinen AP1-Lernbereich zu öffnen.",
+        content: "Melde dich mit E-Mail und Passwort an, um deinen AP1-Lernbereich zu öffnen.",
       },
       { property: "og:title", content: "Anmelden – AP1 Trainer" },
       {
         property: "og:description",
-        content:
-          "Melde dich mit E-Mail und Passwort an, um deinen AP1-Lernbereich zu öffnen.",
+        content: "Melde dich mit E-Mail und Passwort an, um deinen AP1-Lernbereich zu öffnen.",
       },
     ],
   }),
@@ -71,12 +69,10 @@ function AuthPage() {
           <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Lock className="h-5 w-5" />
           </div>
-          <h1 className="text-xl font-semibold tracking-tight text-card-foreground">
-            Anmelden
-          </h1>
+          <h1 className="text-xl font-semibold tracking-tight text-card-foreground">Anmelden</h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Dieser Lernbereich ist privat. Melde dich mit deiner E-Mail-Adresse und
-            deinem Passwort an.
+            Dieser Lernbereich ist privat. Melde dich mit deiner E-Mail-Adresse und deinem Passwort
+            an.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">

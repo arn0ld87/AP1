@@ -7,48 +7,20 @@ export interface MasteryRow {
 }
 
 export async function fetchTopicMastery(): Promise<MasteryRow[]> {
-  const { data, error } = await supabase
-    .from("topic_mastery")
-    .select("topic_id, richtig, falsch");
+  const { data, error } = await supabase.from("topic_mastery").select("topic_id, richtig, falsch");
   if (error) throw error;
   return data ?? [];
 }
 
-/** Zählt richtig/falsch für ein Thema des eingeloggten Nutzers hoch. */
-export async function recordTopicResult(
-  topicId: string,
-  correct: boolean,
-): Promise<MasteryRow> {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError) throw userError;
-  const userId = userData.user?.id;
-  if (!userId) throw new Error("Nicht angemeldet.");
-
-  const { data: existing, error: readError } = await supabase
-    .from("topic_mastery")
-    .select("richtig, falsch")
-    .eq("user_id", userId)
-    .eq("topic_id", topicId)
-    .maybeSingle();
-  if (readError) throw readError;
-
-  const richtig = (existing?.richtig ?? 0) + (correct ? 1 : 0);
-  const falsch = (existing?.falsch ?? 0) + (correct ? 0 : 1);
-
-  const { data, error } = await supabase
-    .from("topic_mastery")
-    .upsert(
-      {
-        user_id: userId,
-        topic_id: topicId,
-        richtig,
-        falsch,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id,topic_id" },
-    )
-    .select("topic_id, richtig, falsch")
-    .single();
+/**
+ * Zählt richtig/falsch für ein Thema atomar hoch — das Inkrement passiert
+ * in der DB (RPC increment_topic_mastery), nicht client-seitig, damit
+ * parallele Absenden (zwei Tabs) keine Zähler verlieren.
+ */
+export async function recordTopicResult(topicId: string, correct: boolean): Promise<void> {
+  const { error } = await supabase.rpc("increment_topic_mastery", {
+    p_topic_id: topicId,
+    p_correct: correct,
+  });
   if (error) throw error;
-  return data;
 }

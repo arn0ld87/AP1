@@ -44,6 +44,11 @@ def main():
 
     for line in lines:
         if WEEK_RE.match(line):
+            # Woche wechselt erst NACH dem Flush des laufenden Tages — sonst
+            # erbt der letzte Tag der alten Woche schon die neue Woche.
+            # (current=None analog zum TAIL-Zweig, sonst doppelt flush_day.)
+            flush_day()
+            current = None
             week = int(WEEK_RE.match(line).group(1))
             continue
         if TAIL_RE.match(line):

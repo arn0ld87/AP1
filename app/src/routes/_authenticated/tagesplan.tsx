@@ -9,14 +9,12 @@ export const Route = createFileRoute("/_authenticated/tagesplan")({
       { title: "Tagesplan – AP1 Trainer" },
       {
         name: "description",
-        content:
-          "Plane dein tägliches Lernpensum für die AP1-Vorbereitung.",
+        content: "Plane dein tägliches Lernpensum für die AP1-Vorbereitung.",
       },
       { property: "og:title", content: "Tagesplan – AP1 Trainer" },
       {
         property: "og:description",
-        content:
-          "Plane dein tägliches Lernpensum für die AP1-Vorbereitung.",
+        content: "Plane dein tägliches Lernpensum für die AP1-Vorbereitung.",
       },
     ],
   }),

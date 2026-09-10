@@ -5,13 +5,7 @@ import { Check, Lightbulb, RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  GEN,
-  checkAnswer,
-  formatAnswer,
-  pick,
-  type Task,
-} from "@/lib/ap1-generators";
+import { GEN, checkAnswer, formatAnswer, pick, type Task } from "@/lib/ap1-generators";
 import { CALC_TOPICS, T, mastery } from "@/lib/ap1-topics";
 import { fetchTopicMastery, recordTopicResult, type MasteryRow } from "@/lib/topic-mastery";
 
@@ -40,9 +34,7 @@ export const Route = createFileRoute("/_authenticated/rechnen")({
 type Result = { correct: boolean; given: string } | null;
 
 function RechnenPage() {
-  const [selected, setSelected] = useState<string[]>(
-    CALC_TOPICS.map((t) => t.id),
-  );
+  const [selected, setSelected] = useState<string[]>(CALC_TOPICS.map((t) => t.id));
   const [task, setTask] = useState<Task | null>(null);
   const [value, setValue] = useState("");
   const [result, setResult] = useState<Result>(null);
@@ -52,16 +44,12 @@ function RechnenPage() {
 
   useEffect(() => {
     fetchTopicMastery()
-      .then((data) =>
-        setRows(Object.fromEntries(data.map((r) => [r.topic_id, r]))),
-      )
+      .then((data) => setRows(Object.fromEntries(data.map((r) => [r.topic_id, r]))))
       .catch(() => undefined);
   }, []);
 
   const newTask = useCallback(() => {
-    const pool = selected.length
-      ? selected
-      : CALC_TOPICS.map((t) => t.id);
+    const pool = selected.length ? selected : CALC_TOPICS.map((t) => t.id);
     const topicId = pick(pool);
     const gen = GEN[topicId];
     if (!gen) return;
@@ -78,9 +66,7 @@ function RechnenPage() {
   }, []);
 
   const toggle = (id: string) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const submit = async () => {
@@ -89,8 +75,13 @@ function RechnenPage() {
     setResult({ correct, given: value.trim() });
     if (!correct) setShowSolution(true);
     try {
-      const row = await recordTopicResult(task.topic, correct);
-      setRows((prev) => ({ ...prev, [row.topic_id]: row }));
+      await recordTopicResult(task.topic, correct);
+      setRows((prev) => {
+        const existing = prev[task.topic];
+        const richtig = (existing?.richtig ?? 0) + (correct ? 1 : 0);
+        const falsch = (existing?.falsch ?? 0) + (correct ? 0 : 1);
+        return { ...prev, [task.topic]: { topic_id: task.topic, richtig, falsch } };
+      });
     } catch {
       setSaveError("Fortschritt konnte nicht gespeichert werden.");
     }
@@ -107,9 +98,7 @@ function RechnenPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Rechnen üben
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Rechnen üben</h1>
         <p className="text-sm text-muted-foreground">
           {stats.total > 0
             ? `${stats.right} richtig · ${stats.wrong} falsch · ${stats.total} Aufgaben insgesamt`
@@ -156,9 +145,7 @@ function RechnenPage() {
             </span>
           </div>
 
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {task.lead}
-          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{task.lead}</p>
 
           <dl className="divide-y divide-border overflow-hidden rounded-lg border border-border">
             {task.given.map(([k, v], i) => (
@@ -193,9 +180,7 @@ function RechnenPage() {
               aria-label="Antwort"
               className="max-w-56 font-mono tabular-nums"
             />
-            {task.unit && (
-              <span className="text-sm text-muted-foreground">{task.unit}</span>
-            )}
+            {task.unit && <span className="text-sm text-muted-foreground">{task.unit}</span>}
             <Button type="submit" disabled={!!result || !value.trim()}>
               Prüfen
             </Button>
@@ -228,27 +213,18 @@ function RechnenPage() {
           )}
 
           {result?.correct && !showSolution && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowSolution(true)}
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => setShowSolution(true)}>
               Lösungsweg anzeigen
             </Button>
           )}
 
           {showSolution && (
             <div className="space-y-4 rounded-lg border border-border bg-background/40 p-4">
-              <h2 className="text-sm font-semibold text-foreground">
-                Lösungsweg
-              </h2>
+              <h2 className="text-sm font-semibold text-foreground">Lösungsweg</h2>
               <ol className="space-y-2 text-sm text-muted-foreground">
                 {task.steps.map((s, i) => (
                   <li key={i} className="flex gap-2">
-                    <span className="font-mono text-xs text-primary">
-                      {i + 1}.
-                    </span>
+                    <span className="font-mono text-xs text-primary">{i + 1}.</span>
                     <span
                       className="[&_b]:font-semibold [&_b]:text-foreground [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs [&_code]:text-foreground"
                       dangerouslySetInnerHTML={{ __html: s }}
@@ -266,9 +242,7 @@ function RechnenPage() {
             </div>
           )}
 
-          {saveError && (
-            <p className="text-sm text-muted-foreground">{saveError}</p>
-          )}
+          {saveError && <p className="text-sm text-muted-foreground">{saveError}</p>}
         </article>
       )}
     </div>

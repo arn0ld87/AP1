@@ -14,41 +14,15 @@ export async function fetchFlashcardProgress(): Promise<FlashcardRow[]> {
   return data ?? [];
 }
 
-/** Zählt richtig/falsch für eine Karte des eingeloggten Nutzers hoch. */
-export async function recordCardResult(
-  cardId: string,
-  correct: boolean,
-): Promise<FlashcardRow> {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError) throw userError;
-  const userId = userData.user?.id;
-  if (!userId) throw new Error("Nicht angemeldet.");
-
-  const { data: existing, error: readError } = await supabase
-    .from("flashcard_progress")
-    .select("richtig, falsch")
-    .eq("user_id", userId)
-    .eq("card_id", cardId)
-    .maybeSingle();
-  if (readError) throw readError;
-
-  const richtig = (existing?.richtig ?? 0) + (correct ? 1 : 0);
-  const falsch = (existing?.falsch ?? 0) + (correct ? 0 : 1);
-
-  const { data, error } = await supabase
-    .from("flashcard_progress")
-    .upsert(
-      {
-        user_id: userId,
-        card_id: cardId,
-        richtig,
-        falsch,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id,card_id" },
-    )
-    .select("card_id, richtig, falsch")
-    .single();
+/**
+ * Zählt richtig/falsch für eine Karte atomar hoch — das Inkrement passiert
+ * in der DB (RPC increment_flashcard_progress), nicht client-seitig, damit
+ * parallele Bewertungen (zwei Tabs) keine Zähler verlieren.
+ */
+export async function recordCardResult(cardId: string, correct: boolean): Promise<void> {
+  const { error } = await supabase.rpc("increment_flashcard_progress", {
+    p_card_id: cardId,
+    p_correct: correct,
+  });
   if (error) throw error;
-  return data;
 }
