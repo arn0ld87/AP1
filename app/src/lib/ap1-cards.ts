@@ -10,7 +10,7 @@ export interface Card {
   a: string;
 }
 
-export const CARDS = [
+export const CARDS: Card[] = [
   [
     "sicherheit",
     "Welche drei Schutzziele der Informationssicherheit gibt es, und was fragt jedes ab?",
@@ -277,4 +277,4 @@ export const CARDS = [
     "Zwei Vorteile objektorientierter gegenüber prozeduraler Programmierung?",
     "Wiederverwendbarkeit durch Klassen und Vererbung · Kapselung schützt Daten vor unkontrolliertem Zugriff · bessere Wartbarkeit großer Programme · realitätsnähere Modellierung.",
   ],
-].map((c, i) => ({ id: "c" + i, topic: c[0], q: c[1], a: c[2] }));
+].map(([topic, q, a], i): Card => ({ id: "c" + i, topic: topic!, q: q!, a: a! }));

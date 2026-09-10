@@ -187,7 +187,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      increment_flashcard_progress: {
+        Args: { p_card_id: string; p_correct: boolean };
+        Returns: undefined;
+      };
+      increment_topic_mastery: {
+        Args: { p_topic_id: string; p_correct: boolean };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;

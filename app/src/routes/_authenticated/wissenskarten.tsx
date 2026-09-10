@@ -38,14 +38,14 @@ function pickWeighted(pool: { id: string; falsch: number; richtig: number }[]): 
   const weights = pool.map((c) => c.falsch / (c.richtig + c.falsch + 1));
   const total = weights.reduce((a, w) => a + w, 0);
   if (total <= 0) {
-    return pool[Math.floor(Math.random() * pool.length)].id;
+    return pool[Math.floor(Math.random() * pool.length)]!.id;
   }
   let roll = Math.random() * total;
   for (let i = 0; i < pool.length; i++) {
-    roll -= weights[i];
-    if (roll <= 0) return pool[i].id;
+    roll -= weights[i]!;
+    if (roll <= 0) return pool[i]!.id;
   }
-  return pool[pool.length - 1].id;
+  return pool[pool.length - 1]!.id;
 }
 
 function WissenskartenPage() {
