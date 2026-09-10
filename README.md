@@ -132,5 +132,7 @@ werden sie direkt per `psql` im Container `supabase-db` auf dem armserver.
 
 Tasks 1–9 des SDD-Plans (`.superpowers/sdd/2026-09-10-lovable-ap1-plattform/`)
 liefen über Lovable-MCP; seit dem Credit-Stopp wird direkt in `app/`
-implementiert. Der PR dazu: arn0ld87/AP1#33.
+implementiert. Der PR dazu: arn0ld87/AP1#33. CI für PRs läuft seit
+arn0ld87/AP1#38 (`.github/workflows/pr-check.yml`: Lint, Prettier, Typecheck,
+Build, Edge-Function-Check, Migrationsskripte-Check).
 

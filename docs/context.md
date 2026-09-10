@@ -45,7 +45,7 @@ Task 10 direkt in `app/` weiterentwickelt, gegen ein self-hosted Supabase auf de
 Das ändert Architektur und Deploy-Ziel gegenüber der ursprünglichen Spec (siehe
 [architecture.md](architecture.md)), nicht aber Vision, Feature-Umfang oder Nicht-Ziele.
 
-## Aktueller Stand (10.09.2026)
+## Aktueller Stand (11.09.2026)
 
 - Tasks 1–9 (Migration, Supabase-Auth, Content-Import, Rechnen üben) gemerged via
   [PR #33](https://github.com/arn0ld87/AP1/pull/33); Entwicklung läuft seit Task 10 direkt in `app/`.
@@ -61,3 +61,8 @@ Das ändert Architektur und Deploy-Ziel gegenüber der ursprünglichen Spec (sie
   [#37](https://github.com/arn0ld87/AP1/pull/37)). Offener End-To-End-Check: einmal mit echtem
   Login eine Probeprüfung durchspielen.
 - Docs-Standabgleich erfolgte via PR [#35](https://github.com/arn0ld87/AP1/pull/35).
+- CI etabliert via [PR #38](https://github.com/arn0ld87/AP1/pull/38): GitHub-Actions-Workflow
+  `.github/workflows/pr-check.yml` — fünf parallele Checks je PR (Lint, Prettier, Typecheck,
+  Build, `deno check` der Edge Function, `py_compile` der Migrationsskripte). Der neu eingeführte
+  `deno check` fand dabei einen realen TS-Typo in `grade-exam-answer.ts` (unvollständige
+  Response-Typ-Annotation), der im selben PR gefixt wurde.

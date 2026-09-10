@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-AP1-Prüfungsvorbereitung (Fachinformatiker Systemintegration, Prüfungstermin **30.09.2026**). Kein
-Software-Projekt im klassischen Sinn — es gibt keinen Build, kein Lint, keine Test-Suite. Der Inhalt
-ist Lernmaterial in Markdown plus ein einziges selbstständiges HTML-Tool. Es gibt keine
-Build-/Lint-/Test-Befehle, weil es kein Package-Manifest (`package.json`, `pyproject.toml` o. ä.) gibt.
+AP1-Prüfungsvorbereitung (Fachinformatiker Systemintegration, Prüfungstermin **30.09.2026**). Lernmaterial
+in Markdown plus ein eigenständiges HTML-Tool und — seit der Migration zur Web-App — die Web-App unter
+`app/` (TanStack Start + self-hosted Supabase, Bun). Für den App-Code gibt es Lint/Typecheck/Build als
+CI-Checks je PR; das Lernmaterial hat weiterhin keinen Build.
 
 ## Struktur
 
@@ -24,6 +24,10 @@ lernen/                   9 Lernblätter zu den A-/B-Themen, einheitliche Strukt
 probepruefungen/          3 vollständige Probeprüfungen ohne Lösungen (90 Min., Altprüfungs-Stil)
 loesungen/                zugehörige Musterlösungen mit Punkteverteilung
 AP1-Trainer.html          eigenständiges Offline-Übungstool (siehe unten)
+app/                      Web-App (TanStack Start + self-hosted Supabase, Bun) — Tasks 1–15 gemerged
+scripts/migrate/          Python-Parses für den Content-Import der Web-App
+docs/                     Stand-Doku: context.md, vision.md, architecture.md, data-model.md, api.md, agents/
+.github/workflows/pr-check.yml  CI je PR (Lint/Prettier, Typecheck, Build, Edge-Function, Skripte)
 ```
 
 Die Datengrundlage (welche Prüfungstermine ausgewertet wurden, welche nicht) und der empfohlene
@@ -47,27 +51,34 @@ Zustand ausschließlich in `localStorage` (`ap1state`, `ap1theme`). Relevante St
 die entsprechende `lernen/*.md`-Datei bzw. `02_FORMELSAMMLUNG.md`, falls diese als Quelle der
 Wahrheit dienen soll — beide sind aktuell unabhängig gepflegt, nicht generiert.
 
-## Migration zur Web-App (in Arbeit, PR #33)
+## Web-App-Migration (Stand 11.09.2026)
 
-Dieses statische Material wird in eine Web-App mit KI-Prüfungsbewertung überführt. Der genehmigte
-Plan ging von einer reinen Lovable-App aus; die tatsächliche Umsetzung ist seit dem
-Lovable-Credit-Limit-Pivot davon abgewichen (Details: [docs/context.md](docs/context.md#pivot-lovable-credit-limit-10092026)).
-Stand und Code liegen auf Branch `worktree-ap1-lovable-plattform`
-([PR #33](https://github.com/arn0ld87/AP1/pull/33)), **noch nicht nach `main` gemerged** — auf `main`
-existieren `app/`, `data/`, `scripts/migrate/` und `docs/lovable/` deshalb noch nicht.
+Tasks 1–15 gemerged (PRs #33–#36), CI-Checks je PR live ([PR #38](https://github.com/arn0ld87/AP1/pull/38)),
+Task 16 Live-Deploy in Arbeit ([PR #39](https://github.com/arn0ld87/AP1/pull/39)). Task-/PR-Tabelle und
+Arbeitsregeln stehen in `AGENTS.md` — Weiterarbeit auf Feature-Branches, nicht direkt auf `main`.
 
-- Ursprüngliche Spec: `docs/superpowers/specs/2026-09-10-lovable-ap1-plattform-design.md`
-- Ursprünglicher Plan: `docs/superpowers/plans/2026-09-10-lovable-ap1-plattform.md`
+- Ursprüngliche Spec/Plan: `docs/superpowers/specs/`, `docs/superpowers/plans/`
 - Warum/Ausgangslage + Pivot: [docs/context.md](docs/context.md)
 - Produktvision & Nicht-Ziele: [docs/vision.md](docs/vision.md)
-- Aktuelle Architektur & Feature-Module (Stand nach Pivot): [docs/architecture.md](docs/architecture.md)
+- Architektur & Feature-Module: [docs/architecture.md](docs/architecture.md)
 - Datenmodell (self-hosted Supabase/Postgres): [docs/data-model.md](docs/data-model.md)
-- API / KI-Bewertungs-Flow (Edge Function, noch nicht implementiert): [docs/api.md](docs/api.md)
+- API / KI-Bewertungs-Flow (Edge Function `grade-exam-answer`, implementiert): [docs/api.md](docs/api.md)
 
 Wichtige Constraints (nicht wiederholen, nur verlinkt): Auth ist Single-User (Alex), KI-Modell ist
-Claude Haiku 4.5 über Amazon Bedrock (Modell-ID verifiziert:
-`eu.anthropic.claude-haiku-4-5-20251001-v1:0`; Fallback 3.5 Haiku noch ungetestet), Secrets
-ausschließlich als Supabase-Edge-Function-Secret, kein automatisierter Test-Runner.
+Claude Haiku 4.5 über Amazon Bedrock (Modell-ID `eu.anthropic.claude-haiku-4-5-20251001-v1:0`;
+Fallback 3.5 Haiku ungetestet), Secrets ausschließlich als Supabase-Edge-Function-Secret, kein
+automatisierter Test-Runner (CI deckt Lint/Typecheck/Build ab, keine Test-Suite).
 
-Auf dem PR-Branch weiterarbeiten mit `superpowers:subagent-driven-development` oder
-`superpowers:executing-plans`, wie im Plan-Header vermerkt — nicht auf `main`.
+## Agent skills
+
+### Issue tracker
+
+Issues leben in GitHub Issues (`arn0ld87/AP1`, `gh` CLI). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default-Vokabular: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context — ein `CONTEXT.md` + `docs/adr/` am Repo-Root (werden lazy von /domain-modeling erzeugt). See `docs/agents/domain.md`.
