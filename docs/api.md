@@ -7,9 +7,17 @@ eigene Endpunkte. Läuft seit dem Lovable-Pivot (siehe
 [context.md](context.md#pivot-lovable-credit-limit-10092026)) auf dem self-hosted Supabase auf dem
 armserver, nicht mehr auf Lovables verwaltetem Projekt.
 
-> **Stand:** Das Probeprüfungs-Modul (und damit diese Edge Function) ist noch nicht implementiert —
-> siehe Modul-Tabelle in [architecture.md](architecture.md#feature-module-7). Der Ablauf unten ist der
-> geplante Flow für Task 14.
+> **Stand:** Implementiert als `grade-exam-answer.ts`, mit `main` gemerged via
+> [PR #36](https://github.com/arn0ld87/AP1/pull/36) (Tasks 14–15). Deploy auf dem self-hosted
+> Supabase inkl. Secrets ist Teil von Task 16. `verify_jwt = true` ist in `app/supabase/config.toml`
+> gepinnt.
+>
+> **Verifiziert (10.09.2026, Live-Test):** `AWS_BEDROCK_API_KEY` (Format `ABSKT…`) authentifiziert per
+> `Authorization: Bearer` gegen `bedrock-runtime.eu-central-1.amazonaws.com` — sowohl
+> `/model/{id}/invoke` (Antwort-Shape `content[]`) als auch `/model/{id}/converse` (Shape
+> `output.message`), jeweils HTTP 200. Der alte `BEDROCK_GATEWAY_KEY` (`gw-…`) liefert 403 und ist
+> obsolet. Die Function liest `AWS_BEDROCK_API_KEY` und parst primär das Invoke-Shape mit
+> Converse-Fallback.
 
 ## Edge Function: KI-Bewertung
 
@@ -36,7 +44,8 @@ Implementierungs-Task „09-pruefungsmodus-ki-bewertung" im Plan.
   Modell-ID `eu.anthropic.claude-haiku-4-5-20251001-v1:0`.
 - Fallback: **Claude 3.5 Haiku** — die dokumentierte Fallback-ID lieferte im Test „invalid model
   identifier"; ungetestet, solange der Fallback nicht tatsächlich gebraucht wird (Task 14).
-- Secrets: `AWS_BEDROCK_API_KEY` / `BEDROCK_GATEWAY_KEY`, in Vaultwarden hinterlegt (`vw get <name>`).
+- Secrets: `AWS_BEDROCK_API_KEY`, in Vaultwarden hinterlegt (`vw get AWS_BEDROCK_API_KEY`); der
+  frühere `BEDROCK_GATEWAY_KEY` ist obsolet (Live-Test 403) und wird aus Vaultwarden entfernt.
   **Ausschließlich** als Supabase-Edge-Function-Secret konfigurieren — niemals im Frontend-Bundle,
   Prompt-Text oder Chat im Klartext.
 

@@ -111,7 +111,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // 2) Bedrock aufrufen
-  const bedrockKey = Deno.env.get("BEDROCK_API_KEY") ?? "";
+  const bedrockKey = Deno.env.get("AWS_BEDROCK_API_KEY") ?? "";
   const system =
     "Du bist Prüfer für die IHK-Abschlussprüfung AP1 Fachinformatiker Systemintegration. Bewerte nach der Musterlösung, vergib anteilige Punkte für teilweise richtige Antworten, antworte ausschließlich mit dem geforderten JSON.";
   const userPrompt =
