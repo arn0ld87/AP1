@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AlarmClock, ArrowLeft, Play } from "lucide-react";
 
+import { MarkdownContent } from "@/components/markdown-content";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -38,6 +40,17 @@ const EXAM_TITLES: Record<string, string> = {
 };
 const PRUEFUNG_DAUER_S = 90 * 60;
 
+/**
+ * Breiten-Shell: Auswahl bleibt als kurze Liste schmal, Prüfungs- und
+ * Ergebnisansicht nutzen die volle nutzbare Breite des Content-Bereichs
+ * (Seitenabstände kommen aus dem AppLayout), gedeckelt bei 1500px.
+ */
+const SHELL_NARROW = "mx-auto w-full max-w-3xl space-y-6 pt-4 md:pt-8";
+const SHELL_WIDE = "mx-auto w-full max-w-[1500px] space-y-6 pt-4 md:pt-8";
+/** Fließtext in Fragen/Lösungen bleibt lesbar, Tabellen und Code nicht. */
+const PROSE =
+  "text-sm leading-relaxed text-card-foreground [&>blockquote]:max-w-[75ch] [&>ol]:max-w-[75ch] [&>p]:max-w-[75ch] [&>ul]:max-w-[75ch]";
+
 interface Attempt {
   id: string;
   exam_id: string | null;
@@ -46,19 +59,6 @@ interface Attempt {
 }
 
 type Phase = "auswahl" | "modus" | "ergebnis";
-
-/** Inline-Renderer (escaped) für Frage-HTML aus der DB. */
-function EscapedHtml({ src, className }: { src: string | null; className?: string }) {
-  src = src ?? "";
-  const html = useMemo(() => {
-    const esc = src.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return esc
-      .replace(/`([^`]+)`/g, '<code class="rounded bg-muted px-1 font-mono text-xs">$1</code>')
-      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
-      .replace(/\n/g, "<br>");
-  }, [src]);
-  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} />;
-}
 
 function ProbepruefungenPage() {
   const [phase, setPhase] = useState<Phase>("auswahl");
@@ -212,11 +212,15 @@ function ProbepruefungenPage() {
     return [...byNr.entries()].sort((a, b) => a[0] - b[0]);
   }, [fragen]);
   const ausgang = fragen[0]?.ausgangssituation ?? null;
+  const beantwortet = useMemo(
+    () => fragen.filter((f) => (answers[f.id] ?? "").trim().length > 0).length,
+    [fragen, answers],
+  );
 
   // ---------- Auswahl ----------
   if (phase === "auswahl") {
     return (
-      <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
+      <div className={SHELL_NARROW}>
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Probeprüfungen</h1>
           <p className="text-sm text-muted-foreground">
@@ -252,7 +256,7 @@ function ProbepruefungenPage() {
     const maxP = maxPunkteVon(fragen);
     const n = notenstufe(Math.round((100 * gesamtpunkte) / Math.max(1, maxP)));
     return (
-      <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
+      <div className={SHELL_WIDE}>
         <Button variant="ghost" onClick={() => setPhase("auswahl")} className="pl-0">
           <ArrowLeft className="mr-1.5 size-4" /> Alle Prüfungen
         </Button>
@@ -268,54 +272,81 @@ function ProbepruefungenPage() {
         </header>
         <section className="space-y-4">
           {fragen.map((f) => (
-            <article key={f.id} className="space-y-2 rounded-xl border border-border bg-card p-4">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-xs text-muted-foreground">
-                  {f.aufgabe_nr}
-                  {f.teil} · {f.max_punkte ?? 0} P
-                </span>
-                <span className="font-mono text-sm font-semibold text-foreground">
-                  {results[f.id]?.punkte ?? 0} / {f.max_punkte}
+            <article
+              key={f.id}
+              className="space-y-4 rounded-xl border border-border bg-card p-4 md:p-5"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <TeilBadge nr={f.aufgabe_nr ?? 0} teil={f.teil} />
+                <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
+                  {results[f.id]?.punkte ?? 0} / {f.max_punkte ?? 0} P
                 </span>
               </div>
-              <EscapedHtml src={f.frage} className="text-sm text-card-foreground" />
-              {f.intro && <EscapedHtml src={f.intro} className="text-xs text-muted-foreground" />}
-              <p className="text-xs text-muted-foreground">Eigene Antwort:</p>
-              <p className="rounded-lg border border-border p-2 text-sm">
-                {answers[f.id] || "(leer)"}
-              </p>
-              <p className="text-xs text-muted-foreground">Musterlösung:</p>
-              <EscapedHtml
-                src={f.musterloesung}
-                className="rounded-lg border border-border p-2 text-xs text-muted-foreground"
-              />
-              <p className="text-xs text-muted-foreground">KI-Begründung:</p>
-              <p className="text-sm text-card-foreground">{results[f.id]?.begruendung ?? "–"}</p>
-              {results[f.id]?.punkte === null && (
-                <SelfGrade
-                  frage={f}
-                  onSelfGrade={(id, p) => {
-                    // Erst persistieren, dann State setzen — schlägt der
-                    // Upsert fehl, bleibt die Selbsteinschätzung editierbar.
-                    void (async () => {
-                      try {
-                        await upsertSelfGrade(supabase, {
-                          attemptId: attempt.id,
-                          questionId: id,
-                          antworttext: answers[id] ?? "",
-                          punkte: p,
-                        });
-                        setResults((prev) => ({
-                          ...prev,
-                          [id]: { punkte: p, begruendung: "Selbst eingeschätzt." },
-                        }));
-                      } catch (e) {
-                        setError(e instanceof Error ? e.message : "Speichern fehlgeschlagen.");
-                      }
-                    })();
-                  }}
-                />
-              )}
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <div className="min-w-0 space-y-3">
+                  <MarkdownContent src={f.frage} className={PROSE} />
+                  {f.intro && (
+                    <MarkdownContent
+                      src={f.intro}
+                      className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground"
+                    />
+                  )}
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Eigene Antwort
+                    </p>
+                    <p className="whitespace-pre-wrap rounded-lg border border-border bg-background/40 p-3 text-sm leading-relaxed text-card-foreground">
+                      {answers[f.id]?.trim() || "(leer)"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="min-w-0 space-y-3">
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Musterlösung
+                    </p>
+                    <MarkdownContent
+                      src={f.musterloesung}
+                      className="rounded-lg border border-border bg-background/40 p-3 text-sm text-muted-foreground"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      KI-Begründung
+                    </p>
+                    <p className="text-sm leading-relaxed text-card-foreground">
+                      {results[f.id]?.begruendung ?? "–"}
+                    </p>
+                  </div>
+                  {results[f.id]?.punkte === null && (
+                    <SelfGrade
+                      frage={f}
+                      onSelfGrade={(id, p) => {
+                        // Erst persistieren, dann State setzen — schlägt der
+                        // Upsert fehl, bleibt die Selbsteinschätzung editierbar.
+                        void (async () => {
+                          try {
+                            await upsertSelfGrade(supabase, {
+                              attemptId: attempt.id,
+                              questionId: id,
+                              antworttext: answers[id] ?? "",
+                              punkte: p,
+                            });
+                            setResults((prev) => ({
+                              ...prev,
+                              [id]: { punkte: p, begruendung: "Selbst eingeschätzt." },
+                            }));
+                          } catch (e) {
+                            setError(e instanceof Error ? e.message : "Speichern fehlgeschlagen.");
+                          }
+                        })();
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
             </article>
           ))}
         </section>
@@ -326,13 +357,27 @@ function ProbepruefungenPage() {
   // ---------- Prüfungsmodus ----------
   const mm = String(Math.floor(restS / 60)).padStart(2, "0");
   const ss = String(restS % 60).padStart(2, "0");
+  const knapp = restS <= 5 * 60;
   return (
-    <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
-      <div className="sticky top-0 z-10 flex items-center justify-between rounded-xl border border-border bg-background/95 px-4 py-3 backdrop-blur">
-        <span className="flex items-center gap-2 font-mono text-lg font-semibold text-foreground">
-          <AlarmClock className="size-5 text-primary" />
-          {mm}:{ss}
-        </span>
+    <div className={SHELL_WIDE}>
+      <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-background/95 px-4 py-3 backdrop-blur">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
+          <span
+            className={cn(
+              "flex items-center gap-2 font-mono text-lg font-semibold tabular-nums",
+              knapp ? "text-status-bad" : "text-foreground",
+            )}
+          >
+            <AlarmClock className={cn("size-5", knapp ? "text-status-bad" : "text-primary")} />
+            {mm}:{ss}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            <span className="font-mono tabular-nums text-foreground">
+              {beantwortet}/{fragen.length}
+            </span>{" "}
+            beantwortet · {maxPunkteVon(fragen)} P gesamt
+          </span>
+        </div>
         <Button type="button" onClick={abgeben} disabled={submitting}>
           {submitting ? "Bewertung läuft…" : "Prüfung abgeben"}
         </Button>
@@ -341,42 +386,51 @@ function ProbepruefungenPage() {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {ausgang && (
-        <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+        <section className="space-y-2 rounded-xl border border-border bg-card p-4 md:p-5">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Ausgangssituation
           </h2>
-          <EscapedHtml src={ausgang} className="text-sm text-card-foreground" />
+          <MarkdownContent src={ausgang} className={PROSE} />
         </section>
       )}
 
       {aufgaben.map(([nr, teile]) => (
         <section key={nr} className="space-y-3">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Aufgabe {nr}</h2>
+          <div className="flex items-baseline justify-between gap-3 border-b border-border pb-2">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">Aufgabe {nr}</h2>
+            <span className="font-mono text-xs tabular-nums text-muted-foreground">
+              {teile.reduce((a, f) => a + (f.max_punkte ?? 0), 0)} P
+            </span>
+          </div>
           {teile[0]?.intro && (
-            <EscapedHtml
+            <MarkdownContent
               src={teile[0].intro}
-              className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground"
+              className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground"
             />
           )}
           {teile.map((f) => (
-            <article key={f.id} className="space-y-2 rounded-xl border border-border bg-card p-4">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-xs text-muted-foreground">
-                  {nr}
-                  {f.teil}
-                </span>
-                <span className="font-mono text-xs text-muted-foreground">
+            <article
+              key={f.id}
+              className="space-y-4 rounded-xl border border-border bg-card p-4 transition-colors focus-within:border-primary/40 md:p-5"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <TeilBadge nr={nr} teil={f.teil} />
+                <span className="font-mono text-xs tabular-nums text-muted-foreground">
                   {f.max_punkte ?? 0} P
                 </span>
               </div>
-              <EscapedHtml src={f.frage} className="text-sm text-card-foreground" />
-              <Input
-                value={answers[f.id] ?? ""}
-                onChange={(e) => setAnswers((prev) => ({ ...prev, [f.id]: e.target.value }))}
-                placeholder="Antwort…"
-              />
+
+              <div className="grid gap-4 2xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] 2xl:items-start">
+                <MarkdownContent src={f.frage} className={cn(PROSE, "min-w-0")} />
+                <AnswerField
+                  value={answers[f.id] ?? ""}
+                  onChange={(v) => setAnswers((prev) => ({ ...prev, [f.id]: v }))}
+                  label={`Antwort ${nr}${f.teil ?? ""}`}
+                />
+              </div>
+
               {results[f.id] && (
-                <div className="space-y-1 rounded-lg border border-border p-2 text-xs">
+                <div className="space-y-1 rounded-lg border border-border p-3 text-xs">
                   <p className="font-semibold text-foreground">
                     {results[f.id]!.punkte === null
                       ? "KI nicht verfügbar"
@@ -389,6 +443,70 @@ function ProbepruefungenPage() {
           ))}
         </section>
       ))}
+    </div>
+  );
+}
+
+/** Kennzeichnung der Teilaufgabe (1a, 1b, …) — trennt die Unteraufgaben sichtbar. */
+function TeilBadge({ nr, teil }: { nr: number; teil: string | null }) {
+  return (
+    <span className="rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 font-mono text-xs font-semibold text-foreground">
+      {nr}
+      {teil ?? ""}
+    </span>
+  );
+}
+
+/**
+ * Antwortfeld als echter Arbeitsbereich: mehrzeilig, wächst mit dem Inhalt
+ * und behält Einrückungen (Rechenwege, Wertetabellen, Pseudocode).
+ */
+function AnswerField({
+  value,
+  onChange,
+  label,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  label: string;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  // Höhe an den Inhalt angleichen — vor dem Paint, damit nichts springt.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
+
+  const zeilen = value ? value.split("\n").length : 0;
+  return (
+    <div className="min-w-0 space-y-1.5">
+      <div className="flex items-baseline justify-between gap-2">
+        <label
+          htmlFor={`answer-${label}`}
+          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+        >
+          Deine Antwort
+        </label>
+        {value.trim() && (
+          <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+            {zeilen} {zeilen === 1 ? "Zeile" : "Zeilen"} · {value.trim().length} Zeichen
+          </span>
+        )}
+      </div>
+      <Textarea
+        id={`answer-${label}`}
+        ref={ref}
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        spellCheck={false}
+        rows={8}
+        placeholder="Antwort, Rechenweg, Stichpunkte oder Tabelle …"
+        className="min-h-44 resize-none overflow-hidden bg-background/40 font-mono text-sm leading-relaxed"
+      />
     </div>
   );
 }
