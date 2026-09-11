@@ -45,10 +45,13 @@ Probeprüfungs-Modul bewertet über die Edge Function `grade-exam-answer` (siehe
 
 ## Auth & Deploy
 
-- Auth: E-Mail + Passwort, ein einzelner Account (Alex) — kein Multi-User (siehe
-  [vision.md](vision.md#nicht-ziele-aktuelle-iteration)). Implementiert als Route-Guard
-  (`app/src/routes/_authenticated/route.tsx`) + Login (`app/src/routes/auth.tsx`,
-  `signInWithPassword`), kein Social Login, keine Registrierungs-UI.
+- Auth: E-Mail + Passwort, Multi-User mit offener Registrierung (seit Feature-Branch
+  `public-signup`): Tabs „Anmelden/Registrieren" auf `/auth`, E-Mail-Bestätigung erforderlich
+  (SMTP: Fastmail, Absender `noreply@alexle135.de`), Self-Service-Kontolöschung über die
+  Edge Function `delete-account` (Button in der Sidebar). Route-Guard
+  (`app/src/routes/_authenticated/route.tsx`) bleibt, kein Social Login. Die
+  GoTrue-Einstellungen (SITE_URL → `pruefung.alexle135.de`, SMTP, `DISABLE_SIGNUP=false`)
+  liegen in `/opt/supabase/.env` am armserver.
 - Backend: self-hosted Supabase auf dem armserver (`supabase.alexle135.de`) — nicht mehr Lovables
   verwaltetes Supabase-Projekt (Pivot, siehe oben). Schema-Migrationen liegen in
   `app/supabase/migrations/`, angewendet per `psql` im Container `supabase-db`.
@@ -59,10 +62,17 @@ Probeprüfungs-Modul bewertet über die Edge Function `grade-exam-answer` (siehe
   Tailscale-Netz erreichbar. Compose liegt unter `deploy/docker-compose.pruefung.yml` (auf dem
   Server `/opt/pruefung-frontend/`). `ap1.alexle135.de` ist dagegen der ältere Vor-Pivot-Deploy
   (Lovable-Projekt „ap1-skill-simulator") und läuft unberührt parallel.
-- Edge Function `grade-exam-answer`: deployed unter
-  `/opt/supabase/volumes/functions/main/grade-exam-answer/index.ts` auf dem armserver; Env am
-  Container `functions`: `AWS_BEDROCK_API_KEY` (aus Vaultwarden), `VERIFY_JWT=true` (Bounce-Main
-  verifiziert User-JWTs gegen JWKS).
+- Edge Function `grade-exam-answer`: deployed auf dem armserver unter
+  **`/opt/supabase/volumes/functions/grade-exam-answer/index.ts`** (Achtung: die Kopie unter
+  `main/grade-exam-answer/` ist ein Relikt und wird **nicht** served — der edge-runtime
+  discovered per Function-Verzeichnis, Log „serving the request with
+  /home/deno/functions/<name>" zeigt die echte Quelle). Env am Container
+  `supabase-edge-functions`: `AWS_BEDROCK_API_KEY` (aus Vaultwarden), `VERIFY_JWT=true`
+  (Main-Service `main/index.ts` verifiziert User-JWTs gegen JWKS).
+- KI-Modell: **Amazon Nova Lite** (`eu.amazon.nova-lite-v1:0`) über die Bedrock **Converse
+  API** — Anthropic-Modelle sind für den AWS-Account nicht freigeschaltet (Stand 11.09.2026,
+  getestet), Nova läuft nur über die CRIS-Inferenz-Profil-ID (`eu.`-Präfix), nicht on-demand.
+  Tageslimit: max. 50 KI-Bewertungen je Nutzer/Tag (UTC), geprüft in der Edge Function.
 
 ## Design-System
 
@@ -72,10 +82,11 @@ abgerundete Karten, eigenständige Optik ohne Bezug zum alexle135-Branding.
 ## KI-Bewertungs-Flow (Kurzfassung)
 
 Ausführlich in [api.md](api.md). Kurz: Frontend → Supabase Edge Function (prüft JWT + Attempt-
-Eigentümerschaft serverseitig) → lädt Musterlösung aus `exam_questions` → Bedrock-Aufruf
-(Claude Haiku 4.5, kein Modell-Fallback) → Punkte + Begründung zurück → Upsert in `exam_answers`
-(eine Bewertung je Attempt/Frage), niedrige Bewertungen fließen in `error_log`. Bei
-Bedrock-Fehler: Musterlösung wird trotzdem angezeigt, Selbsteinschätzung als Fallback.
+Eigentümerschaft serverseitig + Tageslimit) → lädt Musterlösung aus `exam_questions` → Bedrock-
+Aufruf (Amazon Nova Lite über Converse API, kein Modell-Fallback) → Punkte + Begründung zurück →
+Upsert in `exam_answers` (eine Bewertung je Attempt/Frage), niedrige Bewertungen fließen in
+`error_log`. Bei Bedrock-Fehler: Musterlösung wird trotzdem angezeigt, Selbsteinschätzung als
+Fallback.
 
 ## Verifikation
 

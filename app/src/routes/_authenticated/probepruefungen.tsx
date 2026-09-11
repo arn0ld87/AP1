@@ -158,7 +158,9 @@ function ProbepruefungenPage() {
         },
       );
       if (!res.ok) {
-        throw new Error("grade-exam-answer: HTTP " + res.status);
+        // 429 (KI-Tageslimit) liefert eine verständliche Fehlermeldung im Body.
+        const errBody = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errBody?.error ?? "grade-exam-answer: HTTP " + res.status);
       }
       return (await res.json()) as { punkte: number | null; begruendung?: string };
     },

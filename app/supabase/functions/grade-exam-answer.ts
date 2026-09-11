@@ -9,6 +9,9 @@
  *
  * Sicherheit:
  * - JWT muss vorhanden sein (zusätzlich prüft der Gateway bei VERIFY_JWT).
+ * - Tageslimit: max. DAILY_KI_LIMIT KI-Bewertungen je Nutzer/Tag (UTC).
+ *   Zählt exam_answers mit ki_punkte des Tages; nicht prüfbar → 503
+ *   (fail-closed, Kostenschutz).
  * - Service Role umgeht RLS bewusst — deshalb Eigentümerschaft serverseitig:
  *   exam_attempts.id = attempt_id AND exam_attempts.user_id = JWT.sub,
  *   sonst 403. Ist die Prüfung selbst nicht möglich (Lookup HTTP-/Netzwerk-
@@ -33,10 +36,12 @@ interface ExamQuestion {
   teil: string;
 }
 
-const MODEL_ID = "eu.anthropic.claude-haiku-4-5-20251001-v1:0";
+const MODEL_ID = "eu.amazon.nova-lite-v1:0";
 const AWS_REGION = "eu-central-1";
 const TIMEOUT_MS = 30_000;
 const MAX_ANTWORT_LAENGE = 10_000;
+/** KI-Bewertungen pro Nutzer und Tag (UTC) — Kostenschutz bei offener Registrierung. */
+export const DAILY_KI_LIMIT = 50;
 
 function json(status: number, body: unknown, cors: Record<string, string>): Response {
   return new Response(JSON.stringify(body), {
@@ -147,6 +152,49 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
     return json(403, { error: "Attempt gehört nicht zum angemeldeten Nutzer" }, cors);
   }
 
+  // --- Tageslimit: KI-Bewertungen heute (UTC) zählen, sonst 429 ---
+  let limitReached = false;
+  let limitLookupFailed = false;
+  try {
+    const todayStart = new Date().toISOString().slice(0, 10) + "T00:00:00Z";
+    const cRes = await fetch(
+      rest +
+        "/rest/v1/exam_answers?user_id=eq." +
+        encodeURIComponent(sub) +
+        "&created_at=gte." +
+        encodeURIComponent(todayStart) +
+        "&ki_punkte=not.is.null&select=id",
+      {
+        headers: { apikey: key, Authorization: "Bearer " + key },
+        signal: AbortSignal.timeout(10_000),
+      },
+    );
+    if (cRes.ok) {
+      limitReached = ((await cRes.json()) as { id: string }[]).length >= DAILY_KI_LIMIT;
+    } else {
+      console.error("Tageslimit-Zählung fehlgeschlagen:", cRes.status);
+      limitLookupFailed = true;
+    }
+  } catch (e) {
+    console.error("Tageslimit-Zählung Netzwerkfehler:", e);
+    limitLookupFailed = true;
+  }
+  if (limitLookupFailed) {
+    return json(503, { error: "Tageslimit nicht prüfbar — bitte erneut versuchen" }, cors);
+  }
+  if (limitReached) {
+    return json(
+      429,
+      {
+        error:
+          "Tageslimit erreicht: max. " +
+          DAILY_KI_LIMIT +
+          " KI-Bewertungen pro Tag. Ab morgen (UTC) steht das Kontingent wieder zur Verfügung.",
+      },
+      cors,
+    );
+  }
+
   // --- Frage laden ---
   let q: ExamQuestion | undefined;
   try {
@@ -175,6 +223,9 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
   }
 
   // --- Bedrock aufrufen (ein Modell, kein Fallback-Modell implementiert) ---
+  // Nova Lite über Bedrock Converse API (modellfamilien-unabhängiges Format).
+  // Anthropic-Modelle sind für diesen AWS-Account nicht freigeschaltet; nova
+  // nur über den CRIS-Inferenz-Profil-ID (eu.-Präfix), nicht on-demand.
   const bedrockKey = env.AWS_BEDROCK_API_KEY ?? "";
   const system =
     "Du bist Prüfer für die IHK-Abschlussprüfung AP1 Fachinformatiker Systemintegration. Bewerte nach der Musterlösung, vergib anteilige Punkte für teilweise richtige Antworten, antworte ausschließlich mit dem geforderten JSON.";
@@ -205,7 +256,7 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
         AWS_REGION +
         ".amazonaws.com/model/" +
         encodeURIComponent(MODEL_ID) +
-        "/invoke",
+        "/converse",
       {
         method: "POST",
         headers: {
@@ -213,10 +264,9 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
           Authorization: "Bearer " + bedrockKey,
         },
         body: JSON.stringify({
-          anthropic_version: "bedrock-2023-05-31",
-          max_tokens: 1000,
-          system,
-          messages: [{ role: "user", content: userPrompt }],
+          system: [{ text: system }],
+          messages: [{ role: "user", content: [{ text: userPrompt }] }],
+          inferenceConfig: { maxTokens: 1000, temperature: 0 },
         }),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       },
@@ -224,11 +274,8 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
     if (!brRes.ok) {
       console.error("Bedrock-Fehler:", brRes.status, await brRes.text().catch(() => ""));
     } else {
-      const br: {
-        content?: { text?: string }[];
-        output?: { message?: { content?: { text?: string }[] } };
-      } = await brRes.json();
-      const text = br.content?.[0]?.text ?? br.output?.message?.content?.[0]?.text ?? "";
+      const br: { output?: { message?: { content?: { text?: string }[] } } } = await brRes.json();
+      const text = br.output?.message?.content?.[0]?.text ?? "";
       const m = text.match(/\{[\s\S]*\}/);
       if (m) {
         const parsed = JSON.parse(m[0]) as { punkte?: unknown; begruendung?: unknown };
