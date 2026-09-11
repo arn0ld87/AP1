@@ -23,8 +23,22 @@ DATABASE_URL = os.environ.get(
 )
 
 # Minimaler auth-Schema-Ersatz für reines Postgres (Supabase liefert das
-# produktiv selbst): auth.users-Tabelle + auth.uid() aus dem JWT-Claim.
+# produktiv selbst): auth.users-Tabelle + auth.uid() aus dem JWT-Claim +
+# die Supabase-Rollen, auf die die Migrationen GRANTs ausführen.
 AUTH_STUB = """
+do $$
+begin
+  if not exists (select 1 from pg_roles where rolname = 'anon') then
+    create role anon nologin;
+  end if;
+  if not exists (select 1 from pg_roles where rolname = 'authenticated') then
+    create role authenticated nologin;
+  end if;
+  if not exists (select 1 from pg_roles where rolname = 'service_role') then
+    create role service_role nologin;
+  end if;
+end
+$$;
 create schema if not exists auth;
 create table if not exists auth.users (id uuid primary key default gen_random_uuid());
 create or replace function auth.uid() returns uuid
