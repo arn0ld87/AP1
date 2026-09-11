@@ -54,15 +54,20 @@ Probeprüfungs-Modul bewertet über die Edge Function `grade-exam-answer` (siehe
   `app/supabase/migrations/`, angewendet per `psql` im Container `supabase-db` als
   `supabase_admin` (die `postgres`-Rolle ist im self-hosted Stack kein Tabellen-Owner —
   `ALTER TABLE` schlägt mit „must be owner" fehl).
-- Deploy (Task 16, live seit 10.09.2026): Ziel-Domain **`pruefung.alexle135.de`** (DNS →
-  Tailscale-IP `100.71.152.44`). Docker-Container `pruefung-frontend` (Nitro `node-server`-Build,
-  `app/Dockerfile`) hinter Traefik (Entry Point `tswebsecure`, Letsencrypt-Zertifikat, Router
-  `/opt/traefik/dynamic/pruefung.yml`, Vorlage `deploy/traefik-pruefung.yml`) — nur aus dem
-  Tailscale-Netz erreichbar. `/opt/pruefung-frontend/` auf dem Server ist ein Git-Checkout
+- Deploy (Task 16, live seit 10.09.2026; **öffentlich seit 11.09.2026**): Ziel-Domain
+  **`pruefung.alexle135.de`** (DNS: A `89.58.35.35`, via Cloudflare proxied → Crowdsec/WAF-Pfad,
+  gleiche IP wie `alexle135.de`). Docker-Container `pruefung-frontend` (Nitro `node-server`-Build,
+  `app/Dockerfile`) hinter Traefik: Router `pruefung-public` am Entrypoint `websecure` (öffentlich,
+  Crowdsec hängt am Entrypoint) und Router `pruefung` am Entrypoint `tswebsecure` (Tailnet, bleibt
+  erhalten). Router-Datei `/opt/traefik/dynamic/pruefung.yml`, Vorlage
+  `deploy/traefik-pruefung.yml`. `/opt/pruefung-frontend/` auf dem Server ist ein Git-Checkout
   des Repos (`main`); Update-Flow: `git pull && docker compose -f deploy/docker-compose.pruefung.yml
   up -d --build` (`.env` in `deploy/` bleibt untracked und erhalten). `ap1.alexle135.de` ist
   dagegen der ältere Vor-Pivot-Deploy (Lovable-Projekt „ap1-skill-simulator") und läuft
   unberührt parallel.
+- Supabase ist für den öffentlichen App-Zugriff nötig (`supabase.alexle135.de`, ebenfalls
+  A `89.58.35.35` proxied seit 11.09.2026): der Router `supabase` am Entrypoint `websecure`
+  existiert seit dem 08.09. — es fehlte allein der DNS-Record auf die öffentliche IP.
 - Edge Function `grade-exam-answer`: deployed unter
   `/opt/supabase/volumes/functions/main/grade-exam-answer/index.ts` auf dem armserver
   (root-owned → per `sudo` ersetzen, vorher Backup der alten Datei, danach Container
@@ -94,9 +99,10 @@ Prüfung gegen eine Postgres-Testinstanz (`scripts/validate_migrations.py`) und
 
 ## Deployment reproduzierbar aufbauen (Kurzfassung)
 
-Voraussetzungen: armserver im Tailscale-Netz (`100.71.152.44`), laufendes self-hosted Supabase
-(`supabase.alexle135.de`), Traefik mit Entry Point `tswebsecure` + Letsencrypt-Resolver,
-DNS `pruefung.alexle135.de` → Tailscale-IP.
+Voraussetzungen: armserver mit öffentlicher IP (`89.58.35.35`, via Cloudflare proxied), laufendes
+self-hosted Supabase (`supabase.alexle135.de`), Traefik mit den Entry Points `websecure` +
+`tswebsecure` (Crowdsec/Letsencrypt-Resolver), DNS `pruefung.alexle135.de` und
+`supabase.alexle135.de` → A `89.58.35.35` (proxied).
 
 1. Repo auf den Server: `/opt/pruefung-frontend/` als Git-Checkout (`git init && git remote add
    origin https://github.com/arn0ld87/AP1.git && git fetch origin main && git reset --hard
