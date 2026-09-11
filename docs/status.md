@@ -3,7 +3,7 @@
 Aktueller Stand der AP1-Plattform. Dies ist die Kurzübersicht — Detailgründe stehen in
 [docs/context.md](context.md), die Entscheidungen in [docs/adr/](adr/).
 
-## Stand 11.09.2026
+## Stand 11.09.2026 (Remediation)
 
 | Bereich | Status |
 |---|---|
@@ -12,20 +12,31 @@ Aktueller Stand der AP1-Plattform. Dies ist die Kurzübersicht — Detailgründe
 | Tasks 14–15 (Probeprüfungen + KI-Bewertung, Fortschritt & Fehlerliste) | gemerged (PR #36) |
 | Edge-Function-Fix (Env-Name, `verify_jwt`) | gemerged (PR #37) |
 | CI-Checks je PR | live (PR #38) |
-| Task 16: Live-Deploy `pruefung.alexle135.de` | **in Arbeit** (PR #39) |
-| Doku: CI-Aufzeichnung | PR #40 (offen) |
-| Agent-skills-Setup + CLAUDE.md-Refresh | PR #41 (offen) |
+| Task 16: Live-Deploy `pruefung.alexle135.de` | live (PR #39) |
+| Doku: CI-Aufzeichnung (PR #40), Agent-Skills-Setup (PR #41), ADRs 0001–0005 + Status (PR #42), Dashboard-Startseite (PR #43) | gemerged |
+| Remediation (`fix/remediation-all`): Bestehenslogik, RAID-10, Prüfungs-Persistenz, Schema-Drift, Edge-Function-Härtung, Tests, CI-Gate | **in Arbeit** (PR folgt) |
 
-## CI (PR #38)
+## CI (PR #38, erweitert durch Remediation)
 
-`.github/workflows/pr-check.yml` — je PR fünf parallele Checks: ESLint + Prettier, `tsc --noEmit`,
-Vite-Build, `deno check` der Edge Function, `py_compile` der Migrationsskripte. Kein Test-Runner
-(keine Test-Suite, siehe ADR-0004). Docs-only-PRs triggern keine Checks (paths-Filter).
+`.github/workflows/pr-check.yml` — je PR und auf `main`: ESLint + Prettier, `tsc --noEmit`,
+Vitest (`bun run test`), Vite-Build, `deno check` + `deno test` der Edge Function,
+Migration-Validierung auf frischer Postgres-Testinstanz (`scripts/validate_migrations.py`),
+`py_compile` der Python-Skripte, `docker compose config`.
+
+## Testabdeckung
+
+- Generatoren: RAID-10-Regression (1000 deterministische Fälle) + Invarianten je Familie,
+  Seed-Determinismus
+- Prüfungs-Flow: Notenschlüssel (ohne Bestehenslogik), Einzelfehler-Fallback,
+  Summen-Konsistenz, Persistenz-Reihenfolge, Doppelabgabe-Schutz
+- Wissenskarten: Gewichtung `(falsch+1)/(richtig+falsch+2)` — neue Karten bleiben im Pool
+- Content: 3 Probeprüfungen à exakt 100 Punkte, vollständige Teilaufgaben, eindeutige Schlüssel
+- Edge Function: 16 Deno-Szenarien (Auth, Ownership, Bedrock-Fehler, Persistenz)
 
 ## Offene Risiken / Nächste Schritte
 
-1. **Task 16** (PR #39): Traefik-Routing + Edge-Function-Deploy finalisieren, dann Smoke-Test auf
-   `pruefung.alexle135.de`.
-2. **Bedrock-Fallback** (3.5 Haiku) noch ungetestet (ADR-0003).
-3. **Keine Test-Suite** — Rechnen-Generatoren der App haben nur manuelle Absicherung (ADR-0004).
-4. Doku-PRs **#40** und **#41** mergen, danach `docs/context.md` → Aktueller Stand aktualisieren.
+1. End-To-End-Check live: einmal mit echtem Login eine Probeprüfung durchspielen.
+2. Branch Protection + Required Status Checks für `main` in den GitHub-Repo-Settings aktivieren
+   (Lint, Typecheck, Tests, Build, Migration-Validation) — Settings sind nicht per Repo-Datei
+   erzwingbar.
+3. Backup/Restore-Verfahren regelmäßig testen ([backup-restore.md](backup-restore.md)).

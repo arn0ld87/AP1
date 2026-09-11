@@ -27,23 +27,31 @@ Implementierungs-Task „09-pruefungsmodus-ki-bewertung" im Plan.
 
 ### Ablauf
 
-1. **Input** — Frontend sendet `antworttext` + `question_id` an die Edge Function.
-2. **Kontext laden** — Function lädt Musterlösung + Punkteverteilung der Teilaufgabe aus
+1. **Input** — Frontend sendet `antworttext` + `question_id` + `attempt_id` an die Edge Function.
+2. **Auth + Eigentümerschaft** — JWT muss vorliegen; die Function prüft serverseitig, dass
+   `exam_attempts.user_id` dem JWT-`sub` entspricht (Service Role umgeht RLS bewusst), sonst 403.
+   Eingaben werden auf Form und Länge validiert (question_id, UUID-attempt_id, Antworttext
+   ≤ 10.000 Zeichen), sonst 400.
+3. **Kontext laden** — Function lädt Musterlösung + Punkteverteilung der Teilaufgabe aus
    `exam_questions`.
-3. **Bedrock-Aufruf** — strukturierter Prompt (Antwort, Musterlösung, maximale Punktzahl) an Amazon
+4. **Bedrock-Aufruf** — strukturierter Prompt (Antwort, Musterlösung, maximale Punktzahl) an Amazon
    Bedrock. Erwartete Antwort: JSON mit vergebenen Punkten + kurzer Begründung auf Deutsch.
-4. **Persistenz** — Ergebnis wird in `exam_answers` (`ki_punkte`, `ki_feedback`) gespeichert und im
-   Frontend angezeigt. Niedrig bewertete Antworten fließen automatisch in `error_log`.
-5. **Fehlerfall** — Bedrock nicht erreichbar oder Fehler → Musterlösung wird trotzdem angezeigt, Alex
-   schätzt sich manuell selbst ein (Fallback auf den bisherigen, vor-App-Workflow).
+   HTTP-Fehler, Timeout und invalides JSON werden geloggt und führen zu `punkte: null`.
+5. **Persistenz** — Bewertung wird idempotent in `exam_answers` gespeichert (Upsert über
+   `attempt_id,question_id`; `ki_punkte` wird strikt auf `0 <= punkte <= max_punkte` begrenzt).
+   Niedrig bewertete Antworten fließen automatisch in `error_log`.
+6. **Fehlerfall** — Bedrock nicht erreichbar oder Fehler → Musterlösung wird trotzdem angezeigt, Alex
+   schätzt sich manuell selbst ein (Fallback auf den bisherigen, vor-App-Workflow); die Selbst-
+   Punkte werden ebenfalls in `exam_answers` persistiert.
 
 ### Modell & Zugangsdaten
 
-- Primär: **Claude Haiku 4.5** über Amazon Bedrock — Zugriff verifiziert (Task 5, echter `invoke`-Call
-  gegen die Vaultwarden-Credentials): in `eu-central-1` nur per Cross-Region-Inferenz erreichbar,
-  Modell-ID `eu.anthropic.claude-haiku-4-5-20251001-v1:0`.
-- Fallback: **Claude 3.5 Haiku** — die dokumentierte Fallback-ID lieferte im Test „invalid model
-  identifier"; ungetestet, solange der Fallback nicht tatsächlich gebraucht wird (Task 14).
+- Primär (und einziger implementierter Modellpfad): **Claude Haiku 4.5** über Amazon Bedrock —
+  Zugriff verifiziert (Task 5, echter `invoke`-Call gegen die Vaultwarden-Credentials): in
+  `eu-central-1` nur per Cross-Region-Inferenz erreichbar, Modell-ID
+  `eu.anthropic.claude-haiku-4-5-20251001-v1:0`. Es gibt **keinen implementierten Fallback auf ein
+  zweites Modell** — die früher dokumentierte 3.5-Haiku-Fallback-ID lieferte im Test „invalid model
+  identifier" und wird nicht genutzt.
 - Secrets: `AWS_BEDROCK_API_KEY`, in Vaultwarden hinterlegt (`vw get AWS_BEDROCK_API_KEY`); der
   frühere `BEDROCK_GATEWAY_KEY` ist obsolet (Live-Test 403) und wird aus Vaultwarden entfernt.
   **Ausschließlich** als Supabase-Edge-Function-Secret konfigurieren — niemals im Frontend-Bundle,
