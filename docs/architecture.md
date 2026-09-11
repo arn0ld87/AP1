@@ -71,14 +71,39 @@ abgerundete Karten, eigenständige Optik ohne Bezug zum alexle135-Branding.
 
 ## KI-Bewertungs-Flow (Kurzfassung)
 
-Ausführlich in [api.md](api.md). Kurz: Frontend → Supabase Edge Function → lädt Musterlösung aus
-`exam_questions` → Bedrock-Aufruf (Claude Haiku 4.5, Fallback 3.5 Haiku) → Punkte + Begründung
-zurück → Speicherung in `exam_answers`, niedrige Bewertungen fließen in `error_log`. Bei
+Ausführlich in [api.md](api.md). Kurz: Frontend → Supabase Edge Function (prüft JWT + Attempt-
+Eigentümerschaft serverseitig) → lädt Musterlösung aus `exam_questions` → Bedrock-Aufruf
+(Claude Haiku 4.5, kein Modell-Fallback) → Punkte + Begründung zurück → Upsert in `exam_answers`
+(eine Bewertung je Attempt/Frage), niedrige Bewertungen fließen in `error_log`. Bei
 Bedrock-Fehler: Musterlösung wird trotzdem angezeigt, Selbsteinschätzung als Fallback.
 
 ## Verifikation
 
-Kein automatisierter Test-Runner. Phase A (Tasks 5–9) endete mit manuellem Klick-Durchlauf in der
-Lovable-Preview; Phase B (ab Task 10, lokal in `app/`) verifiziert über `bun run build`/`bun run lint`
-plus manuellen Durchlauf gegen `bun run dev` und Stichproben per `query_database`/`psql` gegen das
-self-hosted Supabase — weiterhin kein CI-Test-Runner (siehe Plan → „Global Constraints").
+CI (`.github/workflows/pr-check.yml`) prüft je PR und auf `main`: ESLint + Prettier, `tsc --noEmit`,
+Vitest (`bun run test` — Generator-Invarianten inkl. RAID-10-Regression über 1000 deterministische
+Fälle, Prüfungs-Flow, Wissenskarten-Gewichtung, Content-Validierung der Probeprüfungen), Vite-Build,
+`deno check` + `deno test` der Edge Function (16 Szenarien), frischer Schema-Aufbau inkl. Drift-
+Prüfung gegen eine Postgres-Testinstanz (`scripts/validate_migrations.py`) und
+`docker compose config`. Lokal: `bun run test` in `app/`.
+
+## Deployment reproduzierbar aufbauen (Kurzfassung)
+
+Voraussetzungen: armserver im Tailscale-Netz (`100.71.152.44`), laufendes self-hosted Supabase
+(`supabase.alexle135.de`), Traefik mit Entry Point `tswebsecure` + Letsencrypt-Resolver,
+DNS `pruefung.alexle135.de` → Tailscale-IP.
+
+1. `.env` aus `deploy/.env.example` befüllen (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`).
+2. Schema aufbauen: alle Migrationen aus `app/supabase/migrations/` in Reihenfolge anwenden
+   (auf dem armserver per `psql` im Container `supabase-db`); Verifikation auf frischer DB:
+   `python3 scripts/validate_migrations.py`.
+3. Content laden: `python3 scripts/migrate/parse_exams.py` (u. a.) erzeugt `data/migration/*.json`,
+   Import der Probeprüfungsfragen in `exam_questions` (77 Aufgaben, je Prüfung exakt 100 Punkte).
+4. App bauen und starten: `docker compose -f deploy/docker-compose.pruefung.yml up -d --build`
+   (Container `pruefung-frontend`, Netz `tsproxy` für Traefik).
+5. Edge Function deployen: Datei nach
+   `/opt/supabase/volumes/functions/main/grade-exam-answer/index.ts`, Container `functions` neu
+   starten; Secrets `AWS_BEDROCK_API_KEY` + `VERIFY_JWT=true` am Container setzen.
+6. Smoke-Test: `curl -sI https://pruefung.alexle135.de/` erwartet HTTP 200; der Container-
+   Healthcheck (`deploy/docker-compose.pruefung.yml`) prüft alle 30 s `GET /` auf Port 3000
+   (HTTP 2xx = healthy, Node-fetch statt curl, da das Image kein curl mitbringt).
+   Funktionstest: Login im Browser, eine Probeprüfung starten und bewerten lassen.

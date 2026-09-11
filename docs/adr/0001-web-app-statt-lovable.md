@@ -13,7 +13,7 @@ andererseits als Backend-Betreiber.
 Direkte Implementierung in `app/` (TanStack Start) mit **self-hosted Supabase auf dem armserver**
 (`supabase.alexle135.de`). Schema-Migrationen liegen in `app/supabase/migrations/`, angewendet per
 `psql` im Container `supabase-db`. Kein Lovable-Build-Loop mehr; Deploy-Ziel ist Traefik auf dem
-armserver (Task 16, siehe ADR-0006).
+armserver (Task 16, siehe ADR-0005).
 
 ## Konsequenzen
 

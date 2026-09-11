@@ -1,7 +1,7 @@
 # Lösungshinweise Probeprüfung 01
 
 **Bewertungsschlüssel (wie in den Originalprüfungen):**
-100–92 = 1 · unter 92–81 = 2 · unter 81–67 = 3 · **unter 67–50 = 4 (bestanden)** · unter 50–30 = 5 · unter 30–0 = 6
+100–92 = 1 · unter 92–81 = 2 · unter 81–67 = 3 · **unter 67–50 = 4 (ausreichend)** · unter 50–30 = 5 · unter 30–0 = 6
 
 Andere sach- und fachgerechte Lösungen sind ebenfalls zu werten.
 

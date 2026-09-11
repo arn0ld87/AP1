@@ -46,24 +46,25 @@ export type Database = {
           ki_feedback: string | null;
           ki_punkte: number | null;
           question_id: string | null;
+          user_id: string | null;
         };
         Insert: {
           antworttext?: string | null;
           attempt_id: string;
-          erledigt?: boolean | null;
           id?: string;
           ki_feedback?: string | null;
           ki_punkte?: number | null;
           question_id?: string | null;
+          user_id?: string | null;
         };
         Update: {
           antworttext?: string | null;
           attempt_id?: string;
-          erledigt?: boolean | null;
           id?: string;
           ki_feedback?: string | null;
           ki_punkte?: number | null;
           question_id?: string | null;
+          user_id?: string | null;
         };
         Relationships: [
           {
@@ -95,7 +96,6 @@ export type Database = {
           exam_id?: string | null;
           finished_at?: string | null;
           gesamtpunkte?: number | null;
-          erledigt?: boolean | null;
           id?: string;
           started_at?: string;
           user_id: string;
@@ -104,7 +104,6 @@ export type Database = {
           exam_id?: string | null;
           finished_at?: string | null;
           gesamtpunkte?: number | null;
-          erledigt?: boolean | null;
           id?: string;
           started_at?: string;
           user_id?: string;
@@ -128,6 +127,8 @@ export type Database = {
           exam_id?: string | null;
           frage?: string | null;
           id: string;
+          intro?: string | null;
+          ausgangssituation?: string | null;
           max_punkte?: number | null;
           musterloesung?: string | null;
           teil?: string | null;
@@ -137,6 +138,8 @@ export type Database = {
           exam_id?: string | null;
           frage?: string | null;
           id?: string;
+          intro?: string | null;
+          ausgangssituation?: string | null;
           max_punkte?: number | null;
           musterloesung?: string | null;
           teil?: string | null;

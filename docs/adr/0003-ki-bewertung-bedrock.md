@@ -13,7 +13,9 @@ regional gebundenen Provider.
 Bewertung läuft über die Edge Function `grade-exam-answer` → Amazon Bedrock mit
 **Claude Haiku 4.5** (`eu.anthropic.claude-haiku-4-5-20251001-v1:0`, Cross-Region-Inferenz
 eu-central-1). Der Response-Parsing-Code deckt beide API-Formen ab (`content[0].text` und
-`output.message.content[0].text`). Fallback auf 3.5 Haiku ist vorgesehen, aber ungetestet.
+`output.message.content[0].text`). Es ist **kein zweites Fallback-Modell implementiert**: Bei
+Bedrock-Fehler (HTTP != 2xx, Timeout, invalide Antwort) liefert die Function `punkte: null`
+und das Frontend bietet die Selbst-Einschätzung an.
 
 ## Konsequenzen
 

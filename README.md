@@ -83,19 +83,21 @@ nach dessen Credit-Limit aber exportiert und lokal weiterentwickelt.
   `topic_mastery`, `flashcard_progress`, `exam_questions` (read-only für den Client),
   `exam_attempts`, `exam_answers`, `error_log`
 - **Build-Output:** Nitro (Cloudflare-Worker-kompatibel), Deploy-Ziel ist
-  `ap1.alexle135.de` hinter Traefik (Router-Vorlage liegt auf dem armserver)
+  `pruefung.alexle135.de` hinter Traefik auf dem armserver (Router-Vorlage:
+  `deploy/traefik-pruefung.yml`)
 
 ### Module
 
 | Modul | Route | Stand |
 |---|---|---|
 | Rechnen üben | `/rechnen` | fertig — 7 Aufgaben-Generatoren, `topic_mastery`-Upsert |
-| Wissenskarten | `/wissenskarten` | fertig — 47 Karten, Gewichtung `falsch/(r+f+1)`, `flashcard_progress`-Upsert |
-| Lernblätter | `/lernblaetter` | geplant (statischer Content aus `data/migration/`) |
-| Formelsammlung | `/formelsammlung` | geplant |
-| Tagesplan | `/tagesplan` | geplant |
-| Probeprüfungen | `/probepruefungen` | geplant (KI-Bewertung via Bedrock Edge-Function) |
-| Fortschritt & Fehlerliste | `/fortschritt` | geplant |
+| Wissenskarten | `/wissenskarten` | fertig — 47 Karten, Gewichtung `(falsch+1)/(richtig+falsch+2)`, `flashcard_progress`-Upsert |
+| Lernblätter | `/lernblaetter` | fertig — statischer Content aus `data/migration/lernblaetter.json` |
+| Formelsammlung | `/formelsammlung` | fertig — Suche und Sprungnavigation |
+| Tagesplan | `/tagesplan` | fertig — migrierter Tagesplan mit Abhaken |
+| Probeprüfungen | `/probepruefungen` | fertig — 90-Minuten-Timer, KI-Bewertung via Bedrock Edge-Function, Selbst-Einschätzungs-Fallback |
+| Fortschritt & Fehlerliste | `/fortschritt` | fertig — Supabase-Dashboard |
+| Dashboard | `/` (authentifiziert) | fertig — Countdown, Modul-Kacheln, Fortschritt |
 
 ### Installation
 
@@ -106,15 +108,15 @@ Voraussetzungen: [Bun](https://bun.sh) ≥ 1.2, Netzwerkzugriff auf
 cd app
 bun install          # Dependencies
 
-# .env anlegen (Supabase-Verbindung — Keys NICHT committen):
+# .env anlegen (Vorlage: app/.env.example — Keys NICHT committen):
 #   VITE_SUPABASE_URL=https://supabase.alexle135.de
 #   VITE_SUPABASE_PUBLISHABLE_KEY=<publishable key, liegt in Vaultwarden>
-#   VITE_SUPABASE_PROJECT_ID=ap1-armserver
 
 bun run dev          # Dev-Server mit HMR
 bun run build        # Produktions-Build (Nitro-Output in .output/)
 bun run preview      # gebauten Output lokal ansehen
 bun run lint         # ESLint
+bun run test         # Vitest (Generatoren, Prüfungs-Flow, Content)
 ```
 
 Login: der eine angelegte Account (Zugangsdaten in Vaultwarden, nicht im Repo).
@@ -123,10 +125,13 @@ dem Auth-Gate (`src/routes/_authenticated/route.tsx`).
 
 ### Datenbank
 
-Schema-Migration und Seed liegen in `app/supabase/migrations/` bzw. werden
-über `docs/lovable/prompts/03-content-import.md` beschrieben (77
-Prüfungsaufgaben: 24/26/27 je Probeprüfung, je 100 Punkte). Angewendet
-werden sie direkt per `psql` im Container `supabase-db` auf dem armserver.
+Schema-Migrationen liegen vollständig in `app/supabase/migrations/` — eine frische Datenbank
+entsteht ausschließlich durch Anwenden dieser Migrationen in Reihenfolge (keine manuellen
+ALTERs). Verifikation auf frischer Postgres-Instanz:
+`python3 scripts/validate_migrations.py` (prüft Tabellen, Spalten, RLS, Policies, RPCs).
+Content-Import: `python3 scripts/migrate/parse_exams.py` (u. a.) erzeugt `data/migration/*.json`
+(77 Prüfungsaufgaben: 24/26/27 je Probeprüfung, je 100 Punkte), Import in `exam_questions`.
+Backup/Restore: [docs/backup-restore.md](docs/backup-restore.md).
 
 ### Historie
 

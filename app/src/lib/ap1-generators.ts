@@ -513,19 +513,21 @@ export const GEN: Record<string, () => Task> = {
   },
 
   raid(): Task {
-    const big = rnd(2, 4);
+    const lvl = pick(["5", "6", "0", "1", "10", "JBOD"] as const);
+    // RAID 10 nur mit vollständigen Spiegelpaaren: gerade Plattenanzahl,
+    // mindestens 4 Platten (big und small gerade ⇒ n gerade, n ≥ 4).
+    const big = lvl === "10" ? 2 * rnd(1, 2) : rnd(2, 4);
     const bigC = pick([6, 8, 10]);
-    const small = rnd(3, 6);
+    const small = lvl === "10" ? 2 * rnd(1, 3) : rnd(3, 6);
     const smallC = pick([2, 3, 4]);
     const n = big + small;
     const k = Math.min(bigC, smallC);
-    const lvl = pick(["5", "6", "0", "1", "10", "JBOD"] as const);
     const calc: Record<string, number> = {
       "0": n * k,
       "1": k,
       "5": (n - 1) * k,
       "6": (n - 2) * k,
-      "10": Math.floor(n / 2) * k,
+      "10": (n / 2) * k,
       JBOD: big * bigC + small * smallC,
     };
     const expl: Record<string, string> = {
@@ -533,7 +535,7 @@ export const GEN: Record<string, () => Task> = {
       "1": `RAID 1 spiegelt vollständig, nutzbar ist die Kapazität einer Platte: <code>${k} TB</code>`,
       "5": `RAID 5 opfert eine Platte für die Parität: <code>(${n} − 1) × ${k} TB</code>`,
       "6": `RAID 6 opfert zwei Platten: <code>(${n} − 2) × ${k} TB</code>`,
-      "10": `RAID 10 spiegelt paarweise, nutzbar ist die Hälfte: <code>${Math.floor(n / 2)} × ${k} TB</code>`,
+      "10": `RAID 10 spiegelt paarweise, nutzbar ist die Hälfte: <code>${n / 2} × ${k} TB</code>`,
       JBOD: `JBOD verkettet einfach alle Platten: <code>${big} × ${bigC} + ${small} × ${smallC} TB</code>`,
     };
     return {

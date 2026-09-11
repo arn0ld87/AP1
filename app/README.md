@@ -1,29 +1,41 @@
-# Welcome to your Lovable project
+# app/ — AP1-Trainer Web-App
 
-This project was built with [Lovable](https://lovable.dev).
+TanStack Start (Vite + React 19 + TypeScript), Tailwind + shadcn/ui, Nitro-Build.
+Backend: self-hosted Supabase (`supabase.alexle135.de`), Auth per E-Mail+Passwort (Single-User),
+RLS auf allen Tabellen. Details: [../docs/architecture.md](../docs/architecture.md).
 
-## Build with Lovable
+## Entwicklung
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Voraussetzung: [Bun](https://bun.sh) ≥ 1.2.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+bun install
+cp .env.example .env   # Werte eintragen (publishable key, nicht committen)
+bun run dev            # Dev-Server mit HMR
 ```
 
-## Built with
+## Checks
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+```sh
+bun run lint           # ESLint
+bun run test           # Vitest: Generatoren, Prüfungs-Flow, Wissenskarten, Content
+bunx tsc --noEmit      # TypeScript
+bun run build          # Produktions-Build (Nitro)
+```
+
+Edge Function: `deno check supabase/functions/grade-exam-answer.ts` und
+`deno test --allow-env supabase/functions/`.
+
+## Supabase
+
+- Migrationen: `supabase/migrations/` (frische DB entsteht vollständig daraus;
+  Prüfung: `python3 ../scripts/validate_migrations.py` aus `app/` heraus —
+  das Skript auflöst seine Repo-Pfade selbst)
+- Edge Function `grade-exam-answer`: Bedrock-KI-Bewertung, Details in
+  [../docs/api.md](../docs/api.md)
+
+## Gebaut mit
+
+- TanStack Start, TypeScript, React 19
+- Tailwind CSS, shadcn/ui
+- Supabase (self-hosted), Amazon Bedrock
