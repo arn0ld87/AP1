@@ -11,7 +11,8 @@
  * - JWT muss vorhanden sein (zusätzlich prüft der Gateway bei VERIFY_JWT).
  * - Service Role umgeht RLS bewusst — deshalb Eigentümerschaft serverseitig:
  *   exam_attempts.id = attempt_id AND exam_attempts.user_id = JWT.sub,
- *   sonst 403.
+ *   sonst 403. Ist die Prüfung selbst nicht möglich (Lookup HTTP-/Netzwerk-
+ *   fehler), antwortet die Function mit 503 statt fälschlich 403.
  * - Eingaben werden auf Form und Länge validiert; die KI-Antwort wird auf
  *   0 <= punkte <= max_punkte begrenzt. Ungültiges JSON erzeugt keine
  *   Bewertung (Fallback punkte=null → Selbst-Einschätzung im Frontend).
@@ -115,6 +116,7 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
 
   // --- Eigentümerschaft: Attempt muss dem JWT-Sub gehören (RLS-Bypass!) ---
   let attemptOwned = false;
+  let lookupFailed = false;
   try {
     const aRes = await fetch(
       rest +
@@ -132,9 +134,14 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
       attemptOwned = ((await aRes.json()) as { id: string }[]).length > 0;
     } else {
       console.error("exam_attempts-Lookup fehlgeschlagen:", aRes.status);
+      lookupFailed = true;
     }
   } catch (e) {
     console.error("exam_attempts-Lookup Netzwerkfehler:", e);
+    lookupFailed = true;
+  }
+  if (lookupFailed) {
+    return json(503, { error: "Eigentümerschaft nicht prüfbar — bitte erneut versuchen" }, cors);
   }
   if (!attemptOwned) {
     return json(403, { error: "Attempt gehört nicht zum angemeldeten Nutzer" }, cors);

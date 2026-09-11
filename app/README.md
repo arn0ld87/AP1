@@ -28,8 +28,9 @@ Edge Function: `deno check supabase/functions/grade-exam-answer.ts` und
 
 ## Supabase
 
-- Migrationen: `app/supabase/migrations/` (frische DB entsteht vollständig daraus;
-  Prüfung: `python3 scripts/validate_migrations.py`)
+- Migrationen: `supabase/migrations/` (frische DB entsteht vollständig daraus;
+  Prüfung: `python3 ../scripts/validate_migrations.py` aus `app/` heraus —
+  das Skript auflöst seine Repo-Pfade selbst)
 - Edge Function `grade-exam-answer`: Bedrock-KI-Bewertung, Details in
   [../docs/api.md](../docs/api.md)
 

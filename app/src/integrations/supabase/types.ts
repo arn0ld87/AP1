@@ -96,7 +96,6 @@ export type Database = {
           exam_id?: string | null;
           finished_at?: string | null;
           gesamtpunkte?: number | null;
-          erledigt?: boolean | null;
           id?: string;
           started_at?: string;
           user_id: string;
@@ -105,7 +104,6 @@ export type Database = {
           exam_id?: string | null;
           finished_at?: string | null;
           gesamtpunkte?: number | null;
-          erledigt?: boolean | null;
           id?: string;
           started_at?: string;
           user_id?: string;

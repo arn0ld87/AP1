@@ -10,6 +10,11 @@
 # nachvollziehbar, welche Prüfungstermine in die Statistik eingeflossen sind
 # und mit welcher Qualität der Text extrahiert wurde.
 #
+# sha256: SHA-256 über die KOMBINIERTEN Bytes von Aufgaben-PDF + Lösungs-PDF
+#   in dieser Reihenfolge (pro Termin zwei lokale Quelldateien, deshalb ein
+#   kombinierter Wert). Dateinamen je Termin: Inventar-Tabelle in
+#   00_PRUEFUNGSANALYSE.md, Abschnitt A.
+#
 # source_quality-Stufen:
 #   original-text          — Text direkt aus textbasiertem PDF extrahiert
 #   ocr-reviewed           — OCR, Ergebnisse gegen Format/Plausibilität geprüft
@@ -19,59 +24,59 @@
 sources:
   - termin: H2021 (Herbst 2021)
     dateiname: lokal, nicht committed
-    sha256: null
+    sha256: d022726489331e9a30ecd05148f7ffe7195af7073668fd925bea4955d4d0eeea
     seiten: null
     source_quality: original-text
     extraction_method: pdftotext (lokal)
     reviewed: true
   - termin: F2022 (Frühjahr 2022)
     dateiname: lokal, nicht committed
-    sha256: null
+    sha256: eaf42464fd01d4093b8740727cf1c6cdc66b71edfbc4101453863e5d1b840c87
     seiten: null
     source_quality: original-text
     extraction_method: pdftotext (lokal)
     reviewed: true
   - termin: H2022 (Herbst 2022)
     dateiname: lokal, nicht committed
-    sha256: null
+    sha256: ff850fa936f4a94d06d094e85043a489e50ae3e37c4c20019511cde81f28d321
     seiten: null
     source_quality: original-text
     extraction_method: pdftotext (lokal)
     reviewed: true
   - termin: H2023 (Herbst 2023)
     dateiname: lokal, nicht committed
-    sha256: null
+    sha256: 6ab5000814defe6f04ccd9c796bebbfef0ebd60cb8e1b39e4f6a897812c631c6
     seiten: null
     source_quality: original-text
     extraction_method: pdftotext (lokal)
     reviewed: true
   - termin: F2024 (Frühjahr 2024)
     dateiname: lokal, nicht committed
-    sha256: null
+    sha256: 2192cf10ab023ef2d719c54831be4167e6cc701b7447e7e8c809fc596ed2bb4d
     seiten: null
-    source_quality: original-text
-    extraction_method: pdftotext (lokal)
+    source_quality: ocr-reviewed
+    extraction_method: OCR (lokal)
     reviewed: true
   - termin: H2024 (Herbst 2024)
     dateiname: lokal, nicht committed
-    sha256: null
+    sha256: 3e5186ce8d8b584b2250b44d8a15d0072419c3514061df0b1bc18d0a5059f94b
     seiten: null
-    source_quality: original-text
-    extraction_method: pdftotext (lokal)
+    source_quality: ocr-reviewed
+    extraction_method: OCR (lokal)
     reviewed: true
   - termin: F2025 (Frühjahr 2025)
     dateiname: lokal, nicht committed
-    sha256: null
+    sha256: 37d7d1a661be469d3b214fb88c9d0100926c488369a0b735c26713ebfbf428da
     seiten: null
-    source_quality: original-text
-    extraction_method: pdftotext (lokal)
+    source_quality: ocr-reviewed
+    extraction_method: OCR (lokal)
     reviewed: true
   - termin: F2026 (Frühjahr 2026)
     dateiname: lokal, nicht committed
-    sha256: null
+    sha256: 44f9ef335fde264bed70176ac1af7c08d1766acdf8324f3f26a87bc01a1b6a8d
     seiten: null
-    source_quality: original-text
-    extraction_method: pdftotext (lokal)
+    source_quality: ocr-reviewed
+    extraction_method: OCR (lokal)
     reviewed: true
 
 # Verwendungszweck: Statistische Häufigkeitsanalyse (00_PRUEFUNGSANALYSE.md,

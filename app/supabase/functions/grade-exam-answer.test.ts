@@ -160,6 +160,19 @@ Deno.test("fremde attempt_id → 403, keine Bewertung, kein Insert", async () =>
   }
 });
 
+Deno.test("Attempt-Lookup schlägt fehl (HTTP 500) → 503 statt 403, kein Insert", async () => {
+  const state = baseState();
+  state.attemptsLookupFails = true;
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+    assertEquals(res.status, 503);
+    assertEquals(state.inserts.length, 0);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
 Deno.test("erfolgreicher Flow: Bewertung + Upsert mit user_id + Fehlerlog bei <50 %", async () => {
   const state = baseState();
   state.bedrockBody = JSON.stringify({

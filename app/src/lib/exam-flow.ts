@@ -4,6 +4,8 @@
  * Parametern — kein Zugriff auf asynchron gesetzten React-State.
  */
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 export interface Frage {
   id: string;
   aufgabe_nr: number | null;
@@ -110,4 +112,46 @@ export async function submitExamFlow(
   const gesamtpunkte = gesamtpunkteVon(deps.fragen, results);
   await deps.persist(gesamtpunkte);
   return { results, gesamtpunkte };
+}
+
+/**
+ * Persistiert den Abschluss (gesamtpunkte + finished_at) in exam_attempts.
+ * Supabase-js meldet Schreibfehler als `{ error }` statt per Exception —
+ * hier wird daraus bewusst eine Exception, damit der Aufrufer nicht
+ * stillschweigend über einen fehlgeschlagenen Save hinweggeht.
+ */
+export async function persistAttemptFinish(
+  db: SupabaseClient,
+  attemptId: string,
+  gesamtpunkte: number,
+): Promise<void> {
+  const { error } = await db
+    .from("exam_attempts")
+    .update({ gesamtpunkte, finished_at: new Date().toISOString() })
+    .eq("id", attemptId);
+  if (error) throw new Error("Abschluss konnte nicht gespeichert werden: " + error.message);
+}
+
+/**
+ * Upsert der Selbsteinschätzung in exam_answers (Konflikt über
+ * attempt_id + question_id). Das Fehlerfeld wird wie bei
+ * persistAttemptFinish zu einer Exception umgebogen.
+ */
+export async function upsertSelfGrade(
+  db: SupabaseClient,
+  input: { attemptId: string; questionId: string; antworttext: string; punkte: number },
+): Promise<void> {
+  const { error } = await db.from("exam_answers").upsert(
+    {
+      attempt_id: input.attemptId,
+      question_id: input.questionId,
+      antworttext: input.antworttext,
+      ki_punkte: input.punkte,
+      ki_feedback: "Selbst eingeschätzt.",
+    },
+    { onConflict: "attempt_id,question_id" },
+  );
+  if (error) {
+    throw new Error("Selbsteinschätzung konnte nicht gespeichert werden: " + error.message);
+  }
 }

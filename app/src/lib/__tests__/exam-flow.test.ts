@@ -1,11 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
   gesamtpunkteVon,
   gradeAllQuestions,
   maxPunkteVon,
   notenstufe,
+  persistAttemptFinish,
   submitExamFlow,
+  upsertSelfGrade,
   type Frage,
   type GradeFnOutput,
 } from "../exam-flow";
@@ -174,5 +177,56 @@ describe("submitExamFlow", () => {
         persist,
       }),
     ).rejects.toThrow("DB unreachable");
+  });
+});
+
+describe("persistAttemptFinish / upsertSelfGrade (Supabase-{ error }-Feld)", () => {
+  // Supabase-js wirft bei Schreibfehlern nicht, sondern liefert { error }.
+  // Die Helfer müssen genau dieses Feld in eine Exception überführen.
+  const fakeDb = (result: { error: { message: string } | null }) => {
+    const eq = vi.fn(async () => result);
+    const update = vi.fn(() => ({ eq }));
+    const upsert = vi.fn(async () => result);
+    const from = vi.fn((table: string) => (table === "exam_attempts" ? { update } : { upsert }));
+    return { db: { from } as unknown as SupabaseClient, eq, update, upsert };
+  };
+
+  it("persistAttemptFinish: zurückgegebenes { error } wird zu Exception", async () => {
+    const { db, update } = fakeDb({ error: { message: "row-level security" } });
+    await expect(persistAttemptFinish(db, "att-1", 25)).rejects.toThrow("row-level security");
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ gesamtpunkte: 25, finished_at: expect.any(String) }),
+    );
+  });
+
+  it("persistAttemptFinish: error null → resolves, gefiltert auf attempt-id", async () => {
+    const { db, eq, update } = fakeDb({ error: null });
+    await expect(persistAttemptFinish(db, "att-1", 25)).resolves.toBeUndefined();
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(eq).toHaveBeenCalledWith("id", "att-1");
+  });
+
+  it("upsertSelfGrade: zurückgegebenes { error } wird zu Exception", async () => {
+    const { db } = fakeDb({ error: { message: "duplicate key value" } });
+    await expect(
+      upsertSelfGrade(db, { attemptId: "att-1", questionId: "q1", antworttext: "x", punkte: 3 }),
+    ).rejects.toThrow("duplicate key value");
+  });
+
+  it("upsertSelfGrade: error null → Upsert mit korrektem Payload und onConflict", async () => {
+    const { db, upsert } = fakeDb({ error: null });
+    await expect(
+      upsertSelfGrade(db, { attemptId: "att-1", questionId: "q1", antworttext: "x", punkte: 3 }),
+    ).resolves.toBeUndefined();
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attempt_id: "att-1",
+        question_id: "q1",
+        antworttext: "x",
+        ki_punkte: 3,
+        ki_feedback: "Selbst eingeschätzt.",
+      }),
+      { onConflict: "attempt_id,question_id" },
+    );
   });
 });

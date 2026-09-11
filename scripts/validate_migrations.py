@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Wendet alle Supabase-Migrationen auf eine frische Test-DB an und prüft
 das resultierende Schema (Tabellen, Drift-Spalten, RLS, Policies, RPCs,
-Unique-Index). Benötigt psql im PATH und TEST_DATABASE_URL (Voreinstellung:
-postgres://postgres:postgres@localhost:5432/postgres, leerer Postgres-Server).
+Fremdschlüssel, Unique-Index). Benötigt psql im PATH und TEST_DATABASE_URL
+(explizit gesetzt — das Skript löscht das public-Schema der Ziel-DB und
+verweigert ohne Ziel-Angabe die Ausführung).
 
 Nutzung in CI: Postgres-Service-Container starten, dann dieses Skript laufen
 lassen. Beendet sich mit Exit-Code 1, wenn eine Erwartung verletzt ist.
@@ -18,9 +19,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 MIGRATIONS = REPO / "app" / "supabase" / "migrations"
 
-DATABASE_URL = os.environ.get(
-    "TEST_DATABASE_URL", "postgres://postgres:postgres@localhost:5432/postgres"
-)
+DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "")
 
 # Minimaler auth-Schema-Ersatz für reines Postgres (Supabase liefert das
 # produktiv selbst): auth.users-Tabelle + auth.uid() aus dem JWT-Claim +
@@ -76,11 +75,24 @@ def psql(sql: str, database_url: str = DATABASE_URL) -> str:
 
 
 def scalar(sql: str) -> str:
-    return psql(sql).splitlines()[0].strip() if psql(sql) else ""
+    out = psql(sql)
+    return out.splitlines()[0].strip() if out else ""
 
 
 def main() -> int:
     failures: list[str] = []
+
+    # 0) Schutz vor dem destruktiven Reset: Ohne explizit gesetzte
+    #    TEST_DATABASE_URL wird nicht ausgeführt — kein stiller psql-Aufruf
+    #    gegen eine lokale Standarddatenbank.
+    if not DATABASE_URL:
+        print(
+            "TEST_DATABASE_URL ist nicht gesetzt. Das Skript löscht das "
+            "public-Schema der Ziel-DB (drop schema public cascade); ohne "
+            "explizite Ziel-Datenbank bricht es hier ab.",
+            file=sys.stderr,
+        )
+        return 1
 
     # 1) auth-Stub + alle Migrationen in Dateinamen-Reihenfolge anwenden
     psql("drop schema public cascade; create schema public;")
@@ -144,6 +156,15 @@ def main() -> int:
     if idx != "1":
         failures.append(f"Unique-Index fehlt: {EXPECT_UNIQUE_INDEX}")
 
+    # 7b) FK exam_answers.user_id → auth.users (Schema-Drift-Wächter)
+    fk = scalar(
+        "select count(*) from pg_constraint "
+        "where conname = 'exam_answers_user_id_fkey' "
+        "and conrelid = 'public.exam_answers'::regclass and contype = 'f';"
+    )
+    if fk != "1":
+        failures.append("Fremdschlüssel fehlt: exam_answers_user_id_fkey")
+
     # 8) Seed/Smoke: Insert + RPC-Ausführung im simulierten JWT-Kontext.
     #    Wichtig: set_config gilt nur pro Session — Auth-Kontext und RPC
     #    müssen in EINEM psql-Aufruf laufen.
@@ -164,7 +185,7 @@ def main() -> int:
         for f in failures:
             print(f"  - {f}")
         return 1
-    print("Schema-Validierung OK: Tabellen, Drift-Spalten, RLS, Policies, RPCs, Unique-Index, RPC-Smoke.")
+    print("Schema-Validierung OK: Tabellen, Drift-Spalten, RLS, Policies, RPCs, Fremdschlüssel, Unique-Index, RPC-Smoke.")
     return 0
 
 

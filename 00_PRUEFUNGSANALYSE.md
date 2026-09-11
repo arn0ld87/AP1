@@ -409,7 +409,7 @@ Bewertet nach `Prüfungswahrscheinlichkeit × typische Punkte × Wiederverwendba
 | 8 | Nutzwertanalyse (A9) | 3–5 | ~1 h |
 
 **Summe der Erwartungswerte: rund 43–70 Punkte** aus ca. 24 Lernstunden.
-Die Notenstufe **„ausreichend" (Note 4)** beginnt bei **50 Punkten**. Diese acht Bausteine allein bringen dich in den Bereich „ausreichend bis befriedigend" – alles Weitere ist Notenverbesserung. Fachlich wichtig: AP1 ist Teil 1 der gestreckten Abschlussprüfung, geht mit **20 %** in das Gesamtergebnis ein und besitzt **keine eigenständige Bestehensgrenze** – 50 Punkte sind keine eigene Bestehensvoraussetzung für AP1.
+Die Notenstufe **„ausreichend" (Note 4)** beginnt bei **50 Punkten**. Diese acht Bausteine bringen je nach Termin **43–70 Punkte** und können damit den Bereich „ausreichend bis befriedigend" abdecken – bei 43 Punkten ist „ausreichend" jedoch nicht zwingend erreicht. Alles Weitere ist Notenverbesserung. Fachlich wichtig: AP1 ist Teil 1 der gestreckten Abschlussprüfung, geht mit **20 %** in das Gesamtergebnis ein und besitzt **keine eigenständige Bestehensgrenze** – 50 Punkte sind keine eigene Bestehensvoraussetzung für AP1.
 
 **Konkrete Konsequenz:** Investiere die ersten zwei Drittel der verbleibenden Zeit ausschließlich in A1–A9. C-Themen werden bei 20 Tagen Restzeit **gar nicht** bearbeitet.
 

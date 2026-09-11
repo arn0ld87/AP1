@@ -10,7 +10,9 @@ import {
   gesamtpunkteVon,
   maxPunkteVon,
   notenstufe,
+  persistAttemptFinish,
   submitExamFlow,
+  upsertSelfGrade,
   type Frage,
   type PruefungResults,
 } from "@/lib/exam-flow";
@@ -179,15 +181,14 @@ function ProbepruefungenPage() {
         answers,
         attemptId: attempt.id,
         callGrade,
-        persist: async (gesamtpunkte) => {
-          await supabase
-            .from("exam_attempts")
-            .update({ gesamtpunkte, finished_at: new Date().toISOString() })
-            .eq("id", attempt.id);
-        },
+        persist: (gesamtpunkte) => persistAttemptFinish(supabase, attempt.id, gesamtpunkte),
       });
       setResults(graded);
       setPhase("ergebnis");
+    } catch (e) {
+      // Persist-Fehler (update oder Upsert) sichtbar machen statt still in
+      // die Ergebnis-Ansicht zu laufen.
+      setError(e instanceof Error ? e.message : "Abgabe konnte nicht gespeichert werden.");
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
@@ -263,6 +264,7 @@ function ProbepruefungenPage() {
             {gesamtpunkte} / {maxP} Punkte · Note{" "}
             <span className="font-semibold text-foreground">{n}</span>
           </p>
+          {error && <p className="text-sm text-destructive">{error}</p>}
         </header>
         <section className="space-y-4">
           {fragen.map((f) => (
@@ -293,22 +295,24 @@ function ProbepruefungenPage() {
                 <SelfGrade
                   frage={f}
                   onSelfGrade={(id, p) => {
-                    setResults((prev) => ({
-                      ...prev,
-                      [id]: { punkte: p, begruendung: "Selbst eingeschätzt." },
-                    }));
-                    // Selbst-Punkte persistieren, damit ein Reload denselben
-                    // Stand zeigt (Upsert über attempt_id + question_id).
-                    void supabase.from("exam_answers").upsert(
-                      {
-                        attempt_id: attempt.id,
-                        question_id: id,
-                        antworttext: answers[id] ?? "",
-                        ki_punkte: p,
-                        ki_feedback: "Selbst eingeschätzt.",
-                      },
-                      { onConflict: "attempt_id,question_id" },
-                    );
+                    // Erst persistieren, dann State setzen — schlägt der
+                    // Upsert fehl, bleibt die Selbsteinschätzung editierbar.
+                    void (async () => {
+                      try {
+                        await upsertSelfGrade(supabase, {
+                          attemptId: attempt.id,
+                          questionId: id,
+                          antworttext: answers[id] ?? "",
+                          punkte: p,
+                        });
+                        setResults((prev) => ({
+                          ...prev,
+                          [id]: { punkte: p, begruendung: "Selbst eingeschätzt." },
+                        }));
+                      } catch (e) {
+                        setError(e instanceof Error ? e.message : "Speichern fehlgeschlagen.");
+                      }
+                    })();
                   }}
                 />
               )}
@@ -333,6 +337,8 @@ function ProbepruefungenPage() {
           {submitting ? "Bewertung läuft…" : "Prüfung abgeben"}
         </Button>
       </div>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {ausgang && (
         <section className="space-y-2 rounded-xl border border-border bg-card p-4">
@@ -410,7 +416,12 @@ function SelfGrade({
         size="sm"
         disabled={!v}
         onClick={() => {
-          onSelfGrade(frage.id, Number(v));
+          // Vor onSelfGrade auf endlichen Wert in [0, max_punkte] begrenzen —
+          // derselbe validierte Wert geht in State und Upsert ein.
+          const n = Number(v);
+          if (!Number.isFinite(n)) return;
+          const p = Math.min(frage.max_punkte ?? 0, Math.max(0, Math.round(n)));
+          onSelfGrade(frage.id, p);
           setV("");
         }}
       >
