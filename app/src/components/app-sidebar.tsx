@@ -9,9 +9,12 @@ import {
   ChevronRight,
   ClipboardCheck,
   FileText,
+  Loader2,
   LogOut,
   Sigma,
+  Trash2,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -89,6 +92,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
       </nav>
 
       <div className="space-y-1 border-t border-sidebar-border p-3">
+        <AccountDeletion collapsed={collapsed} onDeleted={handleSignOut} />
         <button
           type="button"
           onClick={handleSignOut}
@@ -114,5 +118,97 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
         </button>
       </div>
     </aside>
+  );
+}
+
+/**
+ * Self-Service-Kontolöschung (DSGVO Art. 17): Zweimal bestätigen, dann
+ * ruft die Edge Function delete-account den GoTrue-Admin-Delete auf.
+ * Alle Fachdaten räumt die DB per FK-Cascade mit ab. Nach Erfolg meldet
+ * onDeleted den Nutzer ab und zurück zur Anmeldeseite.
+ */
+function AccountDeletion({ collapsed, onDeleted }: { collapsed: boolean; onDeleted: () => void }) {
+  const [armed, setArmed] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const disarmTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (disarmTimer.current !== null) window.clearTimeout(disarmTimer.current);
+    };
+  }, []);
+
+  async function handleDelete() {
+    if (!armed) {
+      setArmed(true);
+      setError(null);
+      disarmTimer.current = window.setTimeout(() => setArmed(false), 5000);
+      return;
+    }
+    if (disarmTimer.current !== null) window.clearTimeout(disarmTimer.current);
+    setDeleting(true);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const jwt = session.session?.access_token;
+      const res = await fetch(
+        (import.meta.env as Record<string, string>)["VITE_SUPABASE_URL"] +
+          "/functions/v1/delete-account",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(jwt ? { Authorization: "Bearer " + jwt } : {}),
+          },
+          body: "{}",
+        },
+      );
+      if (!res.ok) {
+        throw new Error("delete-account: HTTP " + res.status);
+      }
+      onDeleted();
+    } catch {
+      setError("Konto konnte nicht gelöscht werden. Bitte versuche es erneut.");
+      setArmed(false);
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={handleDelete}
+        disabled={deleting}
+        title={
+          collapsed
+            ? armed
+              ? "Erneut klicken, um das Konto endgültig zu löschen"
+              : "Konto löschen"
+            : undefined
+        }
+        className={cn(
+          "flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent",
+          armed ? "text-destructive" : "text-sidebar-foreground",
+        )}
+      >
+        {deleting ? (
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+        ) : (
+          <Trash2 className="h-4 w-4 shrink-0" />
+        )}
+        {!collapsed && (
+          <span className="truncate">{armed ? "Endgültig löschen?" : "Konto löschen"}</span>
+        )}
+      </button>
+      {!collapsed && armed && !deleting && (
+        <p className="px-3 pb-1 text-xs leading-snug text-muted-foreground">
+          Konto und alle Daten werden endgültig entfernt. Nochmals klicken zum Bestätigen.
+        </p>
+      )}
+      {!collapsed && error && (
+        <p className="px-3 pb-1 text-xs leading-snug text-destructive">{error}</p>
+      )}
+    </div>
   );
 }

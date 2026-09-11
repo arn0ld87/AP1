@@ -19,7 +19,7 @@ Bedarf (z. B. Anzeigename statt E-Mail) müsste sie nachträglich per Migration 
 | `flashcard_progress` | Fortschritt „Wissenskarten" pro Karte | `user_id`, `card_id`, `richtig`, `falsch`, `updated_at` |
 | `exam_questions` | Einmalig aus den `.md`-Dateien migrierte Prüfungsfragen | Prüfung, Aufgabennummer, Teilaufgaben-Text, Musterlösung, Punkteverteilung |
 | `exam_attempts` | Ein Durchlauf einer Probeprüfung | `user_id`, `exam_id`, `started_at`, `finished_at`, `gesamtpunkte` |
-| `exam_answers` | Antwort + KI-Bewertung pro Teilaufgabe | `attempt_id`, `question_id`, `antworttext`, `ki_punkte`, `ki_feedback` |
+| `exam_answers` | Antwort + KI-Bewertung pro Teilaufgabe | `attempt_id`, `question_id`, `antworttext`, `ki_punkte`, `ki_feedback`, `user_id`, `created_at` |
 | `error_log` | Automatisch befüllt aus falschen Generator-Antworten und niedrig bewerteten KI-Antworten | Thema, Zeitpunkt, Kurzbeschreibung |
 
 ## Herkunft der Daten
@@ -45,6 +45,8 @@ auth.users 1──n flashcard_progress
 auth.users 1──n exam_attempts
 ```
 
-Alle Tabellen sind implizit auf einen einzelnen `user_id` skaliert (Single-User, siehe
-[vision.md](vision.md#nicht-ziele-aktuelle-iteration)) — RLS-Policies entsprechend einfach halten,
-keine Mehrbenutzer-Vorbereitung einbauen.
+Alle fachlichen Tabellen sind über `user_id` nutzerspezifisch (RLS: `auth.uid() = user_id`) und
+auf mehrere Nutzer skaliert — die Registrierung ist seit `public-signup` offen (E-Mail-Bestätigung
+erforderlich). Kostenkontrolle: die KI-Bewertung ist auf 50 Bewertungen je Nutzer/Tag begrenzt
+(`exam_answers.created_at`, geprüft in der Edge Function). Account-Löschung entfernt den
+`auth.users`-Eintrag; alle Fachdaten hängen per FK `ON DELETE CASCADE` daran.

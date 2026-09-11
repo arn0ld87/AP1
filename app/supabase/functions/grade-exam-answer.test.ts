@@ -23,6 +23,9 @@ const QUESTION_ID = "probepruefung_01-1a";
 interface StubState {
   attemptOwned: boolean;
   attemptsLookupFails?: boolean;
+  /** Anzahl heute (UTC) bereits erzeugter KI-Bewertungen für den Nutzer. */
+  answersToday: number;
+  limitLookupFails?: boolean;
   question: {
     frage: string;
     musterloesung: string;
@@ -46,6 +49,14 @@ function stubFetch(state: StubState): typeof fetch {
       return new Response(state.attemptOwned ? JSON.stringify([{ id: ATTEMPT_ID }]) : "[]", {
         status: 200,
       });
+    }
+    // Tageslimit-Zählung: GET auf /exam_answers mit created_at-Filter
+    if (url.includes("/exam_answers") && String(init?.method ?? "GET") === "GET") {
+      if (state.limitLookupFails) return new Response("err", { status: 500 });
+      return new Response(
+        JSON.stringify(Array.from({ length: state.answersToday }, (_, i) => ({ id: String(i) }))),
+        { status: 200 },
+      );
     }
     if (url.includes("/exam_questions?")) {
       if (state.questionStatus) return new Response("err", { status: state.questionStatus });
@@ -91,10 +102,11 @@ const QUESTION = {
 
 const baseState = (): StubState => ({
   attemptOwned: true,
+  answersToday: 0,
   question: QUESTION,
   bedrockStatus: 200,
   bedrockBody: JSON.stringify({
-    content: [{ text: '{"punkte": 3, "begruendung": "gut"}' }],
+    output: { message: { content: [{ text: '{"punkte": 3, "begruendung": "gut"}' }] } },
   }),
   insertStatus: 201,
   inserts: [],
@@ -173,10 +185,53 @@ Deno.test("Attempt-Lookup schlägt fehl (HTTP 500) → 503 statt 403, kein Inser
   }
 });
 
+Deno.test("Tageslimit erreicht (50 heute) → 429, kein Bedrock-Call, kein Insert", async () => {
+  const state = baseState();
+  state.answersToday = 50;
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+    assertEquals(res.status, 429);
+    const body = (await res.json()) as { error: string };
+    assertEquals(body.error.includes("Tageslimit"), true);
+    assertEquals(state.inserts.length, 0);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+Deno.test("unter dem Tageslimit (49 heute) → Bewertung läuft normal", async () => {
+  const state = baseState();
+  state.answersToday = 49;
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+    assertEquals(res.status, 200);
+    const body = await res.json();
+    assertEquals(body.punkte, 3);
+    assertEquals(state.inserts.length, 1); // nur exam_answers (3/4 = 75 % ≥ 50 % → kein error_log)
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+Deno.test("Tageslimit-Zählung schlägt fehl → 503, kein Bedrock-Call", async () => {
+  const state = baseState();
+  state.limitLookupFails = true;
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+    assertEquals(res.status, 503);
+    assertEquals(state.inserts.length, 0);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
 Deno.test("erfolgreicher Flow: Bewertung + Upsert mit user_id + Fehlerlog bei <50 %", async () => {
   const state = baseState();
   state.bedrockBody = JSON.stringify({
-    content: [{ text: '{"punkte": 1, "begruendung": "unvollständig"}' }],
+    output: { message: { content: [{ text: '{"punkte": 1, "begruendung": "unvollständig"}' }] } },
   });
   globalThis.fetch = stubFetch(state);
   try {
@@ -247,7 +302,9 @@ Deno.test("Bedrock-Timeout → Fallback punkte=null", async () => {
 
 Deno.test("Bedrock liefert invalides JSON → punkte=null, kein Insert", async () => {
   const state = baseState();
-  state.bedrockBody = JSON.stringify({ content: [{ text: "kein JSON hier" }] });
+  state.bedrockBody = JSON.stringify({
+    output: { message: { content: [{ text: "kein JSON hier" }] } },
+  });
   globalThis.fetch = stubFetch(state);
   try {
     const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
@@ -262,7 +319,7 @@ Deno.test("Bedrock liefert invalides JSON → punkte=null, kein Insert", async (
 Deno.test("Bedrock-Punkte über max_punkte → nicht akzeptiert", async () => {
   const state = baseState();
   state.bedrockBody = JSON.stringify({
-    content: [{ text: '{"punkte": 99, "begruendung": "hacker"}' }],
+    output: { message: { content: [{ text: '{"punkte": 99, "begruendung": "hacker"}' }] } },
   });
   globalThis.fetch = stubFetch(state);
   try {
