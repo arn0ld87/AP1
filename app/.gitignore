@@ -34,3 +34,4 @@ dist-ssr
 # Supabase-Credentials (aus Lovable-Export, nie committen)
 .env
 .env.*
+!.env.example

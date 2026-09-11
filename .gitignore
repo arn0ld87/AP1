@@ -4,3 +4,20 @@
 # open-mem: Auto-generated folder context files.
 # Uncomment to exclude from version control (recommended for large projects):
 # **/AGENTS.md
+
+# Secrets — niemals echte Werte committen; nur *.env.example ist erlaubt
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Lokale Arbeitsartefakte
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+.claude/worktrees/
+.open-mem/
+.opencode/
