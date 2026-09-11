@@ -12,7 +12,7 @@
 - Punkte pro Aufgabe zwischen 20 und 30
 - Aufgabensatz identisch für alle IT-Berufe (1201–1205, 6470, 6480)
 - Durchgehende Rahmenhandlung: **ein Unternehmen, ein Kundenprojekt**, alle vier Aufgaben beziehen sich darauf
-- Bestehensgrenze 50 Punkte; Note 3 ab 67 Punkten
+- Note 4 („ausreichend") ab 50 Punkten, Note 3 ab 67 Punkten — AP1 ist Teil 1 der gestreckten Abschlussprüfung (20 % Gewichtung), es gibt **keine eigenständige Bestehensgrenze**
 - Mindestens eine Teilaufgabe stützt sich auf einen **englischen Fachtext** (in 4 von 8 Terminen belegt)
 - Ersatzwerte für Folgeaufgaben („Falls Sie a) nicht lösen konnten …") sind Standard
 

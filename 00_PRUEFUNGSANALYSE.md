@@ -35,7 +35,7 @@ Herbst 2021 · Frühjahr 2022 · Herbst 2022 · Herbst 2023 · Frühjahr 2024 ·
 ### Formatkonstanz (belegt)
 Alle AP1-Termine seit 2021: **4 Aufgaben · 90 Minuten · 100 Punkte · offene Antworten** (kein Multiple Choice).
 Punkte-Noten-Schlüssel (identisch in allen Lösungsbänden 2021–2026):
-100–92 = 1 · unter 92–81 = 2 · unter 81–67 = 3 · **unter 67–50 = 4 (bestanden)** · unter 50–30 = 5 · unter 30–0 = 6.
+100–92 = 1 · unter 92–81 = 2 · unter 81–67 = 3 · **unter 67–50 = 4 (ausreichend)** · unter 50–30 = 5 · unter 30–0 = 6.
 
 **Wichtig:** Der Aufgabensatz ist für **alle IT-Berufe identisch** (Kennungen 1201–1205, 6470, 6480 in jedem Lösungsband). Prüfungen mit dem Aufdruck „Anwendungsentwicklung" oder „Kaufmann für Digitalisierungsmanagement" sind für dich **genauso relevant** wie die FISI-Sätze.
 
@@ -409,7 +409,7 @@ Bewertet nach `Prüfungswahrscheinlichkeit × typische Punkte × Wiederverwendba
 | 8 | Nutzwertanalyse (A9) | 3–5 | ~1 h |
 
 **Summe der Erwartungswerte: rund 43–70 Punkte** aus ca. 24 Lernstunden.
-Die Bestehensgrenze liegt bei **50 Punkten**. Diese acht Bausteine allein bringen dich in den Bereich „bestanden bis befriedigend" – alles Weitere ist Notenverbesserung.
+Die Notenstufe **„ausreichend" (Note 4)** beginnt bei **50 Punkten**. Diese acht Bausteine allein bringen dich in den Bereich „ausreichend bis befriedigend" – alles Weitere ist Notenverbesserung. Fachlich wichtig: AP1 ist Teil 1 der gestreckten Abschlussprüfung, geht mit **20 %** in das Gesamtergebnis ein und besitzt **keine eigenständige Bestehensgrenze** – 50 Punkte sind keine eigene Bestehensvoraussetzung für AP1.
 
 **Konkrete Konsequenz:** Investiere die ersten zwei Drittel der verbleibenden Zeit ausschließlich in A1–A9. C-Themen werden bei 20 Tagen Restzeit **gar nicht** bearbeitet.
 

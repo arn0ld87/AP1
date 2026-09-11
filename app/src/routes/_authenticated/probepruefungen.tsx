@@ -1,11 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlarmClock, ArrowLeft, Play } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  gesamtpunkteVon,
+  maxPunkteVon,
+  notenstufe,
+  submitExamFlow,
+  type Frage,
+  type PruefungResults,
+} from "@/lib/exam-flow";
 
 export const Route = createFileRoute("/_authenticated/probepruefungen")({
   head: () => ({
@@ -28,17 +36,6 @@ const EXAM_TITLES: Record<string, string> = {
 };
 const PRUEFUNG_DAUER_S = 90 * 60;
 
-interface Frage {
-  id: string;
-  aufgabe_nr: number | null;
-  teil: string | null;
-  frage: string | null;
-  max_punkte: number | null;
-  musterloesung: string | null;
-  intro: string | null;
-  ausgangssituation: string | null;
-}
-
 interface Attempt {
   id: string;
   exam_id: string | null;
@@ -47,15 +44,6 @@ interface Attempt {
 }
 
 type Phase = "auswahl" | "modus" | "ergebnis";
-
-function note(p: number): { n: string; bestanden: boolean } {
-  if (p >= 92) return { n: "1", bestanden: true };
-  if (p >= 81) return { n: "2", bestanden: true };
-  if (p >= 67) return { n: "3", bestanden: true };
-  if (p >= 50) return { n: "4", bestanden: true };
-  if (p >= 30) return { n: "5", bestanden: false };
-  return { n: "6", bestanden: false };
-}
 
 /** Inline-Renderer (escaped) für Frage-HTML aus der DB. */
 function EscapedHtml({ src, className }: { src: string | null; className?: string }) {
@@ -75,11 +63,10 @@ function ProbepruefungenPage() {
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [fragen, setFragen] = useState<Frage[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [results, setResults] = useState<
-    Record<string, { punkte: number | null; begruendung: string }>
-  >({});
+  const [results, setResults] = useState<PruefungResults>({});
   const [restS, setRestS] = useState(PRUEFUNG_DAUER_S);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [statusByExam, setStatusByExam] = useState<Record<string, string>>({});
 
@@ -102,21 +89,22 @@ function ProbepruefungenPage() {
   }, [phase]);
 
   // Timer
+  const submitRef = useRef<() => Promise<void>>(async () => {});
   useEffect(() => {
     if (phase !== "modus") return;
     const t = setInterval(() => {
       setRestS((s) => {
         if (s <= 1) {
           clearInterval(t);
-          setPhase("ergebnis");
-          void finishExam();
+          // Abschluss über die aktuelle submitExam-Instanz — kein stale
+          // closure; der Submit-Guard verhindert eine zweite Ausführung.
+          void submitRef.current();
           return 0;
         }
         return s - 1;
       });
     }, 1000);
     return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
   const start = async (examId: string) => {
@@ -150,63 +138,67 @@ function ProbepruefungenPage() {
     setPhase("modus");
   };
 
-  const grade = useCallback(
-    async (frage: Frage) => {
-      if (!attempt) return;
-      setBusy(frage.id);
+  /** Edge-Function-Aufruf — von React-State entkoppelt, testbar. */
+  const callGrade = useCallback(
+    async (input: { question_id: string; attempt_id: string; antworttext: string }) => {
       const { data: session } = await supabase.auth.getSession();
       const jwt = session.session?.access_token;
-      try {
-        const res = await fetch(
-          (import.meta.env as Record<string, string>)["VITE_SUPABASE_URL"] +
-            "/functions/v1/grade-exam-answer",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(jwt ? { Authorization: "Bearer " + jwt } : {}),
-            },
-            body: JSON.stringify({
-              question_id: frage.id,
-              antworttext: answers[frage.id] ?? "",
-              attempt_id: attempt.id,
-            }),
+      const res = await fetch(
+        (import.meta.env as Record<string, string>)["VITE_SUPABASE_URL"] +
+          "/functions/v1/grade-exam-answer",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(jwt ? { Authorization: "Bearer " + jwt } : {}),
           },
-        );
-        const body = await res.json();
-        setResults((prev) => ({
-          ...prev,
-          [frage.id]: { punkte: body.punkte, begruendung: body.begruendung ?? "" },
-        }));
-      } catch {
-        setResults((prev) => ({
-          ...prev,
-          [frage.id]: { punkte: null, begruendung: "KI-Bewertung nicht verfügbar." },
-        }));
-      } finally {
-        setBusy(null);
+          body: JSON.stringify(input),
+        },
+      );
+      if (!res.ok) {
+        throw new Error("grade-exam-answer: HTTP " + res.status);
       }
+      return (await res.json()) as { punkte: number | null; begruendung?: string };
     },
-    [attempt, answers],
+    [],
   );
 
-  const finishExam = useCallback(async () => {
-    if (!attempt) return;
-    const gesamtpunkte = fragen.reduce((a, f) => a + (results[f.id]?.punkte ?? 0), 0);
-    await supabase
-      .from("exam_attempts")
-      .update({ gesamtpunkte, finished_at: new Date().toISOString() })
-      .eq("id", attempt.id);
-  }, [attempt, fragen, results]);
-
-  const abgeben = async () => {
-    // alle offenen Teilaufgaben bewerten lassen
-    for (const f of fragen) {
-      if (results[f.id] === undefined) await grade(f);
+  /**
+   * Abschlusslogik: bewertet zuerst alles deterministisch (unabhängig von
+   * React-State), berechnet die Summe aus dem Ergebniswert und persistiert
+   * erst danach. Der Guard stellt sicher, dass Timeout und manueller
+   * Abgabe-Button denselben Abschluss nur genau einmal auslösen.
+   */
+  const submitExam = useCallback(async () => {
+    if (!attempt || submittingRef.current) return;
+    submittingRef.current = true;
+    setSubmitting(true);
+    try {
+      const { results: graded } = await submitExamFlow({
+        fragen,
+        answers,
+        attemptId: attempt.id,
+        callGrade,
+        persist: async (gesamtpunkte) => {
+          await supabase
+            .from("exam_attempts")
+            .update({ gesamtpunkte, finished_at: new Date().toISOString() })
+            .eq("id", attempt.id);
+        },
+      });
+      setResults(graded);
+      setPhase("ergebnis");
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
-    await finishExam();
-    setPhase("ergebnis");
-  };
+  }, [attempt, fragen, answers, callGrade]);
+
+  useEffect(() => {
+    submitRef.current = submitExam;
+  }, [submitExam]);
+
+  const abgeben = submitExam;
 
   const aufgaben = useMemo(() => {
     const byNr = new Map<number, Frage[]>();
@@ -255,9 +247,9 @@ function ProbepruefungenPage() {
 
   // ---------- Ergebnis ----------
   if (phase === "ergebnis" && attempt) {
-    const gesamtpunkte = fragen.reduce((a, f) => a + (results[f.id]?.punkte ?? 0), 0);
-    const maxP = fragen.reduce((a, f) => a + (f.max_punkte ?? 0), 0);
-    const { n, bestanden } = note(Math.round((100 * gesamtpunkte) / Math.max(1, maxP)));
+    const gesamtpunkte = gesamtpunkteVon(fragen, results);
+    const maxP = maxPunkteVon(fragen);
+    const n = notenstufe(Math.round((100 * gesamtpunkte) / Math.max(1, maxP)));
     return (
       <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
         <Button variant="ghost" onClick={() => setPhase("auswahl")} className="pl-0">
@@ -269,9 +261,7 @@ function ProbepruefungenPage() {
           </h1>
           <p className="text-sm text-muted-foreground">
             {gesamtpunkte} / {maxP} Punkte · Note{" "}
-            <span className="font-semibold text-foreground">
-              {n}
-            </span>
+            <span className="font-semibold text-foreground">{n}</span>
           </p>
         </header>
         <section className="space-y-4">
@@ -302,12 +292,24 @@ function ProbepruefungenPage() {
               {results[f.id]?.punkte === null && (
                 <SelfGrade
                   frage={f}
-                  onSelfGrade={(id, p) =>
+                  onSelfGrade={(id, p) => {
                     setResults((prev) => ({
                       ...prev,
                       [id]: { punkte: p, begruendung: "Selbst eingeschätzt." },
-                    }))
-                  }
+                    }));
+                    // Selbst-Punkte persistieren, damit ein Reload denselben
+                    // Stand zeigt (Upsert über attempt_id + question_id).
+                    void supabase.from("exam_answers").upsert(
+                      {
+                        attempt_id: attempt.id,
+                        question_id: id,
+                        antworttext: answers[id] ?? "",
+                        ki_punkte: p,
+                        ki_feedback: "Selbst eingeschätzt.",
+                      },
+                      { onConflict: "attempt_id,question_id" },
+                    );
+                  }}
                 />
               )}
             </article>
@@ -327,8 +329,8 @@ function ProbepruefungenPage() {
           <AlarmClock className="size-5 text-primary" />
           {mm}:{ss}
         </span>
-        <Button type="button" onClick={abgeben} disabled={busy !== null}>
-          {busy ? `bewerte ${busy}…` : "Prüfung abgeben"}
+        <Button type="button" onClick={abgeben} disabled={submitting}>
+          {submitting ? "Bewertung läuft…" : "Prüfung abgeben"}
         </Button>
       </div>
 
