@@ -23,7 +23,14 @@ const QUESTION_ID = "probepruefung_01-1a";
 interface StubState {
   attemptOwned: boolean;
   attemptsLookupFails?: boolean;
-  question: { frage: string; musterloesung: string; max_punkte: number; exam_id: string; aufgabe_nr: number; teil: string } | null;
+  question: {
+    frage: string;
+    musterloesung: string;
+    max_punkte: number;
+    exam_id: string;
+    aufgabe_nr: number;
+    teil: string;
+  } | null;
   questionStatus?: number;
   bedrockStatus: number;
   bedrockBody: string;
@@ -100,10 +107,7 @@ const validBody = () => ({
 });
 
 Deno.test("OPTIONS wird ohne Auth beantwortet", async () => {
-  const res = await handleRequest(
-    new Request("https://fn/x", { method: "OPTIONS" }),
-    ENV,
-  );
+  const res = await handleRequest(new Request("https://fn/x", { method: "OPTIONS" }), ENV);
   assertEquals(res.status, 200);
 });
 
@@ -170,7 +174,10 @@ Deno.test("erfolgreicher Flow: Bewertung + Upsert mit user_id + Fehlerlog bei <5
     const answerInsert = state.inserts.find((i) => i.url.includes("/exam_answers"));
     assertEquals(answerInsert?.body?.user_id, USER_SUB);
     assertEquals(answerInsert?.body?.ki_punkte, 1);
-    assertEquals(state.inserts.some((i) => i.url.includes("/error_log")), true);
+    assertEquals(
+      state.inserts.some((i) => i.url.includes("/error_log")),
+      true,
+    );
   } finally {
     globalThis.fetch = fetchOriginal;
   }
@@ -181,7 +188,10 @@ Deno.test("kein Fehlerlog bei >=50 %", async () => {
   globalThis.fetch = stubFetch(state);
   try {
     await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
-    assertEquals(state.inserts.some((i) => i.url.includes("/error_log")), false);
+    assertEquals(
+      state.inserts.some((i) => i.url.includes("/error_log")),
+      false,
+    );
   } finally {
     globalThis.fetch = fetchOriginal;
   }

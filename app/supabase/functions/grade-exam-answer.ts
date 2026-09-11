@@ -249,8 +249,7 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
     };
     try {
       const insRes = await fetch(
-        rest +
-          "/rest/v1/exam_answers?on_conflict=attempt_id,question_id",
+        rest + "/rest/v1/exam_answers?on_conflict=attempt_id,question_id",
         {
           method: "POST",
           headers,
