@@ -144,11 +144,15 @@ def main() -> int:
     if idx != "1":
         failures.append(f"Unique-Index fehlt: {EXPECT_UNIQUE_INDEX}")
 
-    # 8) Seed/Smoke: Insert + RPC-Ausführung im simulierten JWT-Kontext
+    # 8) Seed/Smoke: Insert + RPC-Ausführung im simulierten JWT-Kontext.
+    #    Wichtig: set_config gilt nur pro Session — Auth-Kontext und RPC
+    #    müssen in EINEM psql-Aufruf laufen.
     user_id = "11111111-1111-1111-1111-111111111111"
     psql(f"insert into auth.users (id) values ('{user_id}') on conflict do nothing;")
-    psql(f"select set_config('request.jwt.claim.sub', '{user_id}', false);")
-    psql("select public.increment_topic_mastery('subnetting', true);")
+    psql(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        "select public.increment_topic_mastery('subnetting', true);"
+    )
     got = psql(
         f"select richtig from public.topic_mastery where user_id = '{user_id}' limit 1;"
     )
