@@ -11,6 +11,7 @@ import {
   recordCardResult,
   type FlashcardRow,
 } from "@/lib/flashcard-progress";
+import { pickWeighted } from "@/lib/flashcard-weighting";
 
 export const Route = createFileRoute("/_authenticated/wissenskarten")({
   head: () => ({
@@ -33,19 +34,9 @@ export const Route = createFileRoute("/_authenticated/wissenskarten")({
 const CARD_TOPICS = TOPICS.filter((t) => t.kind === "card");
 const T = Object.fromEntries(TOPICS.map((t) => [t.id, t]));
 
-/** Gewichtung laut Brief: p ∝ falsch / (richtig + falsch + 1). */
-function pickWeighted(pool: { id: string; falsch: number; richtig: number }[]): string {
-  const weights = pool.map((c) => c.falsch / (c.richtig + c.falsch + 1));
-  const total = weights.reduce((a, w) => a + w, 0);
-  if (total <= 0) {
-    return pool[Math.floor(Math.random() * pool.length)]!.id;
-  }
-  let roll = Math.random() * total;
-  for (let i = 0; i < pool.length; i++) {
-    roll -= weights[i]!;
-    if (roll <= 0) return pool[i]!.id;
-  }
-  return pool[pool.length - 1]!.id;
+/** Gewichtung: p ∝ (falsch + 1) / (richtig + falsch + 2) — neue Karten bleiben im Pool. */
+function pickWeightedId(pool: { id: string; falsch: number; richtig: number }[]): string {
+  return pickWeighted(pool) ?? pool[0]!.id;
 }
 
 function WissenskartenPage() {
@@ -77,7 +68,7 @@ function WissenskartenPage() {
       setCurrent(null);
       return;
     }
-    setCurrent(pickWeighted(pool));
+    setCurrent(pickWeightedId(pool));
     setFlipped(false);
     setLastResult(null);
     setSaveError(null);
