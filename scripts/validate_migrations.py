@@ -144,10 +144,14 @@ def main() -> int:
     if idx != "1":
         failures.append(f"Unique-Index fehlt: {EXPECT_UNIQUE_INDEX}")
 
-    # 8) Seed/Smoke: Insert + RPC-Ausführung funktionieren schematisch
-    psql("insert into auth.users (id) values ('11111111-1111-1111-1111-111111111111') on conflict do nothing;")
+    # 8) Seed/Smoke: Insert + RPC-Ausführung im simulierten JWT-Kontext
+    user_id = "11111111-1111-1111-1111-111111111111"
+    psql(f"insert into auth.users (id) values ('{user_id}') on conflict do nothing;")
+    psql(f"select set_config('request.jwt.claim.sub', '{user_id}', false);")
     psql("select public.increment_topic_mastery('subnetting', true);")
-    got = scalar("select richtig from public.topic_mastery limit 1;")
+    got = psql(
+        f"select richtig from public.topic_mastery where user_id = '{user_id}' limit 1;"
+    )
     if got != "1":
         failures.append(f"RPC-Inkrement unerwartet: richtig={got}")
 
