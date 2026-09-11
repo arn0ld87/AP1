@@ -1,0 +1,21 @@
+AP1-Prüfungsvorbereitung
+Copyright (c) 2026 Alexander Schneider
+
+Dieser Abschnitt listet fremde Rechte an Inhalten, die in diesem Projekt
+verarbeitet werden, und grenzt sie von der Projektlizenz (LICENSE) ab.
+
+1. Code
+   Der Quellcode (Web-App, Skripte, Deploy-Konfiguration, AP1-Trainer.html)
+   steht unter der MIT-Lizenz (siehe LICENSE).
+
+2. Eigene Lerninhalte
+   Analyse- und Lerndokumente (00_*–05_*.md, lernen/, probepruefungen/,
+   loesungen/, data/) sind eigene Arbeiten und unter CC BY 4.0 lizenziert.
+
+3. Externe Prüfungsunterlagen (IHK/ZPA)
+   Die statistische Auswertung und die Beleg-Referenzen (z. B. „H2022 3g")
+   basieren auf Original-Lösungsbänden der IHK-Abschlussprüfung. Alle Rechte
+   an diesen Originalen verbleiben bei der jeweiligen Kammer. Die PDFs sind
+   nicht committed; Herkunft und Qualität sind in sources/manifest.yml
+   dokumentiert. Probeprüfungen sind eigene Konstruktionen im Stil der
+   Altprüfungen, keine Kopien.

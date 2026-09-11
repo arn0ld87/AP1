@@ -1,0 +1,85 @@
+# Quellenmanifest — Datenprovenienz der Prüfungsauswertung
+#
+# Grundlage der Auswertung in 00_PRUEFUNGSANALYSE.md, 03_PRUEFUNGSPROGNOSE.md
+# und der daraus migrierten Inhalte (lernen/, probepruefungen/, loesungen/,
+# data/migration/) sind die Original-Lösungsbände der IHK-Zwischenprüfung
+# AP1 Fachinformatiker Systemintegration (gestreckte AP, Teil 1).
+#
+# Die Original-PDFs sind NICHT Teil dieses Repos (Urheberrecht liegt bei der
+# zuständigen IHK/ZPA); sie liegen nur lokal vor. Diese Datei dokumentiert
+# nachvollziehbar, welche Prüfungstermine in die Statistik eingeflossen sind
+# und mit welcher Qualität der Text extrahiert wurde.
+#
+# source_quality-Stufen:
+#   original-text          — Text direkt aus textbasiertem PDF extrahiert
+#   ocr-reviewed           — OCR, Ergebnisse gegen Format/Plausibilität geprüft
+#   solution-reconstructed — Lösung aus Aufgabenstellung + eigenen Rechnungen rekonstruiert
+#   unverified             — nicht gegen Original gegengeprüft
+
+sources:
+  - termin: H2021 (Herbst 2021)
+    dateiname: lokal, nicht committed
+    sha256: null
+    seiten: null
+    source_quality: original-text
+    extraction_method: pdftotext (lokal)
+    reviewed: true
+  - termin: F2022 (Frühjahr 2022)
+    dateiname: lokal, nicht committed
+    sha256: null
+    seiten: null
+    source_quality: original-text
+    extraction_method: pdftotext (lokal)
+    reviewed: true
+  - termin: H2022 (Herbst 2022)
+    dateiname: lokal, nicht committed
+    sha256: null
+    seiten: null
+    source_quality: original-text
+    extraction_method: pdftotext (lokal)
+    reviewed: true
+  - termin: H2023 (Herbst 2023)
+    dateiname: lokal, nicht committed
+    sha256: null
+    seiten: null
+    source_quality: original-text
+    extraction_method: pdftotext (lokal)
+    reviewed: true
+  - termin: F2024 (Frühjahr 2024)
+    dateiname: lokal, nicht committed
+    sha256: null
+    seiten: null
+    source_quality: original-text
+    extraction_method: pdftotext (lokal)
+    reviewed: true
+  - termin: H2024 (Herbst 2024)
+    dateiname: lokal, nicht committed
+    sha256: null
+    seiten: null
+    source_quality: original-text
+    extraction_method: pdftotext (lokal)
+    reviewed: true
+  - termin: F2025 (Frühjahr 2025)
+    dateiname: lokal, nicht committed
+    sha256: null
+    seiten: null
+    source_quality: original-text
+    extraction_method: pdftotext (lokal)
+    reviewed: true
+  - termin: F2026 (Frühjahr 2026)
+    dateiname: lokal, nicht committed
+    sha256: null
+    seiten: null
+    source_quality: original-text
+    extraction_method: pdftotext (lokal)
+    reviewed: true
+
+# Verwendungszweck: Statistische Häufigkeitsanalyse (00_PRUEFUNGSANALYSE.md,
+# Abschnitt B/C) und Beleg-Referenzen der Form „H2022 3g", „F2024 1ab" in
+# Lernblättern und Formelsammlung. Keine wörtlichen Übernahmen ganzer
+# Aufgaben- oder Lösungstexte in committed Dateien; Probeprüfungen in
+# probepruefungen/ sind eigene Konstruktionen im Stil der Altprüfungen.
+#
+# NACHTRAG (Pflege-Regel): Neuer Termin aufgenommen → Eintrag hier ergänzen
+# (sha256 des lokalen PDFs eintragen), Statistik in 00_PRUEFUNGSANALYSE.md
+# Abschnitt „Datengrundlage" aktualisieren.
