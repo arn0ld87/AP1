@@ -3,16 +3,28 @@
 # =============================================================================
 # Gehoert auf armserver nach /opt/traefik/dynamic/pruefung.yml.
 #
-# Nur `tswebsecure`, also nur ueber Tailscale -- gleiches Muster wie ap1.yml:
-# pruefung.alexle135.de zeigt auf 100.71.152.44 (CGNAT/Tailscale), ein
-# oeffentlicher Router waere eine Regel ohne Weg dorthin.
+# ZWEI Router, mit Absicht:
+#   pruefung-public  websecure   -- oeffentlich (DNS: A 89.58.35.35, proxied).
+#                                   Crowdsec haengt am Entrypoint websecure.
+#   pruefung         tswebsecure -- Zugang aus dem Tailnet (bleibt erhalten).
 #
-# Das Zertifikat holt Traefik ueber letsencrypt (DNS-Challenge-faehiger
-# Resolver, funktioniert auch fuer Namen auf private Adressen).
+# Zertifikat: letsencrypt-Resolver mit DNS-Challenge (funktioniert unabhaengig
+# davon, wohin der DNS-Record zeigt).
 # =============================================================================
 
 http:
   routers:
+    pruefung-public:
+      rule: "Host(`pruefung.alexle135.de`)"
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: "pruefung.alexle135.de"
+      middlewares:
+        - security-headers@file
+      service: pruefung
     pruefung:
       rule: "Host(`pruefung.alexle135.de`)"
       entrypoints:
