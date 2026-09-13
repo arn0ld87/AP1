@@ -1,4 +1,4 @@
-# ADR-0003: KI-Bewertung via Amazon Bedrock (Claude Haiku 4.5, eu-central-1)
+# ADR-0003: KI-Bewertung via Amazon Bedrock (ursprünglich Claude Haiku 4.5, live: Amazon Nova Lite, eu-central-1)
 
 **Status:** Accepted · **Datum:** 11.09.2026 · **Stand:** [docs/api.md](../api.md)
 
