@@ -16,9 +16,17 @@
  *   exam_attempts.id = attempt_id AND exam_attempts.user_id = JWT.sub,
  *   sonst 403. Ist die Prüfung selbst nicht möglich (Lookup HTTP-/Netzwerk-
  *   fehler), antwortet die Function mit 503 statt fälschlich 403.
+ * - Attempt/Frage-Kopplung: die geladene Frage muss zur exam_id des Attempts
+ *   gehören, sonst 400 — ohne diesen Check ließe sich mit einem eigenen
+ *   Attempt eine Frage einer fremden Prüfung bewerten lassen (kein
+ *   Direktzugriff auf fremde Daten, aber fachlich falsche Zuordnung plus
+ *   unnötige Bedrock-Kosten).
  * - Eingaben werden auf Form und Länge validiert; die KI-Antwort wird auf
  *   0 <= punkte <= max_punkte begrenzt. Ungültiges JSON erzeugt keine
  *   Bewertung (Fallback punkte=null → Selbst-Einschätzung im Frontend).
+ * - Persistenzfehler beim Speichern der Bewertung (exam_answers) liefern
+ *   503 statt einem Scheinerfolg — nur ein Fehler beim sekundären
+ *   error_log-Schreiben bleibt non-blocking und lässt die Hauptantwort 200.
  */
 
 interface GradingRequest {
@@ -122,6 +130,7 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
   // --- Eigentümerschaft: Attempt muss dem JWT-Sub gehören (RLS-Bypass!) ---
   let attemptOwned = false;
   let lookupFailed = false;
+  let attemptExamId: string | null = null;
   try {
     const aRes = await fetch(
       rest +
@@ -129,14 +138,16 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
         encodeURIComponent(attemptId) +
         "&user_id=eq." +
         encodeURIComponent(sub) +
-        "&select=id",
+        "&select=id,exam_id",
       {
         headers: { apikey: key, Authorization: "Bearer " + key },
         signal: AbortSignal.timeout(10_000),
       },
     );
     if (aRes.ok) {
-      attemptOwned = ((await aRes.json()) as { id: string }[]).length > 0;
+      const rows = (await aRes.json()) as { id: string; exam_id: string | null }[];
+      attemptOwned = rows.length > 0;
+      attemptExamId = rows[0]?.exam_id ?? null;
     } else {
       console.error("exam_attempts-Lookup fehlgeschlagen:", aRes.status);
       lookupFailed = true;
@@ -220,6 +231,19 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
   if (!q) {
     console.error("question_id unbekannt:", questionId);
     return json(200, { punkte: null, begruendung: "KI-Bewertung nicht verfügbar." }, cors);
+  }
+
+  // --- Attempt/Frage-Kopplung: Frage muss zur Prüfung des Attempts gehören ---
+  // Beide exam_id-Spalten sind nullable; ein fehlender Wert gilt nicht als
+  // Treffer, sonst würde "null == null" als gültige Zuordnung durchgehen.
+  if (!attemptExamId || !q.exam_id || q.exam_id !== attemptExamId) {
+    console.error(
+      "exam_id-Mismatch: Attempt gehört zu",
+      attemptExamId,
+      "Frage gehört zu",
+      q.exam_id,
+    );
+    return json(400, { error: "Frage gehört nicht zur Prüfung dieses Attempts" }, cors);
   }
 
   // --- Bedrock aufrufen (ein Modell, kein Fallback-Modell implementiert) ---
@@ -320,9 +344,19 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
       );
       if (!insRes.ok) {
         console.error("exam_answers-Insert fehlgeschlagen:", insRes.status);
+        return json(
+          503,
+          { error: "Bewertung konnte nicht gespeichert werden — bitte erneut versuchen" },
+          cors,
+        );
       }
     } catch (e) {
       console.error("exam_answers-Insert Netzwerkfehler:", e);
+      return json(
+        503,
+        { error: "Bewertung konnte nicht gespeichert werden — bitte erneut versuchen" },
+        cors,
+      );
     }
 
     // Fehlerlog bei <50% der Maximalpunktzahl

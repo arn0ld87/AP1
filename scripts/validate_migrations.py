@@ -56,7 +56,7 @@ EXPECT_COLUMNS = {
     "exam_answers": ["user_id", "ki_punkte", "ki_feedback"],
 }
 
-EXPECT_RPC = ["increment_topic_mastery", "increment_flashcard_progress"]
+EXPECT_RPC = ["increment_topic_mastery", "increment_flashcard_progress", "submit_self_grade"]
 
 EXPECT_UNIQUE_INDEX = "exam_answers_attempt_question_uq"
 
@@ -77,6 +77,26 @@ def psql(sql: str, database_url: str = DATABASE_URL) -> str:
 def scalar(sql: str) -> str:
     out = psql(sql)
     return out.splitlines()[0].strip() if out else ""
+
+
+def scalar_last(sql: str) -> str:
+    """Wie scalar(), aber letzte Ausgabezeile — für Aufrufe, bei denen dem
+    eigentlichen Statement ein set_config() im selben psql-Aufruf vorausgeht
+    (set_config selbst gibt ebenfalls eine Ergebniszeile aus)."""
+    lines = [l for l in psql(sql).splitlines() if l.strip()]
+    return lines[-1].strip() if lines else ""
+
+
+def psql_expect_fail(sql: str) -> bool:
+    """Führt sql aus, ohne bei Fehlschlag abzubrechen. True = psql ist mit
+    Fehler beendet (erwartetes RAISE EXCEPTION, z.B. Clamping/Ownership)."""
+    proc = subprocess.run(
+        ["psql", DATABASE_URL, "--no-psqlrc", "--tuples-only", "--no-align", "--set", "ON_ERROR_STOP=1"],
+        input=sql,
+        capture_output=True,
+        text=True,
+    )
+    return proc.returncode != 0
 
 
 def main() -> int:
@@ -179,6 +199,124 @@ def main() -> int:
     )
     if got != "1":
         failures.append(f"RPC-Inkrement unerwartet: richtig={got}")
+
+    # 9) submit_self_grade: Ownership, Clamping, atomare Summenneuberechnung
+    #    in exam_attempts.gesamtpunkte, Ersetzen statt Aufaddieren bei
+    #    wiederholter Selbsteinschätzung derselben Frage (Regression: die
+    #    Summe blieb bisher nach SelfGrade auf dem Stand der ursprünglichen
+    #    Abgabe, siehe Migration 20260914000000).
+    other_user_id = "22222222-2222-2222-2222-222222222222"
+    sg_attempt_id = "33333333-3333-3333-3333-333333333333"
+    sg_question_id = "self-grade-test-frage"
+    sg_exam_id = "self-grade-test-exam"
+    psql(f"insert into auth.users (id) values ('{other_user_id}') on conflict do nothing;")
+    psql(
+        f"insert into public.exam_questions (id, exam_id, max_punkte) "
+        f"values ('{sg_question_id}', '{sg_exam_id}', 10) on conflict (id) do nothing;"
+    )
+    psql(
+        f"insert into public.exam_attempts (id, user_id, exam_id) "
+        f"values ('{sg_attempt_id}', '{user_id}', '{sg_exam_id}') on conflict (id) do nothing;"
+    )
+
+    ret1 = scalar_last(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{sg_question_id}', 'erste Antwort', 7);"
+    )
+    if ret1 != "7":
+        failures.append(f"submit_self_grade: erwartete Rückgabe 7, bekam {ret1!r}")
+    persisted1 = scalar(f"select gesamtpunkte from public.exam_attempts where id = '{sg_attempt_id}';")
+    if persisted1 != "7":
+        failures.append(f"submit_self_grade: exam_attempts.gesamtpunkte erwartet 7, ist {persisted1!r}")
+
+    # Erneute Selbsteinschätzung derselben Frage muss ERSETZEN, nicht addieren.
+    ret2 = scalar_last(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{sg_question_id}', 'korrigierte Antwort', 3);"
+    )
+    if ret2 != "3":
+        failures.append(
+            f"submit_self_grade: erneute Bewertung erwartet 3 (ersetzt, nicht 7+3=10), bekam {ret2!r}"
+        )
+    persisted2 = scalar(f"select gesamtpunkte from public.exam_attempts where id = '{sg_attempt_id}';")
+    if persisted2 != "3":
+        failures.append(
+            f"submit_self_grade: exam_attempts.gesamtpunkte nach erneuter Bewertung erwartet 3, ist {persisted2!r}"
+        )
+
+    # Clamping: negative Punkte und Punkte > max_punkte müssen abgelehnt werden.
+    if not psql_expect_fail(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{sg_question_id}', 'x', -1);"
+    ):
+        failures.append("submit_self_grade: punkte=-1 hätte abgelehnt werden müssen")
+    if not psql_expect_fail(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{sg_question_id}', 'x', 11);"
+    ):
+        failures.append("submit_self_grade: punkte=11 > max_punkte=10 hätte abgelehnt werden müssen")
+    persisted3 = scalar(f"select gesamtpunkte from public.exam_attempts where id = '{sg_attempt_id}';")
+    if persisted3 != "3":
+        failures.append(
+            f"submit_self_grade: abgelehnte Clamping-Versuche dürfen gesamtpunkte nicht verändern, ist {persisted3!r}"
+        )
+
+    # Ownership: fremder Nutzer darf denselben Attempt nicht bewerten.
+    if not psql_expect_fail(
+        f"select set_config('request.jwt.claim.sub', '{other_user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{sg_question_id}', 'x', 5);"
+    ):
+        failures.append("submit_self_grade: fremder Nutzer hätte abgelehnt werden müssen (Ownership)")
+
+    # Attempt/Frage-Kopplung: Frage aus einer anderen Prüfung muss abgelehnt
+    # werden, auch wenn der Attempt dem Nutzer gehört.
+    fremde_question_id = "self-grade-test-fremde-frage"
+    psql(
+        f"insert into public.exam_questions (id, exam_id, max_punkte) "
+        f"values ('{fremde_question_id}', 'ein-anderes-exam', 10) on conflict (id) do nothing;"
+    )
+    if not psql_expect_fail(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{fremde_question_id}', 'x', 5);"
+    ):
+        failures.append(
+            "submit_self_grade: Frage aus fremder Prüfung hätte abgelehnt werden müssen (Exam-Kopplung)"
+        )
+
+    # NULL-Punkte dürfen das Clamping nicht umgehen.
+    if not psql_expect_fail(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{sg_question_id}', 'x', null);"
+    ):
+        failures.append("submit_self_grade: punkte=NULL hätte abgelehnt werden müssen")
+
+    # Nach allen abgelehnten Versuchen muss die Summe unverändert bei 3 stehen.
+    persisted4 = scalar(f"select gesamtpunkte from public.exam_attempts where id = '{sg_attempt_id}';")
+    if persisted4 != "3":
+        failures.append(
+            f"submit_self_grade: abgelehnte Aufrufe dürfen gesamtpunkte nicht verändern, ist {persisted4!r}"
+        )
+
+    # Direktschreibzugriff auf exam_answers ist für authenticated entzogen —
+    # Schreiben ausschließlich über die RPC bzw. die Edge Function (service_role).
+    for privilege in ("INSERT", "UPDATE"):
+        granted = scalar(
+            "select count(*) from information_schema.role_table_grants "
+            "where table_schema = 'public' and table_name = 'exam_answers' "
+            f"and grantee = 'authenticated' and privilege_type = '{privilege}';"
+        )
+        if granted != "0":
+            failures.append(
+                f"exam_answers: {privilege} für authenticated haette entzogen sein muessen "
+                f"(count={granted})"
+            )
+    select_granted = scalar(
+        "select count(*) from information_schema.role_table_grants "
+        "where table_schema = 'public' and table_name = 'exam_answers' "
+        "and grantee = 'authenticated' and privilege_type = 'SELECT';"
+    )
+    if select_granted != "1":
+        failures.append("exam_answers: SELECT für authenticated fehlt (Ergebnisanzeige)")
 
     if failures:
         print("SCHEMA-VALIDIERUNG FEHLGESCHLAGEN:")

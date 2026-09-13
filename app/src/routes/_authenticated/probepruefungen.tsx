@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  createSingleFlightGuard,
   gesamtpunkteVon,
   maxPunkteVon,
   notenstufe,
@@ -17,6 +18,7 @@ import {
   upsertSelfGrade,
   type Frage,
   type PruefungResults,
+  type SingleFlightGuard,
 } from "@/lib/exam-flow";
 
 export const Route = createFileRoute("/_authenticated/probepruefungen")({
@@ -68,7 +70,12 @@ function ProbepruefungenPage() {
   const [results, setResults] = useState<PruefungResults>({});
   const [restS, setRestS] = useState(PRUEFUNG_DAUER_S);
   const [submitting, setSubmitting] = useState(false);
-  const submittingRef = useRef(false);
+  // Lazy-Init: useRef(createSingleFlightGuard()) würde den Guard bei jedem
+  // Render neu erzeugen und sofort verwerfen. Das Objekt bleibt über alle
+  // Renders hinweg dasselbe — nur so greift die Doppelabgabe-Sperre.
+  const submitGuardRef = useRef<SingleFlightGuard | null>(null);
+  submitGuardRef.current ??= createSingleFlightGuard();
+  const submitGuard = submitGuardRef.current;
   const [error, setError] = useState<string | null>(null);
   const [statusByExam, setStatusByExam] = useState<Record<string, string>>({});
 
@@ -170,32 +177,33 @@ function ProbepruefungenPage() {
   /**
    * Abschlusslogik: bewertet zuerst alles deterministisch (unabhängig von
    * React-State), berechnet die Summe aus dem Ergebniswert und persistiert
-   * erst danach. Der Guard stellt sicher, dass Timeout und manueller
-   * Abgabe-Button denselben Abschluss nur genau einmal auslösen.
+   * erst danach. Der Guard (createSingleFlightGuard, exam-flow.ts) stellt
+   * sicher, dass Timeout und manueller Abgabe-Button denselben Abschluss
+   * nur genau einmal auslösen, auch wenn beide quasi gleichzeitig feuern.
    */
   const submitExam = useCallback(async () => {
-    if (!attempt || submittingRef.current) return;
-    submittingRef.current = true;
-    setSubmitting(true);
-    try {
-      const { results: graded } = await submitExamFlow({
-        fragen,
-        answers,
-        attemptId: attempt.id,
-        callGrade,
-        persist: (gesamtpunkte) => persistAttemptFinish(supabase, attempt.id, gesamtpunkte),
-      });
-      setResults(graded);
-      setPhase("ergebnis");
-    } catch (e) {
-      // Persist-Fehler (update oder Upsert) sichtbar machen statt still in
-      // die Ergebnis-Ansicht zu laufen.
-      setError(e instanceof Error ? e.message : "Abgabe konnte nicht gespeichert werden.");
-    } finally {
-      submittingRef.current = false;
-      setSubmitting(false);
-    }
-  }, [attempt, fragen, answers, callGrade]);
+    if (!attempt) return;
+    await submitGuard.run(async () => {
+      setSubmitting(true);
+      try {
+        const { results: graded } = await submitExamFlow({
+          fragen,
+          answers,
+          attemptId: attempt.id,
+          callGrade,
+          persist: (gesamtpunkte) => persistAttemptFinish(supabase, attempt.id, gesamtpunkte),
+        });
+        setResults(graded);
+        setPhase("ergebnis");
+      } catch (e) {
+        // Persist-Fehler (update oder Upsert) sichtbar machen statt still in
+        // die Ergebnis-Ansicht zu laufen.
+        setError(e instanceof Error ? e.message : "Abgabe konnte nicht gespeichert werden.");
+      } finally {
+        setSubmitting(false);
+      }
+    });
+  }, [attempt, fragen, answers, callGrade, submitGuard]);
 
   useEffect(() => {
     submitRef.current = submitExam;

@@ -1,3 +1,8 @@
+> **HISTORISCHER PLAN – NICHT SOURCE OF TRUTH.** Ursprünglicher Implementierungsplan vom
+> 10.09.2026, noch vor dem Pivot weg von Lovable (siehe [docs/context.md](../../context.md)) und
+> vor der KI-Modell-Entscheidung für Amazon Nova Lite (siehe `grade-exam-answer.ts`, nicht Claude
+> Haiku wie unten geplant). Aktueller Stand: [docs/status.md](../../status.md).
+
 # AP1-Lernplattform (Lovable) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

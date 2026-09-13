@@ -1,3 +1,8 @@
+> **HISTORISCHER STAND – NICHT SOURCE OF TRUTH.** Das Ergebnis unten (Claude Haiku 4.5 verfügbar)
+> war am 11.09.2026 nicht mehr reproduzierbar — Claude-Modelle liefern für den genutzten AWS-Account
+> „invalid model identifier". Implementiert und live ist **Amazon Nova Lite**
+> (`eu.amazon.nova-lite-v1:0`), siehe [docs/api.md](../api.md#modell--zugangsdaten).
+
 # Bedrock-Modellzugriff für die KI-Bewertung
 
 Geprüft am: 2026-09-10

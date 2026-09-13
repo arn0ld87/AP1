@@ -132,26 +132,58 @@ export async function persistAttemptFinish(
   if (error) throw new Error("Abschluss konnte nicht gespeichert werden: " + error.message);
 }
 
+export interface SingleFlightGuard {
+  /** true, während bereits ein Durchlauf läuft. */
+  isRunning(): boolean;
+  /** Führt fn nur aus, wenn gerade nichts läuft — sonst ein No-op. */
+  run(fn: () => Promise<void>): Promise<void>;
+}
+
 /**
- * Upsert der Selbsteinschätzung in exam_answers (Konflikt über
- * attempt_id + question_id). Das Fehlerfeld wird wie bei
- * persistAttemptFinish zu einer Exception umgebogen.
+ * Verhindert parallele Ausführung — Timer-Ablauf und manueller Abgabe-Klick
+ * können quasi gleichzeitig auslösen, es darf aber nur ein Abschluss-Flow
+ * tatsächlich laufen (kein doppeltes Bewerten, keine doppelte Persistenz).
+ * Als eigenständiges Objekt (statt Closure um eine feste Funktion) bleibt
+ * der Guard über Re-Renders hinweg stabil, auch wenn sich die aufrufende
+ * Closure (React-State wie `answers`) bei jedem Render ändert.
+ */
+export function createSingleFlightGuard(): SingleFlightGuard {
+  let running = false;
+  return {
+    isRunning: () => running,
+    async run(fn) {
+      if (running) return;
+      running = true;
+      try {
+        await fn();
+      } finally {
+        running = false;
+      }
+    },
+  };
+}
+
+/**
+ * Selbsteinschätzung über die serverseitige RPC `submit_self_grade`
+ * persistieren. Die RPC prüft Ownership, begrenzt punkte auf
+ * [0, max_punkte], upsertet exam_answers und schreibt die neu berechnete
+ * Summe atomar nach exam_attempts.gesamtpunkte — damit bleibt die dort
+ * gespeicherte Summe nach einer Selbsteinschätzung Quelle der Wahrheit
+ * (vorher: nur exam_answers wurde geschrieben, gesamtpunkte blieb auf dem
+ * Stand der ursprünglichen Abgabe). Rückgabewert ist die neue Summe.
  */
 export async function upsertSelfGrade(
   db: SupabaseClient,
   input: { attemptId: string; questionId: string; antworttext: string; punkte: number },
-): Promise<void> {
-  const { error } = await db.from("exam_answers").upsert(
-    {
-      attempt_id: input.attemptId,
-      question_id: input.questionId,
-      antworttext: input.antworttext,
-      ki_punkte: input.punkte,
-      ki_feedback: "Selbst eingeschätzt.",
-    },
-    { onConflict: "attempt_id,question_id" },
-  );
+): Promise<number> {
+  const { data, error } = await db.rpc("submit_self_grade", {
+    p_attempt_id: input.attemptId,
+    p_question_id: input.questionId,
+    p_antworttext: input.antworttext,
+    p_punkte: input.punkte,
+  });
   if (error) {
     throw new Error("Selbsteinschätzung konnte nicht gespeichert werden: " + error.message);
   }
+  return data as number;
 }

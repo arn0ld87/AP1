@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
+  createSingleFlightGuard,
   gesamtpunkteVon,
   gradeAllQuestions,
   maxPunkteVon,
@@ -129,10 +130,8 @@ describe("submitExamFlow", () => {
     expect(results["b"]!.punkte).toBe(17);
   });
 
-  it("Timeout- und Abgabe-Flow nutzen denselben deterministischen Pfad (State-unabhängig)", async () => {
+  it("aufeinanderfolgende Abgaben liefern denselben deterministischen Wert (State-unabhängig)", async () => {
     const persist = vi.fn(async () => {});
-    // Simulation: Timeout löst aus, während ein bereits laufender Submit
-    // dieselben Inputs erhält — gleiches Ergebnis, kein Zustandsbezug.
     const run = () =>
       submitExamFlow({
         fragen,
@@ -180,15 +179,14 @@ describe("submitExamFlow", () => {
   });
 });
 
-describe("persistAttemptFinish / upsertSelfGrade (Supabase-{ error }-Feld)", () => {
+describe("persistAttemptFinish (Supabase-{ error }-Feld)", () => {
   // Supabase-js wirft bei Schreibfehlern nicht, sondern liefert { error }.
-  // Die Helfer müssen genau dieses Feld in eine Exception überführen.
+  // Der Helfer muss genau dieses Feld in eine Exception überführen.
   const fakeDb = (result: { error: { message: string } | null }) => {
     const eq = vi.fn(async () => result);
     const update = vi.fn(() => ({ eq }));
-    const upsert = vi.fn(async () => result);
-    const from = vi.fn((table: string) => (table === "exam_attempts" ? { update } : { upsert }));
-    return { db: { from } as unknown as SupabaseClient, eq, update, upsert };
+    const from = vi.fn(() => ({ update }));
+    return { db: { from } as unknown as SupabaseClient, eq, update };
   };
 
   it("persistAttemptFinish: zurückgegebenes { error } wird zu Exception", async () => {
@@ -205,28 +203,84 @@ describe("persistAttemptFinish / upsertSelfGrade (Supabase-{ error }-Feld)", () 
     expect(update).toHaveBeenCalledTimes(1);
     expect(eq).toHaveBeenCalledWith("id", "att-1");
   });
+});
 
-  it("upsertSelfGrade: zurückgegebenes { error } wird zu Exception", async () => {
-    const { db } = fakeDb({ error: { message: "duplicate key value" } });
-    await expect(
-      upsertSelfGrade(db, { attemptId: "att-1", questionId: "q1", antworttext: "x", punkte: 3 }),
-    ).rejects.toThrow("duplicate key value");
+describe("createSingleFlightGuard (Regression: Timer-Ablauf + manueller Submit 'gleichzeitig' durften nicht beide bewerten/persistieren)", () => {
+  it("manueller Submit und Timer feuern quasi gleichzeitig — genau ein Durchlauf, keine doppelte Bewertung", async () => {
+    let laufend = 0;
+    let maxGleichzeitig = 0;
+    let durchlaeufe = 0;
+    const guard = createSingleFlightGuard();
+    const abschlussFlow = async () => {
+      laufend++;
+      maxGleichzeitig = Math.max(maxGleichzeitig, laufend);
+      durchlaeufe++;
+      await new Promise((r) => setTimeout(r, 5)); // simuliert Bewertung + Persistenz
+      laufend--;
+    };
+
+    // Kein await zwischen den beiden Aufrufen: bildet echtes "gleichzeitig"
+    // ab (Timer-Callback und Klick-Handler laufen im selben Tick los).
+    const manuellerSubmit = guard.run(abschlussFlow);
+    const timeoutSubmit = guard.run(abschlussFlow);
+    await Promise.all([manuellerSubmit, timeoutSubmit]);
+
+    expect(durchlaeufe).toBe(1); // nicht 2 — der zweite Aufruf war ein No-op
+    expect(maxGleichzeitig).toBe(1); // zu keinem Zeitpunkt liefen beide parallel
+    expect(guard.isRunning()).toBe(false); // Guard nach Abschluss wieder frei
   });
 
-  it("upsertSelfGrade: error null → Upsert mit korrektem Payload und onConflict", async () => {
-    const { db, upsert } = fakeDb({ error: null });
+  it("nacheinander abgeschickt (kein Überlapp) läuft der Flow bei jedem Aufruf erneut", async () => {
+    let durchlaeufe = 0;
+    const guard = createSingleFlightGuard();
+    const abschlussFlow = async () => {
+      durchlaeufe++;
+    };
+    await guard.run(abschlussFlow);
+    await guard.run(abschlussFlow);
+    expect(durchlaeufe).toBe(2);
+  });
+
+  it("Fehler im Flow geben den Guard wieder frei (kein Deadlock nach fehlgeschlagener Abgabe)", async () => {
+    let durchlaeufe = 0;
+    const guard = createSingleFlightGuard();
+    await expect(
+      guard.run(async () => {
+        durchlaeufe++;
+        throw new Error("Persistenz fehlgeschlagen");
+      }),
+    ).rejects.toThrow("Persistenz fehlgeschlagen");
+    expect(guard.isRunning()).toBe(false);
+    await guard.run(async () => {
+      durchlaeufe++;
+    });
+    expect(durchlaeufe).toBe(2);
+  });
+});
+
+describe("upsertSelfGrade (RPC submit_self_grade — Regression: exam_attempts.gesamtpunkte blieb nach SelfGrade auf dem Abgabe-Wert stehen)", () => {
+  const fakeRpcDb = (result: { data: number | null; error: { message: string } | null }) => {
+    const rpc = vi.fn(async () => result);
+    return { db: { rpc } as unknown as SupabaseClient, rpc };
+  };
+
+  it("zurückgegebenes { error } wird zu Exception", async () => {
+    const { db } = fakeRpcDb({ data: null, error: { message: "insufficient_privilege" } });
     await expect(
       upsertSelfGrade(db, { attemptId: "att-1", questionId: "q1", antworttext: "x", punkte: 3 }),
-    ).resolves.toBeUndefined();
-    expect(upsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        attempt_id: "att-1",
-        question_id: "q1",
-        antworttext: "x",
-        ki_punkte: 3,
-        ki_feedback: "Selbst eingeschätzt.",
-      }),
-      { onConflict: "attempt_id,question_id" },
-    );
+    ).rejects.toThrow("insufficient_privilege");
+  });
+
+  it("ruft die RPC mit den korrekten p_*-Parametern auf und liefert die neue Gesamtsumme zurück", async () => {
+    const { db, rpc } = fakeRpcDb({ data: 42, error: null });
+    await expect(
+      upsertSelfGrade(db, { attemptId: "att-1", questionId: "q1", antworttext: "x", punkte: 3 }),
+    ).resolves.toBe(42);
+    expect(rpc).toHaveBeenCalledWith("submit_self_grade", {
+      p_attempt_id: "att-1",
+      p_question_id: "q1",
+      p_antworttext: "x",
+      p_punkte: 3,
+    });
   });
 });

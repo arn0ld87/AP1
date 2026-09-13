@@ -29,28 +29,66 @@ docker exec supabase-db \
   armservers; für Offsite-Kopie zusätzlich auf Tresor-/Cloud-Ziel übertragen (z. B. Restic auf
   Vaultwarden-angebundenes Ziel) — vor Aktivierung dokumentieren.
 
-## Restore
+## Restore — Standardweg: immer zuerst in eine separate Test-DB
+
+Jeder Restore-Test und jede Backup-Prüfung läuft gegen eine eigene, wegwerfbare
+Datenbank auf demselben Postgres-Server — **niemals** direkt gegen `postgres` (das ist die
+laufende, produktive Datenbank im `supabase-db`-Container).
 
 ```bash
-# In eine LEERE Datenbank (nie in die laufende produzieren!)
+# 1) Frische, isolierte Test-DB anlegen
+docker exec supabase-db createdb -U supabase_admin ap1_restore_test
+
+# 2) Backup NUR in diese Test-DB einspielen
 docker exec -i supabase-db \
-  pg_restore -U supabase_admin -d postgres --clean --if-exists \
+  pg_restore -U supabase_admin -d ap1_restore_test --clean --if-exists \
   < /opt/backups/ap1/ap1-2026-09-11-0300.dump
+
+# 3) Integritätsprüfung
+docker exec supabase-db psql -U supabase_admin -d ap1_restore_test -c "
+  select count(*) from public.exam_questions;  -- erwartet: 77
+  select exam_id, sum(max_punkte) from public.exam_questions group by 1;  -- je 100
+  select count(*) from public.exam_attempts;
+"
+
+# 4) Test-DB wieder entfernen
+docker exec supabase-db dropdb -U supabase_admin ap1_restore_test
 ```
 
-Danach: App-Container neu starten (`docker restart pruefung-frontend`) und Smoke-Test
-(Login + Probeprüfung) fahren.
+**Intervall:** mindestens monatlich. **Belegter Test-Restore:** wird nach dem ersten
+monatlichen Lauf hier mit Datum eingetragen.
 
-## Test-Restore (mindestens monatlich)
+## Produktions-Restore — NUR im Notfall, NICHT der Standardweg
 
-1. Frische Test-DB anlegen: `createdb ap1_restore_test` (im Container).
-2. `pg_restore` des aktuellsten Backups in `ap1_restore_test`.
-3. Integritätsprüfung:
-   ```sql
-   select count(*) from public.exam_questions;  -- erwartet: 77
-   select exam_id, sum(max_punkte) from public.exam_questions group by 1;  -- je 100
-   select count(*) from public.exam_attempts;
-   ```
-4. Test-DB wieder entfernen (`dropdb ap1_restore_test`).
+⚠️ Dieser Abschnitt restored direkt in die laufende Datenbank (`postgres` im
+`supabase-db`-Container) und **löscht dabei bestehende Objekte** (`--clean`). Der Befehl ist
+absichtlich nicht als copy-pasteable Einzeiler formuliert — jeder Schritt einzeln ausführen.
 
-**Belegter Test-Restore:** wird nach dem ersten monatlichen Lauf hier mit Datum eingetragen.
+Vorbedingungen, alle müssen erfüllt sein, bevor Schritt 3 läuft:
+
+1. Die Live-Datenbank ist nachweislich korrupt oder Daten sind nachweislich verloren
+   (nicht: „sicherheitshalber", nicht als Testlauf).
+2. Ein Test-Restore desselben Backups nach obigem Standardweg war erfolgreich
+   (Integritätsprüfung bestanden).
+3. Ein frisches Backup der aktuellen (defekten) Live-DB wurde vor dem Restore gezogen —
+   auch ein kaputter Zustand kann sonst nicht mehr forensisch untersucht werden.
+
+Ablauf:
+
+```bash
+# 1) App-Container stoppen — keine Schreibzugriffe während des Restores
+docker stop pruefung-frontend
+
+# 2) Sicherheits-Backup des aktuellen (defekten) Zustands ziehen
+docker exec supabase-db \
+  pg_dump -U supabase_admin -d postgres -Fc \
+  > /opt/backups/ap1/ap1-vor-notfall-restore-$(date +%F-%H%M).dump
+
+# 3) Restore GEGEN DIE LIVE-DB "postgres" — nur nachdem 1) und 2) durchgelaufen sind
+docker exec -i supabase-db \
+  pg_restore -U supabase_admin -d postgres --clean --if-exists \
+  < /opt/backups/ap1/<ZU_RESTORENDES_BACKUP>.dump
+
+# 4) App-Container wieder starten und Smoke-Test fahren (Login + Probeprüfung)
+docker start pruefung-frontend
+```

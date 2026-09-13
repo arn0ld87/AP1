@@ -1,6 +1,11 @@
+> **HISTORISCHER PLAN – NICHT SOURCE OF TRUTH.** Ursprüngliches Design vom 10.09.2026, noch vor
+> dem Pivot weg von Lovable (siehe [docs/context.md](../../context.md)) und vor der KI-Modell-
+> Entscheidung für Amazon Nova Lite (siehe `grade-exam-answer.ts`). Aktueller Architektur-Stand:
+> [docs/architecture.md](../../architecture.md), aktueller Projekt-Stand: [docs/status.md](../../status.md).
+
 # AP1-Lernplattform als Lovable-App — Design
 
-Status: Genehmigt · 2026-09-10
+Status: Genehmigt · 2026-09-10 (historisch)
 
 ## Kontext & Ziel
 
