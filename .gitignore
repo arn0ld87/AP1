@@ -21,3 +21,5 @@
 .claude/worktrees/
 .open-mem/
 .opencode/
+__pycache__/
+*.pyc
