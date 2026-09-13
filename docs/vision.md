@@ -16,8 +16,9 @@ Eine Web-App (React/Supabase — ursprünglich auf Lovable gebaut, seit dem Cred
 `app/` gegen ein self-hosted Supabase weiterentwickelt, siehe [context.md](context.md#pivot-lovable-credit-limit-10092026)),
 die alle sieben Lernaktivitäten aus dem bestehenden Material in einer Oberfläche vereint und den
 Fortschritt serverseitig für einen einzelnen Account führt. Die Musterlösungs-Korrektur wird durch
-eine KI-Bewertung (Amazon Bedrock, Claude Haiku 4.5) ersetzt, mit manuellem Fallback, falls das
-Modell nicht erreichbar ist.
+eine KI-Bewertung (Amazon Bedrock, Amazon Nova Lite — Claude-Modelle sind für den genutzten
+AWS-Account nicht freigeschaltet, siehe [api.md](api.md#modell--zugangsdaten)) ersetzt, mit
+manuellem Fallback, falls das Modell nicht erreichbar ist.
 
 Vollständige Feature-Liste, Architektur und Datenmodell: [architecture.md](architecture.md),
 [data-model.md](data-model.md), Ursprungs-Spec

@@ -2,6 +2,13 @@
 
 **Status:** Accepted · **Datum:** 11.09.2026 · **Stand:** [docs/api.md](../api.md)
 
+> **Korrektur (14.09.2026):** Claude Haiku 4.5 war für den genutzten AWS-Account nicht
+> freigeschaltet (alle Claude-Modell-IDs lieferten „invalid model identifier"). Implementiert und
+> live ist stattdessen **Amazon Nova Lite** (`eu.amazon.nova-lite-v1:0`). Die Architekturentscheidung
+> unten (Bedrock statt Direkt-API, kein Fallback-Modell, regionale Bindung) bleibt unverändert
+> gültig — nur die konkrete Modellwahl ist überholt. Aktuelle Quelle der Wahrheit:
+> [docs/api.md](../api.md#modell--zugangsdaten).
+
 ## Kontext
 
 Probeprüfungen sollen automatisch bewertet werden. Direkte Anthropic-API-Calls oder Drittanbieter-

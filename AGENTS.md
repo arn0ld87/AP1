@@ -1,6 +1,7 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents (Codex, Aider, and others — see `CLAUDE.md` for
+Claude Code specifically) when working with code in this repository.
 
 ## What this repo is
 
@@ -51,11 +52,11 @@ Zustand ausschließlich in `localStorage` (`ap1state`, `ap1theme`). Relevante St
 die entsprechende `lernen/*.md`-Datei bzw. `02_FORMELSAMMLUNG.md`, falls diese als Quelle der
 Wahrheit dienen soll — beide sind aktuell unabhängig gepflegt, nicht generiert.
 
-## Web-App-Migration
+## Web-App-Migration (Stand 11.09.2026)
 
-Aktueller Stand (Tasks, gemergte PRs, offene Risiken): [docs/status.md](docs/status.md) — dort
-nachlesen statt hier ein zweites, unabhängig pflegbares (und damit potenziell veraltendes)
-PR-Verzeichnis zu führen. Arbeitsregeln: Weiterarbeit auf Feature-Branches, nicht direkt auf `main`.
+Tasks 1–15 gemerged (PRs #33–#36), CI-Checks je PR live ([PR #38](https://github.com/arn0ld87/AP1/pull/38)),
+Task 16 Live-Deploy in Arbeit ([PR #39](https://github.com/arn0ld87/AP1/pull/39)). Task-/PR-Tabelle und
+Arbeitsregeln stehen in `AGENTS.md` — Weiterarbeit auf Feature-Branches, nicht direkt auf `main`.
 
 - Ursprüngliche Spec/Plan: `docs/superpowers/specs/`, `docs/superpowers/plans/`
 - Warum/Ausgangslage + Pivot: [docs/context.md](docs/context.md)
@@ -65,11 +66,10 @@ PR-Verzeichnis zu führen. Arbeitsregeln: Weiterarbeit auf Feature-Branches, nic
 - API / KI-Bewertungs-Flow (Edge Function `grade-exam-answer`, implementiert): [docs/api.md](docs/api.md)
 
 Wichtige Constraints (nicht wiederholen, nur verlinkt): Auth ist Single-User (Alex), KI-Modell ist
-Amazon Nova Lite über Amazon Bedrock (Modell-ID `eu.amazon.nova-lite-v1:0` — Anthropic-Modelle sind
-für diesen AWS-Account nicht freigeschaltet, siehe Kommentar in `grade-exam-answer.ts`), Secrets
-ausschließlich als Supabase-Edge-Function-Secret, kein automatisierter Test-Runner für das
-Lernmaterial (die App-CI in `app/` deckt Lint/Typecheck/Build/Vitest/Deno-Tests/Migrationsvalidierung
-ab, siehe `.github/workflows/pr-check.yml`).
+Amazon Nova Lite über Amazon Bedrock (Modell-ID `eu.amazon.nova-lite-v1:0`, Anthropic-Modelle sind
+für diesen AWS-Account nicht freigeschaltet), Secrets ausschließlich als Supabase-Edge-Function-Secret,
+kein automatisierter Test-Runner für das Lernmaterial (die App-CI in `app/` deckt Lint/Typecheck/Build/
+Vitest/Deno-Tests/Migrationsvalidierung ab, siehe `.github/workflows/pr-check.yml`).
 
 ## Agent skills
 
