@@ -13,6 +13,9 @@ import {
 } from "@/lib/flashcard-progress";
 import { pickWeighted } from "@/lib/flashcard-weighting";
 
+const EDITABLE = "input, textarea, select, [contenteditable=''], [contenteditable='true']";
+const ACTIVATABLE = "button, a[href], summary, [role='button'], [role='link']";
+
 export const Route = createFileRoute("/_authenticated/wissenskarten")({
   head: () => ({
     meta: [
@@ -116,11 +119,16 @@ function WissenskartenPage() {
   useEffect(() => {
     if (!card) return;
     const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      const target = e.target instanceof Element ? e.target : null;
+      // In Eingabefeldern gehört jede Taste dem Feld.
+      if (target?.closest(EDITABLE)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
 
       if (e.key === " " || e.key === "Enter") {
+        // Leertaste und Enter aktivieren ein fokussiertes Bedienelement selbst.
+        // Der globale Shortcut darf das nicht abfangen, sonst wendet z. B.
+        // „wusste ich" nur die Karte, statt zu bewerten.
+        if (target?.closest(ACTIVATABLE)) return;
         e.preventDefault();
         if (lastResult) nextCard();
         else setFlipped((f) => !f);

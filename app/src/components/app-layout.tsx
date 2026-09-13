@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from "react";
 import { Menu } from "lucide-react";
 
+import { MAIN_SCROLL_ID } from "@/lib/scroll";
+
 import { AppSidebar, SidebarLogo, SidebarNav } from "./app-sidebar";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./ui/sheet";
 
@@ -43,7 +45,16 @@ export function AppLayout({ children }: { children: ReactNode }) {
           </span>
         </header>
 
-        <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
+        {/* Durch die App-Shell (h-dvh) scrollt dieses Element statt des Fensters.
+            Die ID meldet es beim Scroll-Restoration-Watcher des Routers an
+            (Back/Forward) und dient als scrollToTopSelectors-Ziel (siehe router.tsx). */}
+        <main
+          id={MAIN_SCROLL_ID}
+          data-scroll-restoration-id={MAIN_SCROLL_ID}
+          className="min-w-0 flex-1 overflow-y-auto p-4 md:p-8"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );
