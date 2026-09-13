@@ -30,21 +30,26 @@ Migration-Validierung auf frischer Postgres-Testinstanz (`scripts/validate_migra
 ## Testabdeckung
 
 - Generatoren: RAID-10-Regression (1000 deterministische Fälle) + Invarianten je Familie,
-  Seed-Determinismus
+  Seed-Determinismus, **unabhängige fachliche Referenzberechnungen** für subnetting, datenmengen,
+  uebertragung, strom, wirtschaft, netzplan (Issue #20)
 - Prüfungs-Flow: Notenschlüssel (ohne Bestehenslogik), Einzelfehler-Fallback,
-  Summen-Konsistenz, Persistenz-Reihenfolge, Doppelabgabe-Schutz
+  Summen-Konsistenz, Persistenz-Reihenfolge, **SelfGrade-RPC** (Ownership, Clamping, Ersetzen statt
+  Aufaddieren, Migrationstest), **echter Doppelabgabe-Test** (`createSingleFlightGuard`, simulierter
+  Timer/Klick-Überlapp ohne await dazwischen)
 - Wissenskarten: Gewichtung `(falsch+1)/(richtig+falsch+2)` — neue Karten bleiben im Pool
 - Content: 3 Probeprüfungen à exakt 100 Punkte, vollständige Teilaufgaben, eindeutige Schlüssel
-- Edge Function: 16 Deno-Szenarien (Auth, Ownership, Bedrock-Fehler, Persistenz)
+- Edge Function: Auth, Ownership, **Attempt/Question-Exam-Kopplung**, Bedrock-Fehler,
+  **Persistenzfehler → 503 statt Scheinerfolg**, `error_log`-Fehler bleibt non-blocking
 
 ## Offene Risiken / Nächste Schritte
 
 1. Automatisierter E2E-Test fehlt noch (kein Playwright/Browser-Test im Repo, Issue #32 offen):
    Login → Probeprüfung → Abgabe → Ergebnis → Reload bleibt konsistent. Bislang nur manuell
-   verifiziert.
-2. Branch Protection + Required Status Checks für `main` sind **nicht aktiv**
-   (`gh api repos/arn0ld87/AP1/branches/main/protection` liefert 404, keine Rulesets) — Settings
-   sind nicht per Repo-Datei erzwingbar, siehe Nachtrag unten.
+   verifiziert. Für CI müsste die KI-Bewertung deterministisch gemockt werden (kein Test darf von
+   echtem Bedrock abhängen).
+2. Branch Protection + Required Status Checks für `main` sind seit 14.09.2026 **aktiv**
+   (PR erforderlich, alle 8 CI-Jobs als Required Status Check, `enforce_admins` bewusst aus, damit
+   Alex als Repo-Owner im Notfall noch direkt eingreifen kann).
 3. Backup/Restore-Verfahren regelmäßig testen ([backup-restore.md](backup-restore.md)) — Standardweg
    ist jetzt ein isolierter Test-Restore (`ap1_restore_test`), Produktions-Restore ist als
    Notfall-Prozedur mit Vorbedingungen separat dokumentiert.
