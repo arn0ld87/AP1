@@ -24,6 +24,54 @@ function inline(s: string): string {
     .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:!?]|$)/g, "$1<i>$2</i>");
 }
 
+type Align = "left" | "center" | "right";
+
+function alignOf(sep: string): Align {
+  const s = sep.trim();
+  if (s.startsWith(":") && s.endsWith(":")) return "center";
+  if (s.endsWith(":")) return "right";
+  return "left";
+}
+
+const ALIGN_CLASS: Record<Align, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right tabular-nums",
+};
+
+/**
+ * Tabellen werden in einen eigenen Scroll-Container gelegt: breite
+ * Wertetabellen (z. B. Netzplan FAZ/FEZ/SAZ/SEZ) dürfen horizontal scrollen,
+ * ohne das umgebende Layout zu sprengen.
+ */
+function renderTable(header: string[], rows: string[][], aligns: Align[]): string {
+  const alignAt = (idx: number) => ALIGN_CLASS[aligns[idx] ?? "left"];
+  const head = header
+    .map(
+      (h, idx) =>
+        `<th class="border-b border-border px-3 py-2 font-semibold whitespace-nowrap text-foreground ${alignAt(idx)}">${inline(h)}</th>`,
+    )
+    .join("");
+  const body = rows
+    .map(
+      (r) =>
+        `<tr class="border-b border-border/60 last:border-0 even:bg-muted/15">${r
+          .map(
+            (c, idx) =>
+              `<td class="px-3 py-2 align-top text-card-foreground ${alignAt(idx)}">${inline(c)}</td>`,
+          )
+          .join("")}</tr>`,
+    )
+    .join("");
+  return (
+    // w-fit: schmale Tabellen bleiben kompakt, breite laufen bis zur
+    // Containerbreite und scrollen dann horizontal statt das Layout zu sprengen.
+    `<div class="my-3 w-fit max-w-full overflow-x-auto rounded-lg border border-border">` +
+    `<table class="w-auto border-collapse text-sm"><thead class="bg-muted/40"><tr>${head}</tr></thead>` +
+    `<tbody>${body}</tbody></table></div>`
+  );
+}
+
 export function renderMarkdown(src: string): string {
   const lines = src.split("\n");
   const out: string[] = [];
@@ -72,14 +120,16 @@ export function renderMarkdown(src: string): string {
       const rows: string[][] = [];
       let headerDone = false;
       const header: string[] = [];
+      let aligns: Align[] = [];
       while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i]!)) {
         const cells = lines[i]!.trim()
           .replace(/^\|/, "")
           .replace(/\|$/, "")
           .split("|")
           .map((c) => c.trim());
-        // separator row (---|:---)
+        // separator row (---|:---) — legt zugleich die Spaltenausrichtung fest
         if (cells.every((c) => /^:?-{2,}:?$/.test(c.trim()) || c.trim() === "")) {
+          aligns = cells.map(alignOf);
           headerDone = true;
           i++;
           continue;
@@ -92,24 +142,7 @@ export function renderMarkdown(src: string): string {
         i++;
       }
       if (header.length) {
-        out.push(
-          `<table class="my-3 w-full border-collapse text-sm"><thead><tr>${header
-            .map(
-              (h) =>
-                `<th class="border border-border bg-muted/40 px-2 py-1.5 text-left font-semibold text-foreground">${inline(h)}</th>`,
-            )
-            .join("")}</tr></thead><tbody>${rows
-            .map(
-              (r) =>
-                `<tr>${r
-                  .map(
-                    (c) =>
-                      `<td class="border border-border px-2 py-1.5 text-card-foreground">${inline(c)}</td>`,
-                  )
-                  .join("")}</tr>`,
-            )
-            .join("")}</tbody></table>`,
-        );
+        out.push(renderTable(header, rows, aligns));
       }
       continue;
     }
