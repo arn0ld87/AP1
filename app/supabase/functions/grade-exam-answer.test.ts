@@ -23,6 +23,8 @@ const QUESTION_ID = "probepruefung_01-1a";
 interface StubState {
   attemptOwned: boolean;
   attemptsLookupFails?: boolean;
+  /** exam_id des Attempts laut Lookup — Default entspricht QUESTION.exam_id. */
+  attemptExamId?: string | null;
   /** Anzahl heute (UTC) bereits erzeugter KI-Bewertungen für den Nutzer. */
   answersToday: number;
   limitLookupFails?: boolean;
@@ -38,6 +40,10 @@ interface StubState {
   bedrockStatus: number;
   bedrockBody: string;
   insertStatus: number;
+  /** Status für den error_log-Insert, unabhängig vom exam_answers-Insert. */
+  errorLogInsertStatus?: number;
+  /** Simuliert einen Netzwerkfehler (Exception statt Response) beim exam_answers-Insert. */
+  examAnswersInsertFails?: boolean;
   inserts: { url: string; body: Record<string, unknown> | null }[];
 }
 
@@ -46,9 +52,12 @@ function stubFetch(state: StubState): typeof fetch {
     const url = String(input);
     if (url.includes("/exam_attempts?")) {
       if (state.attemptsLookupFails) return new Response("err", { status: 500 });
-      return new Response(state.attemptOwned ? JSON.stringify([{ id: ATTEMPT_ID }]) : "[]", {
-        status: 200,
-      });
+      return new Response(
+        state.attemptOwned
+          ? JSON.stringify([{ id: ATTEMPT_ID, exam_id: state.attemptExamId ?? QUESTION.exam_id }])
+          : "[]",
+        { status: 200 },
+      );
     }
     // Tageslimit-Zählung: GET auf /exam_answers mit created_at-Filter
     if (url.includes("/exam_answers") && String(init?.method ?? "GET") === "GET") {
@@ -67,12 +76,20 @@ function stubFetch(state: StubState): typeof fetch {
     if (url.includes("bedrock-runtime")) {
       return new Response(state.bedrockBody, { status: state.bedrockStatus });
     }
-    if (url.includes("/exam_answers") || url.includes("/error_log")) {
+    if (url.includes("/exam_answers")) {
+      if (state.examAnswersInsertFails) throw new TypeError("network error");
       state.inserts.push({
         url,
         body: init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : null,
       });
       return new Response(null, { status: state.insertStatus });
+    }
+    if (url.includes("/error_log")) {
+      state.inserts.push({
+        url,
+        body: init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : null,
+      });
+      return new Response(null, { status: state.errorLogInsertStatus ?? 201 });
     }
     return new Response("unrouted", { status: 500 });
   }) as typeof fetch;
@@ -332,19 +349,69 @@ Deno.test("Bedrock-Punkte über max_punkte → nicht akzeptiert", async () => {
   }
 });
 
-Deno.test("DB-Insert schlägt fehl → Antwort bleibt 200 mit Bewertung", async () => {
+Deno.test("exam_answers-Insert schlägt fehl (HTTP 500) → 503, kein Scheinerfolg", async () => {
   const state = baseState();
   state.insertStatus = 500;
   globalThis.fetch = stubFetch(state);
   try {
     const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
-    assertEquals(res.status, 200);
-    const body = await res.json();
-    assertEquals(body.punkte, 3);
+    assertEquals(res.status, 503);
   } finally {
     globalThis.fetch = fetchOriginal;
   }
 });
+
+Deno.test("exam_answers-Insert Netzwerkfehler → 503, kein Scheinerfolg", async () => {
+  const state = baseState();
+  state.examAnswersInsertFails = true;
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+    assertEquals(res.status, 503);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+Deno.test("error_log-Insert schlägt fehl → Hauptbewertung bleibt erfolgreich (200)", async () => {
+  const state = baseState();
+  // punkte 1 von 4 = 25 % < 50 % → error_log-Pfad wird ausgelöst
+  state.bedrockBody = JSON.stringify({
+    output: { message: { content: [{ text: '{"punkte": 1, "begruendung": "unvollständig"}' }] } },
+  });
+  state.errorLogInsertStatus = 500;
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+    assertEquals(res.status, 200);
+    const body = await res.json();
+    assertEquals(body.punkte, 1);
+    // exam_answers wurde trotz fehlgeschlagenem error_log-Insert gespeichert
+    assertEquals(
+      state.inserts.some((i) => i.url.includes("/exam_answers")),
+      true,
+    );
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+Deno.test(
+  "Frage gehört zu anderer Prüfung als der Attempt → 400, kein Bedrock-Call, kein Insert",
+  async () => {
+    const state = baseState();
+    state.attemptExamId = "probepruefung_02"; // Attempt gehört zu Prüfung 02
+    // QUESTION.exam_id bleibt "probepruefung_01" → Mismatch
+    globalThis.fetch = stubFetch(state);
+    try {
+      const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+      assertEquals(res.status, 400);
+      assertEquals(state.inserts.length, 0);
+    } finally {
+      globalThis.fetch = fetchOriginal;
+    }
+  },
+);
 
 Deno.test("unbekannte question_id → Fallback ohne Insert", async () => {
   const state = baseState();
