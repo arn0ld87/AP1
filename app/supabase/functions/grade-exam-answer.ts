@@ -234,7 +234,9 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
   }
 
   // --- Attempt/Frage-Kopplung: Frage muss zur Prüfung des Attempts gehören ---
-  if (q.exam_id !== attemptExamId) {
+  // Beide exam_id-Spalten sind nullable; ein fehlender Wert gilt nicht als
+  // Treffer, sonst würde "null == null" als gültige Zuordnung durchgehen.
+  if (!attemptExamId || !q.exam_id || q.exam_id !== attemptExamId) {
     console.error(
       "exam_id-Mismatch: Attempt gehört zu",
       attemptExamId,

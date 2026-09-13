@@ -268,6 +268,56 @@ def main() -> int:
     ):
         failures.append("submit_self_grade: fremder Nutzer hätte abgelehnt werden müssen (Ownership)")
 
+    # Attempt/Frage-Kopplung: Frage aus einer anderen Prüfung muss abgelehnt
+    # werden, auch wenn der Attempt dem Nutzer gehört.
+    fremde_question_id = "self-grade-test-fremde-frage"
+    psql(
+        f"insert into public.exam_questions (id, exam_id, max_punkte) "
+        f"values ('{fremde_question_id}', 'ein-anderes-exam', 10) on conflict (id) do nothing;"
+    )
+    if not psql_expect_fail(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{fremde_question_id}', 'x', 5);"
+    ):
+        failures.append(
+            "submit_self_grade: Frage aus fremder Prüfung hätte abgelehnt werden müssen (Exam-Kopplung)"
+        )
+
+    # NULL-Punkte dürfen das Clamping nicht umgehen.
+    if not psql_expect_fail(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.submit_self_grade('{sg_attempt_id}', '{sg_question_id}', 'x', null);"
+    ):
+        failures.append("submit_self_grade: punkte=NULL hätte abgelehnt werden müssen")
+
+    # Nach allen abgelehnten Versuchen muss die Summe unverändert bei 3 stehen.
+    persisted4 = scalar(f"select gesamtpunkte from public.exam_attempts where id = '{sg_attempt_id}';")
+    if persisted4 != "3":
+        failures.append(
+            f"submit_self_grade: abgelehnte Aufrufe dürfen gesamtpunkte nicht verändern, ist {persisted4!r}"
+        )
+
+    # Direktschreibzugriff auf exam_answers ist für authenticated entzogen —
+    # Schreiben ausschließlich über die RPC bzw. die Edge Function (service_role).
+    for privilege in ("INSERT", "UPDATE"):
+        granted = scalar(
+            "select count(*) from information_schema.role_table_grants "
+            "where table_schema = 'public' and table_name = 'exam_answers' "
+            f"and grantee = 'authenticated' and privilege_type = '{privilege}';"
+        )
+        if granted != "0":
+            failures.append(
+                f"exam_answers: {privilege} für authenticated haette entzogen sein muessen "
+                f"(count={granted})"
+            )
+    select_granted = scalar(
+        "select count(*) from information_schema.role_table_grants "
+        "where table_schema = 'public' and table_name = 'exam_answers' "
+        "and grantee = 'authenticated' and privilege_type = 'SELECT';"
+    )
+    if select_granted != "1":
+        failures.append("exam_answers: SELECT für authenticated fehlt (Ergebnisanzeige)")
+
     if failures:
         print("SCHEMA-VALIDIERUNG FEHLGESCHLAGEN:")
         for f in failures:

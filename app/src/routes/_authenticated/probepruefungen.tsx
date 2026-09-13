@@ -18,6 +18,7 @@ import {
   upsertSelfGrade,
   type Frage,
   type PruefungResults,
+  type SingleFlightGuard,
 } from "@/lib/exam-flow";
 
 export const Route = createFileRoute("/_authenticated/probepruefungen")({
@@ -69,7 +70,12 @@ function ProbepruefungenPage() {
   const [results, setResults] = useState<PruefungResults>({});
   const [restS, setRestS] = useState(PRUEFUNG_DAUER_S);
   const [submitting, setSubmitting] = useState(false);
-  const submitGuardRef = useRef(createSingleFlightGuard());
+  // Lazy-Init: useRef(createSingleFlightGuard()) würde den Guard bei jedem
+  // Render neu erzeugen und sofort verwerfen. Das Objekt bleibt über alle
+  // Renders hinweg dasselbe — nur so greift die Doppelabgabe-Sperre.
+  const submitGuardRef = useRef<SingleFlightGuard | null>(null);
+  submitGuardRef.current ??= createSingleFlightGuard();
+  const submitGuard = submitGuardRef.current;
   const [error, setError] = useState<string | null>(null);
   const [statusByExam, setStatusByExam] = useState<Record<string, string>>({});
 
@@ -177,7 +183,7 @@ function ProbepruefungenPage() {
    */
   const submitExam = useCallback(async () => {
     if (!attempt) return;
-    await submitGuardRef.current.run(async () => {
+    await submitGuard.run(async () => {
       setSubmitting(true);
       try {
         const { results: graded } = await submitExamFlow({
@@ -197,7 +203,7 @@ function ProbepruefungenPage() {
         setSubmitting(false);
       }
     });
-  }, [attempt, fragen, answers, callGrade]);
+  }, [attempt, fragen, answers, callGrade, submitGuard]);
 
   useEffect(() => {
     submitRef.current = submitExam;
