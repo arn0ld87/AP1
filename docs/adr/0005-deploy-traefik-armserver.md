@@ -1,6 +1,6 @@
 # ADR-0005: Deploy-Ziel Traefik auf dem armserver (`pruefung.alexle135.de`)
 
-**Status:** Proposed (Task 16 in Arbeit, PR #39) · **Datum:** 11.09.2026 · **Stand:** [docs/architecture.md](../architecture.md)
+**Status:** Accepted · **Datum:** 11.09.2026 · **Deployed:** 10.09.2026 (live), 11.09.2026 (öffentlich) · **Stand:** [docs/architecture.md](../architecture.md)
 
 ## Kontext
 

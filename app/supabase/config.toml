@@ -2,3 +2,6 @@ project_id = "jwejdcxscjkdqhydhogc"
 
 [functions.grade-exam-answer]
 verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true

@@ -79,7 +79,7 @@ nach dessen Credit-Limit aber exportiert und lokal weiterentwickelt.
 
 - **Frontend:** TanStack Start (Vite + React 19 + TypeScript), Tailwind, shadcn/ui
 - **Backend:** self-hosted Supabase auf dem armserver (`supabase.alexle135.de`),
-  E-Mail+Passwort-Auth (ein Account), 6 Tabellen mit Row Level Security:
+  Multi-User mit offener Registrierung (E-Mail+Passwort, E-Mail-Bestätigung, Self-Service-Kontolöschung), 6 Tabellen mit Row Level Security:
   `topic_mastery`, `flashcard_progress`, `exam_questions` (read-only für den Client),
   `exam_attempts`, `exam_answers`, `error_log`
 - **Build-Output:** Nitro (Cloudflare-Worker-kompatibel), Deploy-Ziel ist
@@ -119,9 +119,10 @@ bun run lint         # ESLint
 bun run test         # Vitest (Generatoren, Prüfungs-Flow, Content)
 ```
 
-Login: der eine angelegte Account (Zugangsdaten in Vaultwarden, nicht im Repo).
-Ohne Login erscheint nur der Login-Screen — alle Modulrouten liegen hinter
-dem Auth-Gate (`src/routes/_authenticated/route.tsx`).
+Login: eigenes Konto über die Registrierung auf `/auth` anlegen (E-Mail-Bestätigung nötig);
+Alex' Zugangsdaten liegen in Vaultwarden, nicht im Repo. Ohne Login erscheint nur der
+Login-Screen — alle Modulrouten liegen hinter dem Auth-Gate
+(`src/routes/_authenticated/route.tsx`).
 
 ### Datenbank
 

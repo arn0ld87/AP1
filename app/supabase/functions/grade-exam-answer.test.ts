@@ -6,7 +6,7 @@
  */
 import { assertEquals } from "jsr:@std/assert@1";
 
-import { handleRequest, jwtSub, type FunctionEnv } from "./grade-exam-answer.ts";
+import { handleRequest, jwtSub, verifiedJwtSub, type FunctionEnv } from "./grade-exam-answer.ts";
 
 const fetchOriginal = globalThis.fetch;
 
@@ -47,11 +47,19 @@ interface StubState {
   /** Simuliert einen Netzwerkfehler (Exception statt Response) beim exam_answers-Insert. */
   examAnswersInsertFails?: boolean;
   inserts: { url: string; body: Record<string, unknown> | null }[];
+  /** Antwort auf GET /auth/v1/user (JWT-Verifikation via verifiedJwtSub). */
+  authStatus: number;
+  authBody: string;
+  authNetworkFails?: boolean;
 }
 
 function stubFetch(state: StubState): typeof fetch {
   return (async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = String(input);
+    if (url.includes("/auth/v1/user")) {
+      if (state.authNetworkFails) throw new TypeError("network down");
+      return new Response(state.authBody, { status: state.authStatus });
+    }
     if (url.includes("/exam_attempts?")) {
       if (state.attemptsLookupFails) return new Response("err", { status: 500 });
       return new Response(
@@ -137,6 +145,8 @@ const baseState = (): StubState => ({
   }),
   insertStatus: 201,
   inserts: [],
+  authStatus: 200,
+  authBody: JSON.stringify({ id: USER_SUB }),
 });
 
 const validBody = () => ({
@@ -155,35 +165,61 @@ Deno.test("ohne JWT → 401", async () => {
   assertEquals(res.status, 401);
 });
 
-Deno.test("ungültiges JWT → 401", async () => {
-  const res = await handleRequest(post(validBody(), "not-a-jwt"), ENV);
-  assertEquals(res.status, 401);
+Deno.test("ungültiges JWT (GoTrue lehnt ab) → 401", async () => {
+  const state = baseState();
+  state.authStatus = 401;
+  state.authBody = JSON.stringify({ error: "invalid_token" });
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), "not-a-jwt"), ENV);
+    assertEquals(res.status, 401);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
 });
 
 Deno.test("ungültiger JSON-Body → 400", async () => {
-  const req = new Request("https://fn/x", {
-    method: "POST",
-    headers: { authorization: "Bearer " + makeJwt(USER_SUB) },
-    body: "{defekt",
-  });
-  const res = await handleRequest(req, ENV);
-  assertEquals(res.status, 400);
+  const state = baseState();
+  globalThis.fetch = stubFetch(state);
+  try {
+    const req = new Request("https://fn/x", {
+      method: "POST",
+      headers: { authorization: "Bearer " + makeJwt(USER_SUB) },
+      body: "{defekt",
+    });
+    const res = await handleRequest(req, ENV);
+    assertEquals(res.status, 400);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
 });
 
 Deno.test("fehlende/leere question_id → 400", async () => {
-  const res = await handleRequest(
-    post({ ...validBody(), question_id: "" }, makeJwt(USER_SUB)),
-    ENV,
-  );
-  assertEquals(res.status, 400);
+  const state = baseState();
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(
+      post({ ...validBody(), question_id: "" }, makeJwt(USER_SUB)),
+      ENV,
+    );
+    assertEquals(res.status, 400);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
 });
 
 Deno.test("antworttext über Größenlimit → 400", async () => {
-  const res = await handleRequest(
-    post({ ...validBody(), antworttext: "x".repeat(10_001) }, makeJwt(USER_SUB)),
-    ENV,
-  );
-  assertEquals(res.status, 400);
+  const state = baseState();
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(
+      post({ ...validBody(), antworttext: "x".repeat(10_001) }, makeJwt(USER_SUB)),
+      ENV,
+    );
+    assertEquals(res.status, 400);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
 });
 
 Deno.test("fremde attempt_id → 403, keine Bewertung, kein Insert", async () => {
@@ -465,7 +501,77 @@ Deno.test("unbekannte question_id → Fallback ohne Insert", async () => {
   }
 });
 
-Deno.test("jwtSub dekodiert base64url korrekt", () => {
+Deno.test("GoTrue-JWT-Prüfung nicht erreichbar (Netzwerkfehler) → 503", async () => {
+  const state = baseState();
+  state.authNetworkFails = true;
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+    assertEquals(res.status, 503);
+    assertEquals(state.inserts.length, 0);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+Deno.test("GoTrue liefert 500 bei JWT-Prüfung → 503 (fail-closed, nicht 401)", async () => {
+  const state = baseState();
+  state.authStatus = 500;
+  state.authBody = JSON.stringify({ error: "internal" });
+  globalThis.fetch = stubFetch(state);
+  try {
+    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+    assertEquals(res.status, 503);
+    assertEquals(state.inserts.length, 0);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+Deno.test("verifiedJwtSub: ok/invalid/unavailable je nach GoTrue-Antwort", async () => {
+  const fetchOk = (async () =>
+    new Response(JSON.stringify({ id: USER_SUB }), { status: 200 })) as typeof fetch;
+  const fetchInvalid = (async () =>
+    new Response(JSON.stringify({ error: "invalid" }), { status: 401 })) as typeof fetch;
+  const fetchDown = (() => {
+    throw new TypeError("network down");
+  }) as typeof fetch;
+
+  assertEquals(await verifiedJwtSub("jwt", ENV, fetchOk), { status: "ok", sub: USER_SUB });
+  assertEquals(await verifiedJwtSub("jwt", ENV, fetchInvalid), { status: "invalid" });
+  assertEquals(await verifiedJwtSub("jwt", ENV, fetchDown), { status: "unavailable" });
+});
+
+Deno.test("jwtSub dekodiert base64url korrekt (nur Diagnose, keine Autorisierung mehr)", () => {
   assertEquals(jwtSub(makeJwt(USER_SUB)), USER_SUB);
   assertEquals(jwtSub("x.y.z"), "");
+});
+
+Deno.test("401 in Gateway-Form (falscher apikey) → unavailable, nicht invalid", async () => {
+  // Kong lehnt einen falschen apikey mit ausschliesslich { message } ab. Das
+  // ist eine Betriebsstoerung: Der Nutzer-Token kann voellig in Ordnung sein.
+  // Wuerde das als "invalid" durchgehen, bekaeme jeder Nutzer waehrend einer
+  // Key-Rotation "ungueltiges Token" statt einer erkennbaren Stoerung.
+  const fetchGateway = (async () =>
+    new Response(JSON.stringify({ message: "Invalid authentication credentials" }), {
+      status: 401,
+    })) as typeof fetch;
+  assertEquals(await verifiedJwtSub("jwt", ENV, fetchGateway), { status: "unavailable" });
+
+  // GoTrue-Form bleibt "invalid" — beide bekannten Auspraegungen.
+  const fetchGotrueNeu = (async () =>
+    new Response(JSON.stringify({ code: 401, error_code: "bad_jwt", msg: "invalid JWT" }), {
+      status: 401,
+    })) as typeof fetch;
+  const fetchGotrueAlt = (async () =>
+    new Response(JSON.stringify({ error: "invalid_token", error_description: "expired" }), {
+      status: 401,
+    })) as typeof fetch;
+  assertEquals(await verifiedJwtSub("jwt", ENV, fetchGotrueNeu), { status: "invalid" });
+  assertEquals(await verifiedJwtSub("jwt", ENV, fetchGotrueAlt), { status: "invalid" });
+
+  // Unlesbarer Koerper: im Zweifel Stoerung, nicht "Token ungueltig".
+  const fetchMuell = (async () =>
+    new Response("<html>502</html>", { status: 401 })) as typeof fetch;
+  assertEquals(await verifiedJwtSub("jwt", ENV, fetchMuell), { status: "unavailable" });
 });

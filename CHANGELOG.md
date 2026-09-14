@@ -106,10 +106,20 @@ Version.
   Rechnen-üben, Wissenskarten, Probeprüfungen mit 90-Min-Timer und KI-Bewertung, Fortschritt- und
   Fehlerliste-Dashboard (Tasks 1–15, PRs #33–#36).
 - Edge Function `grade-exam-answer` (Amazon Bedrock, Claude Haiku 4.5) für die automatische
-  KI-Bewertung von Probeprüfung-Antworten (PR #36).
+  KI-Bewertung von Probeprüfung-Antworten (PR #36). Das Modell wurde später gewechselt, siehe
+  „Registrierung geöffnet (11.09.2026)".
 - CI für PRs: `.github/workflows/pr-check.yml` mit fünf parallelen Checks (Lint + Prettier,
   Typecheck, Build, `deno check` der Edge Function, `py_compile` der Migrationsskripte; PR #38).
 - Live-Deploy `pruefung.alexle135.de` hinter Traefik auf dem armserver (Task 16, PR #39).
+
+### Registrierung geöffnet (11.09.2026)
+
+#### Changed
+
+- **KI-Modell von Claude Haiku 4.5 auf Amazon Nova Lite** (`eu.amazon.nova-lite-v1:0`, Bedrock
+  Converse API) gewechselt (PR #46, Commit `3de630b`): Anthropic-Modelle sind für den genutzten
+  AWS-Account nicht freigeschaltet. Nova läuft nur über die CRIS-Inferenzprofil-ID (`eu.`-Präfix),
+  nicht on-demand.
 
 ### Changed
 
