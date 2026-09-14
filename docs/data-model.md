@@ -80,6 +80,15 @@ auth.users 1──n flashcard_progress
 auth.users 1──n exam_attempts
 ```
 
+## Adaptive AP1 Mission
+
+Migration `20260914210000_ap1_mission.sql` verwendet die bereits vorhandene Tabelle
+`learning_session` auch für Generator-Sessions (`session_kind = 'mission'`; `exam_id` darf dafür
+leer sein). `topic_mastery` trägt zusätzlich Confidence, Erfolgsserie, nächste Wiederholung,
+letzte Bearbeitung und XP. Der RPC `record_mission_attempt` prüft Session-Besitz und schreibt
+Themenfortschritt, Session-Zähler sowie `error_log` atomar; falsche Antworten werden damit nicht
+nur im Client vorgemerkt.
+
 Schreibzugriff auf Bewertungsdaten läuft ausschließlich über geprüfte serverseitige Pfade:
 `exam_answers` hat für `authenticated` kein `INSERT`/`UPDATE` (nur `submit_self_grade` und die Edge
 Function mit `service_role`), `exam_attempts` kein `UPDATE` und `INSERT` nur auf `exam_id`/`user_id`.

@@ -8,13 +8,21 @@ import {
   ClipboardCheck,
   FileText,
   Sigma,
+  Target,
 } from "lucide-react";
 
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { PLAN_TAGE } from "@/lib/ap1-tagesplan";
 import { fetchFlashcardProgress, type FlashcardRow } from "@/lib/flashcard-progress";
-import { fetchTopicMastery, type MasteryRow } from "@/lib/topic-mastery";
+import {
+  buildDailyMission,
+  calculateReadiness,
+  calculateTopicPriority,
+  type AdaptiveMasteryRow,
+} from "@/lib/ap1-mission";
+import { TOPICS } from "@/lib/ap1-topics";
+import { fetchMissionSnapshot } from "@/lib/mission-persistence";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -37,6 +45,7 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 const MODULE: { title: string; url: string; icon: typeof Calculator }[] = [
+  { title: "AP1 Mission", url: "/mission", icon: Target },
   { title: "Rechnen üben", url: "/rechnen", icon: Calculator },
   { title: "Wissenskarten", url: "/wissenskarten", icon: BookOpen },
   { title: "Lernblätter", url: "/lernblaetter", icon: FileText },
@@ -67,30 +76,32 @@ function IndexPage() {
   const tage = tageBisPruefung();
   const today = todayLabel();
 
-  const [topicRows, setTopicRows] = useState<Record<string, MasteryRow>>({});
+  const [topicRows, setTopicRows] = useState<Record<string, AdaptiveMasteryRow>>({});
   const [cardRows, setCardRows] = useState<FlashcardRow[]>([]);
   const [datenError, setDatenError] = useState<string | null>(null);
   const [offeneFehler, setOffeneFehler] = useState<number | null>(null);
   const [fehlerError, setFehlerError] = useState<string | null>(null);
+  const [fehlerNachThema, setFehlerNachThema] = useState<Record<string, number>>({});
   const [userId, setUserId] = useState<string | null>(null);
   const [abgehakteTage, setAbgehakteTage] = useState(0);
 
   useEffect(() => {
     const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
-    fetchTopicMastery()
-      .then((d) => setTopicRows(Object.fromEntries(d.map((r) => [r.topic_id, r]))))
-      .catch((e) => setDatenError(msg(e)));
+    fetchMissionSnapshot()
+      .then((snapshot) => {
+        setTopicRows(Object.fromEntries(snapshot.mastery.map((r) => [r.topic_id, r])));
+        setFehlerNachThema(snapshot.openErrorsByTopic);
+        setOffeneFehler(
+          Object.values(snapshot.openErrorsByTopic).reduce((sum, count) => sum + count, 0),
+        );
+      })
+      .catch((e) => {
+        setDatenError(msg(e));
+        setFehlerError(msg(e));
+      });
     fetchFlashcardProgress()
       .then(setCardRows)
       .catch((e) => setDatenError((prev) => prev ?? msg(e)));
-    supabase
-      .from("error_log")
-      .select("id, erledigt")
-      .order("created_at", { ascending: false })
-      .then(({ data, error: e }) => {
-        if (e) setFehlerError(e.message);
-        else setOffeneFehler((data ?? []).filter((r) => !r.erledigt).length);
-      });
     supabase.auth
       .getUser()
       .then(({ data }) => setUserId(data.user?.id ?? null))
@@ -127,6 +138,16 @@ function IndexPage() {
   const gesamtPct = gesamtN ? Math.round((100 * gesamt.richtig) / gesamtN) : 0;
 
   const todayTag = useMemo(() => PLAN_TAGE.find((t) => t.date_label === today), [today]);
+  const readiness = useMemo(() => calculateReadiness(TOPICS, topicRows), [topicRows]);
+  const dailyMission = useMemo(
+    () =>
+      buildDailyMission(
+        TOPICS.map((topic) =>
+          calculateTopicPriority(topic, topicRows[topic.id], fehlerNachThema[topic.id] ?? 0),
+        ),
+      ),
+    [fehlerNachThema, topicRows],
+  );
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 pt-4 md:pt-8">
@@ -149,6 +170,38 @@ function IndexPage() {
           className="h-48 w-full border-t border-border object-cover md:h-full md:min-h-52 md:border-l md:border-t-0"
         />
       </header>
+
+      <section className="overflow-hidden rounded-2xl border border-primary/30 bg-card shadow-sm">
+        <div className="grid gap-5 p-6 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Deine Mission heute
+            </p>
+            <h2 className="mt-2 text-xl font-semibold text-foreground">
+              {dailyMission.items[0]?.topic.name ?? "Grundlagen festigen"} zuerst
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {dailyMission.items.map((item) => item.topic.name).join(" · ")} · ungefähr{" "}
+              {dailyMission.estimatedMinutes} Minuten
+            </p>
+          </div>
+          <Link
+            to="/mission"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Mission starten <Target className="size-4" />
+          </Link>
+        </div>
+        <div className="border-t border-border bg-background/30 px-6 py-3">
+          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+            <span>Prüfungsbereitschaft aus echten Ergebnissen</span>
+            <span className="font-mono">
+              {readiness.score}% · {Math.round(readiness.coverage * 100)}% abgedeckt
+            </span>
+          </div>
+          <Progress value={readiness.score} className="mt-2" />
+        </div>
+      </section>
 
       <section className="rounded-xl border border-border bg-card p-6 text-center">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

@@ -24,7 +24,7 @@ lernen/                   9 Lernblätter zu den A-/B-Themen, einheitliche Strukt
 probepruefungen/          3 vollständige Probeprüfungen ohne Lösungen (90 Min., Altprüfungs-Stil)
 loesungen/                zugehörige Musterlösungen mit Punkteverteilung
 AP1-Trainer.html          eigenständiges Offline-Übungstool (siehe unten)
-app/                      Web-App (TanStack Start + self-hosted Supabase, Bun) — Tasks 1–15 gemerged
+app/                      Web-App (TanStack Start + self-hosted Supabase, Bun) — inklusive adaptiver AP1 Mission
 scripts/migrate/          Python-Parses für den Content-Import der Web-App
 docs/                     Stand-Doku: context.md, vision.md, architecture.md, data-model.md, api.md, agents/
 .github/workflows/pr-check.yml  CI je PR (Lint/Prettier, Typecheck, Build, Edge-Function, Skripte)

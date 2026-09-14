@@ -71,7 +71,7 @@ Kompetenz entspricht den Originalprüfungen.
 ## AP1 Trainer — die Web-App (`app/`)
 
 Die hier abgelegten Markdown-Unterlagen sind die Quelle für eine begleitende
-Lern-Web-App: dunkles Theme im Discord-Look, Sidebar mit sieben Modulen.
+Lern-Web-App: dunkles Theme im Discord-Look, Sidebar mit acht Modulen.
 Sie wurde zuerst in Lovable gebaut (Prompts in `docs/lovable/prompts/`),
 nach dessen Credit-Limit aber exportiert und lokal weiterentwickelt.
 
@@ -90,6 +90,7 @@ nach dessen Credit-Limit aber exportiert und lokal weiterentwickelt.
 
 | Modul                     | Route                 | Stand                                                                                        |
 | ------------------------- | --------------------- | -------------------------------------------------------------------------------------------- |
+| AP1 Mission               | `/mission`            | fertig — adaptive Tagesmission, Confidence, Fehler-Loop, XP und persistierbare Sessions      |
 | Rechnen üben              | `/rechnen`            | fertig — 11 Themen-Generatoren inklusive Netzplan, ERM, Gantt, BAB und Stufenleiterverfahren |
 | Wissenskarten             | `/wissenskarten`      | fertig — gewichtete Wiederholung mit technischen Lernvisuals                                 |
 | Lernblätter               | `/lernblaetter`       | fertig — visuelle Blätter inklusive Rechnungswesen und Projektplanung                        |
