@@ -51,7 +51,7 @@ EXPECT_TABLES = ["topic_mastery", "flashcard_progress", "exam_questions", "exam_
 
 # Spalten, die historisch nur manuell in der Live-DB existierten (Drift)
 EXPECT_COLUMNS = {
-    "exam_questions": ["intro", "ausgangssituation"],
+    "exam_questions": ["intro", "ausgangssituation", "visual_type", "visual_data", "visual_path", "visual_alt", "answer_schema"],
     "error_log": ["erledigt"],
     "exam_answers": ["user_id", "ki_punkte", "ki_feedback"],
 }

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { GEN, type Task } from "../ap1-generators";
+import { SCALAR_GEN as GEN, type ScalarTask as Task } from "../ap1-generators";
 
 /**
  * Deterministischer PRNG (mulberry32) — ersetzt Math.random für

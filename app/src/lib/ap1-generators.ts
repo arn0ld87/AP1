@@ -1,18 +1,9 @@
 /** Aufgaben-Generatoren für den Rechen-Trainer (portiert aus AP1-Trainer.html). */
 
-export interface Task {
-  topic: string;
-  pts: number;
-  lead: string;
-  q: string;
-  given: [string, string][];
-  answer: number | string;
-  unit: string;
-  ip?: boolean;
-  dec?: number;
-  steps: string[];
-  trap: string;
-}
+import { ADVANCED_GEN } from "./ap1-advanced-generators";
+import { evaluateTaskAnswer, formatTaskAnswer, type ScalarTask, type Task } from "./ap1-tasks";
+
+export type { ScalarTask, Task } from "./ap1-tasks";
 
 export function rnd(a: number, b: number): number {
   return Math.floor(Math.random() * (b - a + 1)) + a;
@@ -43,8 +34,8 @@ function maskOf(p: number): string {
   return m.join(".");
 }
 
-export const GEN: Record<string, () => Task> = {
-  subnetting(): Task {
+export const SCALAR_GEN: Record<string, () => ScalarTask> = {
+  subnetting(): ScalarTask {
     const p = pick([25, 26, 27, 28, 29]);
     const base = pick(["192.168.", "172.20.", "10.42.", "192.168."]);
     const o3 = rnd(0, 60);
@@ -92,6 +83,7 @@ export const GEN: Record<string, () => Task> = {
     };
     const s = map[q];
     return {
+      kind: "scalar",
       topic: "subnetting",
       pts: rnd(1, 2),
       lead: "Ein Arbeitsplatzrechner hat die folgende Konfiguration erhalten.",
@@ -100,6 +92,11 @@ export const GEN: Record<string, () => Task> = {
       answer: s.a,
       unit: s.u,
       ip: !!s.ip,
+      visual: {
+        type: "illustration",
+        data: { kind: "subnetting" },
+        alt: `Aufteilung der IPv4-Adresse ${ip}/${p} in Netz- und Hostanteil`,
+      },
       steps: [
         `Präfix /${p} bedeutet <code>${bits}</code> Hostbits.`,
         `Subnetzmaske: <code>${maskOf(p)}</code>`,
@@ -111,7 +108,7 @@ export const GEN: Record<string, () => Task> = {
     };
   },
 
-  datenmengen(): Task {
+  datenmengen(): ScalarTask {
     const mode = pick(["rate", "speicher", "bild"] as const);
     if (mode === "bild") {
       const w = pick([1920, 2560, 3840, 4096]);
@@ -119,6 +116,7 @@ export const GEN: Record<string, () => Task> = {
       const bt = pick([16, 24, 32]);
       const bytes = (w * h * bt) / 8;
       return {
+        kind: "scalar",
         topic: "datenmengen",
         pts: 3,
         lead: "Ein unkomprimiertes Einzelbild soll gespeichert werden.",
@@ -147,6 +145,7 @@ export const GEN: Record<string, () => Task> = {
     const bps = w * h * bt * fps * (k / 100);
     if (mode === "rate") {
       return {
+        kind: "scalar",
         topic: "datenmengen",
         pts: 4,
         lead: "Eine Netzwerkkamera überträgt einen Live-Stream.",
@@ -176,6 +175,7 @@ export const GEN: Record<string, () => Task> = {
     const secs = days * 86400;
     const tib = (rate * cams * secs) / 8 / TI;
     return {
+      kind: "scalar",
       topic: "datenmengen",
       pts: 5,
       lead: "Die Aufnahmen mehrerer Kameras sollen vorgehalten werden.",
@@ -198,7 +198,7 @@ export const GEN: Record<string, () => Task> = {
     };
   },
 
-  uebertragung(): Task {
+  uebertragung(): ScalarTask {
     const gi = Math.random() < 0.5;
     const size = gi ? pick([1, 2, 4, 5]) : pick([100, 250, 500, 750]);
     const bits = gi ? size * GI * 8 : size * MI * 8;
@@ -206,6 +206,7 @@ export const GEN: Record<string, () => Task> = {
     const secs = bits / (rate * 1e6);
     const up = Math.ceil(secs);
     return {
+      kind: "scalar",
       topic: "uebertragung",
       pts: 4,
       lead: "Eine Datei soll über die Internetleitung hochgeladen werden.",
@@ -229,7 +230,7 @@ export const GEN: Record<string, () => Task> = {
     };
   },
 
-  strom(): Task {
+  strom(): ScalarTask {
     const mode = pick(["kosten", "poe", "steckdose"] as const);
     if (mode === "poe") {
       const P = pick([13, 24, 32, 45, 51, 57]);
@@ -243,6 +244,7 @@ export const GEN: Record<string, () => Task> = {
               ? "IEEE 802.3bt (Type 3)"
               : "IEEE 802.3bt (Type 4)";
       return {
+        kind: "scalar",
         topic: "strom",
         pts: 3,
         lead: "Ein Gerät wird über das Netzwerkkabel mit Strom versorgt (PoE).",
@@ -273,6 +275,7 @@ export const GEN: Record<string, () => Task> = {
       const dev2 = pick([1800, 2000, 2200, 2400]);
       const sum = pcs * pcW + dev1 + dev2;
       return {
+        kind: "scalar",
         topic: "strom",
         pts: 3,
         lead: "Mehrere Geräte hängen an einer Mehrfachsteckdose mit der Aufschrift „maximal 16 A“.",
@@ -305,6 +308,7 @@ export const GEN: Record<string, () => Task> = {
     const kwh = (pzu / 1000) * hd * days;
     const cost = kwh * price;
     return {
+      kind: "scalar",
       topic: "strom",
       pts: 5,
       lead: "Für einen Rechner sollen die jährlichen Stromkosten ermittelt werden.",
@@ -328,7 +332,7 @@ export const GEN: Record<string, () => Task> = {
     };
   },
 
-  wirtschaft(): Task {
+  wirtschaft(): ScalarTask {
     const mode = pick(["bezug", "brutto", "amort", "monat"] as const);
     if (mode === "bezug") {
       const lp = pick([890, 1190, 1250, 1320, 1480]);
@@ -336,6 +340,7 @@ export const GEN: Record<string, () => Task> = {
       const lief = pick([0, 9, 12, 18, 25]);
       const bp = lp * (1 - rab / 100) + lief;
       return {
+        kind: "scalar",
         topic: "wirtschaft",
         pts: 3,
         lead: "Für eine Beschaffung liegt ein Angebot vor.",
@@ -363,6 +368,7 @@ export const GEN: Record<string, () => Task> = {
       const netto = items.reduce((a, [n, p]) => a + n * p, 0);
       const [i0, i1] = items as [[number, number], [number, number]];
       return {
+        kind: "scalar",
         topic: "wirtschaft",
         pts: 4,
         lead: "Für ein Angebot ist der Bruttobetrag zu ermitteln.",
@@ -386,6 +392,7 @@ export const GEN: Record<string, () => Task> = {
       const spar = +(Math.random() * 22 + 4).toFixed(2);
       const mon = mehr / spar;
       return {
+        kind: "scalar",
         topic: "wirtschaft",
         pts: 3,
         lead: "Ein teureres, aber sparsameres Gerät steht zur Auswahl.",
@@ -415,6 +422,7 @@ export const GEN: Record<string, () => Task> = {
     const wart = wartJ / 12;
     const total = abschr + soft + wart;
     return {
+      kind: "scalar",
       topic: "wirtschaft",
       pts: 6,
       lead: "Für eine Arbeitsplatzausstattung sind die laufenden Monatskosten zu ermitteln.",
@@ -438,7 +446,7 @@ export const GEN: Record<string, () => Task> = {
     };
   },
 
-  netzplan(): Task {
+  netzplan(): ScalarTask {
     const mode = pick(["fez", "saz", "gp", "fp"] as const);
     const d = rnd(2, 8);
     const faz = rnd(0, 14);
@@ -499,6 +507,7 @@ export const GEN: Record<string, () => Task> = {
     };
     const m = map[mode];
     return {
+      kind: "scalar",
       topic: "netzplan",
       pts: 2,
       lead: "Aus einem Netzplan ist ein einzelner Wert zu ergänzen.",
@@ -512,7 +521,7 @@ export const GEN: Record<string, () => Task> = {
     };
   },
 
-  raid(): Task {
+  raid(): ScalarTask {
     const lvl = pick(["5", "6", "0", "1", "10", "JBOD"] as const);
     // RAID 10 nur mit vollständigen Spiegelpaaren: gerade Plattenanzahl,
     // mindestens 4 Platten (big und small gerade ⇒ n gerade, n ≥ 4).
@@ -539,6 +548,7 @@ export const GEN: Record<string, () => Task> = {
       JBOD: `JBOD verkettet einfach alle Platten: <code>${big} × ${bigC} + ${small} × ${smallC} TB</code>`,
     };
     return {
+      kind: "scalar",
       topic: "raid",
       pts: 3,
       lead: "Aus den vorhandenen Festplatten soll ein Verbund gebildet werden.",
@@ -551,6 +561,11 @@ export const GEN: Record<string, () => Task> = {
       answer: calc[lvl]!,
       unit: "TB",
       dec: 0,
+      visual: {
+        type: "illustration",
+        data: { kind: "raid" },
+        alt: `Schematische Plattenaufteilung für ${lvl === "JBOD" ? "JBOD" : `RAID ${lvl}`}`,
+      },
       steps: [
         lvl === "JBOD"
           ? "Bei JBOD zählt jede Platte mit ihrer vollen Kapazität."
@@ -563,21 +578,13 @@ export const GEN: Record<string, () => Task> = {
   },
 };
 
+export const GEN: Record<string, () => Task> = { ...SCALAR_GEN, ...ADVANCED_GEN };
+
 /** Prüft eine Eingabe gegen die Musterantwort. */
 export function checkAnswer(task: Task, input: string): boolean {
-  const raw = input.trim();
-  if (!raw) return false;
-  if (task.ip || typeof task.answer === "string") {
-    return raw.replace(/\s/g, "") === String(task.answer).replace(/\s/g, "");
-  }
-  const num = Number(raw.replace(/\./g, "").replace(",", "."));
-  if (!Number.isFinite(num)) return false;
-  const dec = task.dec ?? 2;
-  const f = Math.pow(10, dec);
-  return Math.round(num * f) / f === Math.round((task.answer as number) * f) / f;
+  return evaluateTaskAnswer(task, input).correct;
 }
 
 export function formatAnswer(task: Task): string {
-  if (typeof task.answer === "string") return task.answer;
-  return de(task.answer, task.dec ?? 2);
+  return formatTaskAnswer(task);
 }

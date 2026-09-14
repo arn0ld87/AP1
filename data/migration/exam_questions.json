@@ -19,13 +19,660 @@
             "teil": "b",
             "frage": "Für die Terminplanung wurde die folgende Vorgangsliste erstellt.\n\n| Vorgang | Beschreibung | Dauer (Tage) | Vorgänger |\n|---|---|---:|---|\n| A | Ist-Analyse | 3 | – |\n| B | Soll-Konzept | 4 | A |\n| C | Beschaffung Hardware | 6 | B |\n| D | Strukturierte Verkabelung | 5 | B |\n| E | Serverinstallation | 4 | C, D |\n| F | Clients einrichten | 3 | E |\n| G | Mitarbeiterschulung | 2 | F |\n| H | Dokumentation | 2 | E |\n| I | Abnahme und Übergabe | 1 | G, H |\n\nErmitteln Sie für alle Vorgänge FAZ, FEZ, SAZ, SEZ, GP und FP.\nTragen Sie die Werte in eine Tabelle ein. **12 Punkte**\n\nHinweis: FAZ = frühester Anfangszeitpunkt · FEZ = frühester Endzeitpunkt ·\nSAZ = spätester Anfangszeitpunkt · SEZ = spätester Endzeitpunkt ·\nGP = Gesamtpuffer (= SAZ − FAZ) · FP = freier Puffer (= FAZ des Nachfolgers − FEZ)",
             "max_punkte": 12,
-            "musterloesung": "(je vollständig richtiger Vorgang 1,5 Punkte, insgesamt 12)\n\n| Vorgang | Dauer | FAZ | FEZ | SAZ | SEZ | GP | FP |\n|---|--:|--:|--:|--:|--:|--:|--:|\n| A | 3 | 0 | 3 | 0 | 3 | 0 | 0 |\n| B | 4 | 3 | 7 | 3 | 7 | 0 | 0 |\n| C | 6 | 7 | 13 | 7 | 13 | 0 | 0 |\n| D | 5 | 7 | 12 | 8 | 13 | 1 | 1 |\n| E | 4 | 13 | 17 | 13 | 17 | 0 | 0 |\n| F | 3 | 17 | 20 | 17 | 20 | 0 | 0 |\n| G | 2 | 20 | 22 | 20 | 22 | 0 | 0 |\n| H | 2 | 17 | 19 | 20 | 22 | 3 | 3 |\n| I | 1 | 22 | 23 | 22 | 23 | 0 | 0 |\n\nRechenweg: FEZ = FAZ + Dauer · FAZ des Nachfolgers = größter FEZ der Vorgänger ·\nSAZ = SEZ − Dauer · SEZ des Vorgängers = kleinster SAZ der Nachfolger.\nE beginnt bei max(13; 12) = 13, I beginnt bei max(22; 19) = 22."
+            "musterloesung": "(je vollständig richtiger Vorgang 1,5 Punkte, insgesamt 12)\n\n| Vorgang | Dauer | FAZ | FEZ | SAZ | SEZ | GP | FP |\n|---|--:|--:|--:|--:|--:|--:|--:|\n| A | 3 | 0 | 3 | 0 | 3 | 0 | 0 |\n| B | 4 | 3 | 7 | 3 | 7 | 0 | 0 |\n| C | 6 | 7 | 13 | 7 | 13 | 0 | 0 |\n| D | 5 | 7 | 12 | 8 | 13 | 1 | 1 |\n| E | 4 | 13 | 17 | 13 | 17 | 0 | 0 |\n| F | 3 | 17 | 20 | 17 | 20 | 0 | 0 |\n| G | 2 | 20 | 22 | 20 | 22 | 0 | 0 |\n| H | 2 | 17 | 19 | 20 | 22 | 3 | 3 |\n| I | 1 | 22 | 23 | 22 | 23 | 0 | 0 |\n\nRechenweg: FEZ = FAZ + Dauer · FAZ des Nachfolgers = größter FEZ der Vorgänger ·\nSAZ = SEZ − Dauer · SEZ des Vorgängers = kleinster SAZ der Nachfolger.\nE beginnt bei max(13; 12) = 13, I beginnt bei max(22; 19) = 22.",
+            "visual_type": "netzplan",
+            "visual_alt": "Vorgangsknoten-Netzplan des Umzugsprojekts mit auszufüllenden Zeitwerten",
+            "visual_data": {
+              "projectDuration": 23,
+              "nodes": [
+                {
+                  "id": "A",
+                  "name": "Ist-Analyse",
+                  "duration": 3,
+                  "faz": 0,
+                  "fez": 3,
+                  "saz": 0,
+                  "sez": 3,
+                  "totalFloat": 0,
+                  "freeFloat": 0,
+                  "x": 20,
+                  "y": 150,
+                  "critical": true,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                },
+                {
+                  "id": "B",
+                  "name": "Soll-Konzept",
+                  "duration": 4,
+                  "faz": 3,
+                  "fez": 7,
+                  "saz": 3,
+                  "sez": 7,
+                  "totalFloat": 0,
+                  "freeFloat": 0,
+                  "x": 220,
+                  "y": 150,
+                  "critical": true,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                },
+                {
+                  "id": "C",
+                  "name": "Beschaffung",
+                  "duration": 6,
+                  "faz": 7,
+                  "fez": 13,
+                  "saz": 7,
+                  "sez": 13,
+                  "totalFloat": 0,
+                  "freeFloat": 0,
+                  "x": 420,
+                  "y": 40,
+                  "critical": true,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                },
+                {
+                  "id": "D",
+                  "name": "Verkabelung",
+                  "duration": 5,
+                  "faz": 7,
+                  "fez": 12,
+                  "saz": 8,
+                  "sez": 13,
+                  "totalFloat": 1,
+                  "freeFloat": 1,
+                  "x": 420,
+                  "y": 250,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                },
+                {
+                  "id": "E",
+                  "name": "Server",
+                  "duration": 4,
+                  "faz": 13,
+                  "fez": 17,
+                  "saz": 13,
+                  "sez": 17,
+                  "totalFloat": 0,
+                  "freeFloat": 0,
+                  "x": 620,
+                  "y": 150,
+                  "critical": true,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                },
+                {
+                  "id": "F",
+                  "name": "Clients",
+                  "duration": 3,
+                  "faz": 17,
+                  "fez": 20,
+                  "saz": 17,
+                  "sez": 20,
+                  "totalFloat": 0,
+                  "freeFloat": 0,
+                  "x": 820,
+                  "y": 40,
+                  "critical": true,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                },
+                {
+                  "id": "H",
+                  "name": "Dokumentation",
+                  "duration": 2,
+                  "faz": 17,
+                  "fez": 19,
+                  "saz": 20,
+                  "sez": 22,
+                  "totalFloat": 3,
+                  "freeFloat": 3,
+                  "x": 820,
+                  "y": 250,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                },
+                {
+                  "id": "G",
+                  "name": "Schulung",
+                  "duration": 2,
+                  "faz": 20,
+                  "fez": 22,
+                  "saz": 20,
+                  "sez": 22,
+                  "totalFloat": 0,
+                  "freeFloat": 0,
+                  "x": 1020,
+                  "y": 40,
+                  "critical": true,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                },
+                {
+                  "id": "I",
+                  "name": "Abnahme",
+                  "duration": 1,
+                  "faz": 22,
+                  "fez": 23,
+                  "saz": 22,
+                  "sez": 23,
+                  "totalFloat": 0,
+                  "freeFloat": 0,
+                  "x": 1220,
+                  "y": 150,
+                  "critical": true,
+                  "hiddenFields": [
+                    "faz",
+                    "fez",
+                    "saz",
+                    "sez",
+                    "totalFloat",
+                    "freeFloat"
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "from": "A",
+                  "to": "B"
+                },
+                {
+                  "from": "B",
+                  "to": "C"
+                },
+                {
+                  "from": "B",
+                  "to": "D"
+                },
+                {
+                  "from": "C",
+                  "to": "E"
+                },
+                {
+                  "from": "D",
+                  "to": "E"
+                },
+                {
+                  "from": "E",
+                  "to": "F"
+                },
+                {
+                  "from": "E",
+                  "to": "H"
+                },
+                {
+                  "from": "F",
+                  "to": "G"
+                },
+                {
+                  "from": "G",
+                  "to": "I"
+                },
+                {
+                  "from": "H",
+                  "to": "I"
+                }
+              ]
+            },
+            "answer_schema": {
+              "kind": "table",
+              "columns": [
+                {
+                  "id": "faz",
+                  "label": "FAZ"
+                },
+                {
+                  "id": "fez",
+                  "label": "FEZ"
+                },
+                {
+                  "id": "saz",
+                  "label": "SAZ"
+                },
+                {
+                  "id": "sez",
+                  "label": "SEZ"
+                },
+                {
+                  "id": "gp",
+                  "label": "GP"
+                },
+                {
+                  "id": "fp",
+                  "label": "FP"
+                }
+              ],
+              "rows": [
+                {
+                  "id": "A",
+                  "label": "A",
+                  "cells": [
+                    {
+                      "id": "A.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "A.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "A.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "A.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "A.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "A.fp",
+                      "editable": true
+                    }
+                  ]
+                },
+                {
+                  "id": "B",
+                  "label": "B",
+                  "cells": [
+                    {
+                      "id": "B.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "B.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "B.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "B.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "B.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "B.fp",
+                      "editable": true
+                    }
+                  ]
+                },
+                {
+                  "id": "C",
+                  "label": "C",
+                  "cells": [
+                    {
+                      "id": "C.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "C.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "C.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "C.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "C.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "C.fp",
+                      "editable": true
+                    }
+                  ]
+                },
+                {
+                  "id": "D",
+                  "label": "D",
+                  "cells": [
+                    {
+                      "id": "D.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "D.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "D.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "D.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "D.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "D.fp",
+                      "editable": true
+                    }
+                  ]
+                },
+                {
+                  "id": "E",
+                  "label": "E",
+                  "cells": [
+                    {
+                      "id": "E.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "E.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "E.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "E.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "E.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "E.fp",
+                      "editable": true
+                    }
+                  ]
+                },
+                {
+                  "id": "F",
+                  "label": "F",
+                  "cells": [
+                    {
+                      "id": "F.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "F.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "F.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "F.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "F.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "F.fp",
+                      "editable": true
+                    }
+                  ]
+                },
+                {
+                  "id": "G",
+                  "label": "G",
+                  "cells": [
+                    {
+                      "id": "G.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "G.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "G.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "G.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "G.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "G.fp",
+                      "editable": true
+                    }
+                  ]
+                },
+                {
+                  "id": "H",
+                  "label": "H",
+                  "cells": [
+                    {
+                      "id": "H.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "H.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "H.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "H.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "H.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "H.fp",
+                      "editable": true
+                    }
+                  ]
+                },
+                {
+                  "id": "I",
+                  "label": "I",
+                  "cells": [
+                    {
+                      "id": "I.faz",
+                      "editable": true
+                    },
+                    {
+                      "id": "I.fez",
+                      "editable": true
+                    },
+                    {
+                      "id": "I.saz",
+                      "editable": true
+                    },
+                    {
+                      "id": "I.sez",
+                      "editable": true
+                    },
+                    {
+                      "id": "I.gp",
+                      "editable": true
+                    },
+                    {
+                      "id": "I.fp",
+                      "editable": true
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "teil": "c",
             "frage": "Geben Sie die Projektdauer in Tagen an und nennen Sie die Vorgänge des kritischen Pfads.",
             "max_punkte": 3,
-            "musterloesung": "Projektdauer **23 Tage** (1 Punkt).\nKritischer Pfad **A – B – C – E – F – G – I** (2 Punkte), erkennbar an GP = 0."
+            "musterloesung": "Projektdauer **23 Tage** (1 Punkt).\nKritischer Pfad **A – B – C – E – F – G – I** (2 Punkte), erkennbar an GP = 0.",
+            "visual_type": "gantt",
+            "visual_alt": "Gantt-Diagramm des Umzugsprojekts ohne hervorgehobenen kritischen Pfad",
+            "visual_data": {
+              "duration": 23,
+              "tasks": [
+                {
+                  "id": "A",
+                  "name": "Ist-Analyse",
+                  "start": 0,
+                  "end": 3
+                },
+                {
+                  "id": "B",
+                  "name": "Soll-Konzept",
+                  "start": 3,
+                  "end": 7,
+                  "predecessors": [
+                    "A"
+                  ]
+                },
+                {
+                  "id": "C",
+                  "name": "Beschaffung",
+                  "start": 7,
+                  "end": 13,
+                  "predecessors": [
+                    "B"
+                  ]
+                },
+                {
+                  "id": "D",
+                  "name": "Verkabelung",
+                  "start": 7,
+                  "end": 12,
+                  "predecessors": [
+                    "B"
+                  ]
+                },
+                {
+                  "id": "E",
+                  "name": "Server",
+                  "start": 13,
+                  "end": 17,
+                  "predecessors": [
+                    "C",
+                    "D"
+                  ]
+                },
+                {
+                  "id": "F",
+                  "name": "Clients",
+                  "start": 17,
+                  "end": 20,
+                  "predecessors": [
+                    "E"
+                  ]
+                },
+                {
+                  "id": "G",
+                  "name": "Schulung",
+                  "start": 20,
+                  "end": 22,
+                  "predecessors": [
+                    "F"
+                  ]
+                },
+                {
+                  "id": "H",
+                  "name": "Dokumentation",
+                  "start": 17,
+                  "end": 19,
+                  "predecessors": [
+                    "E"
+                  ]
+                },
+                {
+                  "id": "I",
+                  "name": "Abnahme",
+                  "start": 22,
+                  "end": 23,
+                  "predecessors": [
+                    "G",
+                    "H"
+                  ]
+                }
+              ]
+            },
+            "answer_schema": {
+              "kind": "multiField",
+              "fields": [
+                {
+                  "id": "projektdauer",
+                  "label": "Projektdauer",
+                  "unit": "Tage"
+                },
+                {
+                  "id": "kritischer_pfad",
+                  "label": "Kritischer Pfad"
+                }
+              ]
+            }
           },
           {
             "teil": "d",
@@ -333,7 +980,38 @@
             "teil": "a",
             "frage": "Erstellen Sie ein Entity-Relationship-Modell für den folgenden Sachverhalt.\nGeben Sie alle Attribute, die Primärschlüssel und die Kardinalitäten an. **6 Punkte**\n\n> Ein Kunde kann mehrere Aufträge erteilen. Jeder Auftrag gehört zu genau einem Kunden.\n> Zu einem Kunden werden Kundennummer, Name, Vorname und Anschrift gespeichert.\n> Zu einem Auftrag werden Auftragsnummer, Auftragsdatum, Betrag und Status gespeichert.",
             "max_punkte": 6,
-            "musterloesung": "```\n   KUNDE                                    AUFTRAG\n   ---------------------                    ---------------------\n   KundenID (PK)                            AuftragID (PK)\n   Name                     1        n      Auftragsdatum\n   Vorname          -------< erteilt >----- Betrag\n   Anschrift                                Status\n                                            KundenID (FK)\n```\nBewertung: Entitäten mit Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nBeziehung mit korrekter Kardinalität **1 : n** 2 P.\nDie Fremdschlüsselkennung darf entfallen."
+            "musterloesung": "```\n   KUNDE                                    AUFTRAG\n   ---------------------                    ---------------------\n   KundenID (PK)                            AuftragID (PK)\n   Name                     1        n      Auftragsdatum\n   Vorname          -------< erteilt >----- Betrag\n   Anschrift                                Status\n                                            KundenID (FK)\n```\nBewertung: Entitäten mit Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nBeziehung mit korrekter Kardinalität **1 : n** 2 P.\nDie Fremdschlüsselkennung darf entfallen.",
+            "visual_type": "er",
+            "visual_alt": "Unvollständiges ER-Diagramm für Kunde und Auftrag",
+            "visual_data": {
+              "entities": [
+                {
+                  "id": "kunde",
+                  "name": "KUNDE",
+                  "x": 30,
+                  "y": 70,
+                  "attributes": []
+                },
+                {
+                  "id": "auftrag",
+                  "name": "AUFTRAG",
+                  "x": 390,
+                  "y": 70,
+                  "attributes": []
+                }
+              ],
+              "relations": [
+                {
+                  "id": "r",
+                  "from": "kunde",
+                  "to": "auftrag",
+                  "label": "?",
+                  "fromCardinality": "1",
+                  "toCardinality": "n",
+                  "hideCardinalities": true
+                }
+              ]
+            }
           },
           {
             "teil": "ba",
@@ -499,7 +1177,38 @@
             "teil": "e",
             "frage": "Ergänzen Sie das Entity-Relationship-Modell für folgenden Sachverhalt.\nKennzeichnen Sie die Primärschlüssel und geben Sie die Kardinalitäten an. **5 Punkte**\n\n> Ein Kunde kann mehrere Lizenzen besitzen, eine Lizenz gehört zu genau einem Kunden.\n> Gespeichert werden: Kundennummer, Firmenname, Ansprechpartner sowie\n> Lizenznummer, Lizenztyp, Gültigkeitsbeginn und Gültigkeitsende.",
             "max_punkte": 5,
-            "musterloesung": "```\n   KUNDE                                     LIZENZ\n   ---------------------                     ---------------------\n   Kundennummer (PK)                         Lizenznummer (PK)\n   Firmenname               1        n       Lizenztyp\n   Ansprechpartner  -------< besitzt >------ Gueltigkeitsbeginn\n                                             Gueltigkeitsende\n                                             Kundennummer (FK)\n```\nBewertung: zwei Entitäten mit vollständigen Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nKardinalität **1 : n** 1 P."
+            "musterloesung": "```\n   KUNDE                                     LIZENZ\n   ---------------------                     ---------------------\n   Kundennummer (PK)                         Lizenznummer (PK)\n   Firmenname               1        n       Lizenztyp\n   Ansprechpartner  -------< besitzt >------ Gueltigkeitsbeginn\n                                             Gueltigkeitsende\n                                             Kundennummer (FK)\n```\nBewertung: zwei Entitäten mit vollständigen Attributen 2 P · beide Primärschlüssel gekennzeichnet 2 P ·\nKardinalität **1 : n** 1 P.",
+            "visual_type": "er",
+            "visual_alt": "Unvollständiges ER-Diagramm für Kunde und Lizenz",
+            "visual_data": {
+              "entities": [
+                {
+                  "id": "kunde",
+                  "name": "KUNDE",
+                  "x": 30,
+                  "y": 70,
+                  "attributes": []
+                },
+                {
+                  "id": "lizenz",
+                  "name": "LIZENZ",
+                  "x": 390,
+                  "y": 70,
+                  "attributes": []
+                }
+              ],
+              "relations": [
+                {
+                  "id": "r",
+                  "from": "kunde",
+                  "to": "lizenz",
+                  "label": "?",
+                  "fromCardinality": "1",
+                  "toCardinality": "n",
+                  "hideCardinalities": true
+                }
+              ]
+            }
           }
         ]
       },

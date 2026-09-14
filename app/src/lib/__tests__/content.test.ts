@@ -8,6 +8,9 @@ interface Teilaufgabe {
   frage?: string | null;
   musterloesung?: string | null;
   max_punkte?: number | null;
+  visual_type?: string | null;
+  visual_alt?: string | null;
+  answer_schema?: { kind?: string } | null;
 }
 
 interface Aufgabe {
@@ -71,5 +74,24 @@ describe("Probeprüfungs-Daten (Content-Validierung)", () => {
     for (const e of exams) {
       expect(e.ausgangssituation?.trim().length ?? 0).toBeGreaterThan(0);
     }
+  });
+
+  it("enthält die kuratierten visuellen Prüfungsaufgaben samt strukturierten Antworten", () => {
+    const visualTasks = exams.flatMap((exam) =>
+      exam.aufgaben.flatMap((aufgabe) => aufgabe.teilaufgaben.filter((teil) => teil.visual_type)),
+    );
+    expect(visualTasks.map((teil) => teil.visual_type).sort()).toEqual([
+      "er",
+      "er",
+      "gantt",
+      "netzplan",
+    ]);
+    expect(visualTasks.every((teil) => (teil.visual_alt?.trim().length ?? 0) > 0)).toBe(true);
+    expect(
+      visualTasks
+        .map((teil) => teil.answer_schema?.kind)
+        .filter(Boolean)
+        .sort(),
+    ).toEqual(["multiField", "table"]);
   });
 });

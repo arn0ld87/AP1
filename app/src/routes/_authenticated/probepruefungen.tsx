@@ -3,6 +3,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { AlarmClock, ArrowLeft, Play } from "lucide-react";
 
 import { MarkdownContent } from "@/components/markdown-content";
+import { ExamAnswerEditor } from "@/components/ap1/ExamAnswerEditor";
+import { TaskVisual } from "@/components/ap1/visuals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +22,13 @@ import {
   type PruefungResults,
   type SingleFlightGuard,
 } from "@/lib/exam-flow";
+import {
+  isExamAnswerFilled,
+  parseExamAnswerSchema,
+  parseExamVisual,
+  parseStoredAnswer,
+  serializeExamAnswer,
+} from "@/lib/exam-content";
 
 export const Route = createFileRoute("/_authenticated/probepruefungen")({
   head: () => ({
@@ -131,7 +140,9 @@ function ProbepruefungenPage() {
     }
     const { data: fr, error: fe } = await supabase
       .from("exam_questions")
-      .select("id, aufgabe_nr, teil, frage, max_punkte, musterloesung, intro, ausgangssituation")
+      .select(
+        "id, aufgabe_nr, teil, frage, max_punkte, musterloesung, intro, ausgangssituation, visual_type, visual_data, visual_path, visual_alt, answer_schema",
+      )
       .eq("exam_id", examId)
       .order("aufgabe_nr")
       .order("teil");
@@ -223,7 +234,10 @@ function ProbepruefungenPage() {
   }, [fragen]);
   const ausgang = fragen[0]?.ausgangssituation ?? null;
   const beantwortet = useMemo(
-    () => fragen.filter((f) => (answers[f.id] ?? "").trim().length > 0).length,
+    () =>
+      fragen.filter((f) =>
+        isExamAnswerFilled(answers[f.id] ?? "", parseExamAnswerSchema(f.answer_schema)),
+      ).length,
     [fragen, answers],
   );
 
@@ -418,41 +432,79 @@ function ProbepruefungenPage() {
               className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground"
             />
           )}
-          {teile.map((f) => (
-            <article
-              key={f.id}
-              className="space-y-4 rounded-xl border border-border bg-card p-4 transition-colors focus-within:border-primary/40 md:p-5"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <TeilBadge nr={nr} teil={f.teil} />
-                <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                  {f.max_punkte ?? 0} P
-                </span>
-              </div>
-
-              <div className="grid gap-4 2xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] 2xl:items-start">
-                <MarkdownContent src={f.frage} className={cn(PROSE, "min-w-0")} />
-                <AnswerField
-                  value={answers[f.id] ?? ""}
-                  onChange={(v) => setAnswers((prev) => ({ ...prev, [f.id]: v }))}
-                  label={`Antwort ${nr}${f.teil ?? ""}`}
-                />
-              </div>
-
-              {results[f.id] && (
-                <div className="space-y-1 rounded-lg border border-border p-3 text-xs">
-                  <p className="font-semibold text-foreground">
-                    {results[f.id]!.punkte === null
-                      ? "KI nicht verfügbar"
-                      : `${results[f.id]!.punkte} / ${f.max_punkte ?? 0} P`}
-                  </p>
-                  <p className="text-muted-foreground">{results[f.id]!.begruendung}</p>
+          {teile.map((f) => {
+            const visual = parseExamVisual(f);
+            return (
+              <article
+                key={f.id}
+                className="space-y-4 rounded-xl border border-border bg-card p-4 transition-colors focus-within:border-primary/40 md:p-5"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <TeilBadge nr={nr} teil={f.teil} />
+                  <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                    {f.max_punkte ?? 0} P
+                  </span>
                 </div>
-              )}
-            </article>
-          ))}
+
+                <div className="grid gap-4 2xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] 2xl:items-start">
+                  <div className="min-w-0 space-y-4">
+                    <MarkdownContent src={f.frage} className={PROSE} />
+                    {visual && <TaskVisual visual={visual} />}
+                  </div>
+                  <QuestionAnswerField
+                    question={f}
+                    value={answers[f.id] ?? ""}
+                    onChange={(v) => setAnswers((prev) => ({ ...prev, [f.id]: v }))}
+                    label={`Antwort ${nr}${f.teil ?? ""}`}
+                  />
+                </div>
+
+                {results[f.id] && (
+                  <div className="space-y-1 rounded-lg border border-border p-3 text-xs">
+                    <p className="font-semibold text-foreground">
+                      {results[f.id]!.punkte === null
+                        ? "KI nicht verfügbar"
+                        : `${results[f.id]!.punkte} / ${f.max_punkte ?? 0} P`}
+                    </p>
+                    <p className="text-muted-foreground">{results[f.id]!.begruendung}</p>
+                  </div>
+                )}
+              </article>
+            );
+          })}
         </section>
       ))}
+    </div>
+  );
+}
+
+function QuestionAnswerField({
+  question,
+  value,
+  onChange,
+  label,
+}: {
+  question: Frage;
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+}) {
+  const schema = parseExamAnswerSchema(question.answer_schema);
+  if (!schema || schema.kind === "text") {
+    return <AnswerField value={value} onChange={onChange} label={label} />;
+  }
+
+  const values = parseStoredAnswer(value);
+  return (
+    <div className="min-w-0 space-y-2">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        Deine Antwort
+      </p>
+      <ExamAnswerEditor
+        schema={schema}
+        values={values}
+        onChange={(id, nextValue) => onChange(serializeExamAnswer({ ...values, [id]: nextValue }))}
+      />
     </div>
   );
 }

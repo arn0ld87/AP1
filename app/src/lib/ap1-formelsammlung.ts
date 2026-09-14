@@ -2,11 +2,14 @@
  * Formelsammlung aus data/migration/formelsammlung.json (Task 2) —
  * statischer Content, sortiert nach `order`.
  */
+import type { TaskVisual } from "./ap1-tasks";
+
 export interface FormelKapitel {
   id: string;
   order: number;
   title: string;
   body_markdown: string;
+  visual?: TaskVisual;
 }
 
 export const FORMEL_KAPITEL: FormelKapitel[] = [
@@ -107,6 +110,51 @@ export const FORMEL_KAPITEL: FormelKapitel[] = [
     title: "Sonstige belegte Rechenwege",
     body_markdown:
       "- **Kapazitätsrechnung** (H2021 3bb): 20 Postfächer × 2 h = 40 h ÷ 8 h/Tag ÷ 2 Mitarbeiter = 2,5 → 3 Tage\n- **Stückzahl aus Bahnlänge** (H2022 2a): 30,48 m/min ÷ 0,3048 m = 100 Aufnahmen/min × 60 × 12 h = 72.000/Tag\n- **Netzteil dimensionieren** (F2024 3e): Σ Leistungsaufnahmen × 1,1 → nächste verfügbare Stufe\n- **Taktfrequenz** (F2022 2gc): 3,4 GHz = 3.400.000.000 Hz\n- **Datenraten-Faktor** (ZP 2018 2.9): 5 Gbit/s ÷ 480 Mbit/s = 10,42\n- **Ratendarlehen** (H2024 3a): Zinsen = Restschuld × Zinssatz; Tilgung = Darlehen / Laufzeit; Zahlung = Tilgung + Zinsen\n\n---",
+  },
+  {
+    id: "14-gantt-projektplanung",
+    order: 14,
+    title: "Gantt / Projektplanung",
+    visual: {
+      type: "gantt",
+      alt: "Gantt-Beispiel mit parallelen Vorgängen und Meilenstein",
+      data: {
+        duration: 8,
+        tasks: [
+          { id: "A", name: "Analyse", start: 0, end: 2, critical: true },
+          { id: "B", name: "Beschaffung", start: 2, end: 6, predecessors: ["A"], critical: true },
+          { id: "C", name: "Konfiguration", start: 2, end: 5, predecessors: ["A"] },
+          { id: "D", name: "Abnahme", start: 6, end: 8, predecessors: ["B", "C"], critical: true },
+          { id: "M", name: "Go-live", start: 8, end: 8, milestone: true, critical: true },
+        ],
+      },
+    },
+    body_markdown:
+      "```\nEnde = Start + Dauer\nStart des Nachfolgers = größtes Ende seiner Vorgänger\n```\n\nEin Meilenstein besitzt Dauer 0. Parallele Vorgänge werden nicht addiert.",
+  },
+  {
+    id: "15-bab",
+    order: 15,
+    title: "Betriebsabrechnungsbogen (BAB)",
+    visual: {
+      type: "illustration",
+      data: { kind: "bab-flow" },
+      alt: "BAB-Rechenfolge von Gemeinkosten bis Zuschlagssatz",
+    },
+    body_markdown:
+      "```\nVerteilter Betrag = Gemeinkosten × Schlüsselanteil\nZuschlagssatz [%] = Kostenstellengemeinkosten / Zuschlagsgrundlage × 100\n```\n\nKontrolle: Die verteilten Beträge einer Zeile ergeben wieder den ursprünglichen Gemeinkostenbetrag.",
+  },
+  {
+    id: "16-stufenleiterverfahren",
+    order: 16,
+    title: "Stufenleiterverfahren",
+    visual: {
+      type: "illustration",
+      data: { kind: "step-down" },
+      alt: "Stufenweise innerbetriebliche Leistungsverrechnung",
+    },
+    body_markdown:
+      "```\nVerrechnungssatz = aktuelle Kosten / Leistung an offene Stellen\nSekundärkosten = Verrechnungssatz × empfangene Leistung\n```\n\nNach jeder Stufe muss die abgerechnete Hilfskostenstelle den Saldo 0 besitzen.",
   },
   {
     id: "kontrollritual-f-r-jede-rechenaufgabe",

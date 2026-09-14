@@ -15,6 +15,11 @@ export interface Frage {
   musterloesung: string | null;
   intro: string | null;
   ausgangssituation: string | null;
+  visual_type?: string | null;
+  visual_data?: unknown;
+  visual_path?: string | null;
+  visual_alt?: string | null;
+  answer_schema?: unknown;
 }
 
 export type PruefungResults = Record<string, { punkte: number | null; begruendung: string }>;

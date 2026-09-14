@@ -121,6 +121,11 @@ export type Database = {
           max_punkte: number | null;
           musterloesung: string | null;
           teil: string | null;
+          visual_type: string | null;
+          visual_data: Json | null;
+          visual_path: string | null;
+          visual_alt: string | null;
+          answer_schema: Json | null;
         };
         Insert: {
           aufgabe_nr?: number | null;
@@ -132,6 +137,11 @@ export type Database = {
           max_punkte?: number | null;
           musterloesung?: string | null;
           teil?: string | null;
+          visual_type?: string | null;
+          visual_data?: Json | null;
+          visual_path?: string | null;
+          visual_alt?: string | null;
+          answer_schema?: Json | null;
         };
         Update: {
           aufgabe_nr?: number | null;
@@ -143,6 +153,11 @@ export type Database = {
           max_punkte?: number | null;
           musterloesung?: string | null;
           teil?: string | null;
+          visual_type?: string | null;
+          visual_data?: Json | null;
+          visual_path?: string | null;
+          visual_alt?: string | null;
+          answer_schema?: Json | null;
         };
         Relationships: [];
       };

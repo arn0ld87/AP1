@@ -2,10 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Lightbulb, RefreshCw, X } from "lucide-react";
 
+import { TaskAnswerEditor } from "@/components/ap1/TaskAnswerEditor";
+import { TaskVisual } from "@/components/ap1/visuals";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { GEN, checkAnswer, formatAnswer, pick, type Task } from "@/lib/ap1-generators";
+import { GEN, pick, type Task } from "@/lib/ap1-generators";
+import { evaluateTaskAnswer, isSubmissionComplete, type TaskEvaluation } from "@/lib/ap1-tasks";
 import { CALC_TOPICS, T, mastery } from "@/lib/ap1-topics";
 import { fetchTopicMastery, recordTopicResult, type MasteryRow } from "@/lib/topic-mastery";
 
@@ -31,13 +33,11 @@ export const Route = createFileRoute("/_authenticated/rechnen")({
   component: RechnenPage,
 });
 
-type Result = { correct: boolean; given: string } | null;
-
 function RechnenPage() {
   const [selected, setSelected] = useState<string[]>(CALC_TOPICS.map((t) => t.id));
   const [task, setTask] = useState<Task | null>(null);
-  const [value, setValue] = useState("");
-  const [result, setResult] = useState<Result>(null);
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [result, setResult] = useState<TaskEvaluation | null>(null);
   const [showSolution, setShowSolution] = useState(false);
   const [rows, setRows] = useState<Record<string, MasteryRow>>({});
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -54,7 +54,7 @@ function RechnenPage() {
     const gen = GEN[topicId];
     if (!gen) return;
     setTask(gen());
-    setValue("");
+    setValues({});
     setResult(null);
     setShowSolution(false);
     setSaveError(null);
@@ -71,8 +71,9 @@ function RechnenPage() {
 
   const submit = async () => {
     if (!task || result) return;
-    const correct = checkAnswer(task, value);
-    setResult({ correct, given: value.trim() });
+    const evaluation = evaluateTaskAnswer(task, values);
+    const correct = evaluation.correct;
+    setResult(evaluation);
     if (!correct) setShowSolution(true);
     try {
       await recordTopicResult(task.topic, correct);
@@ -96,7 +97,7 @@ function RechnenPage() {
   }, [rows]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
+    <div className="mx-auto w-full max-w-[1500px] space-y-6 pt-4 md:pt-8">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Rechnen üben</h1>
         <p className="text-sm text-muted-foreground">
@@ -145,49 +146,60 @@ function RechnenPage() {
             </span>
           </div>
 
-          <p className="text-sm leading-relaxed text-muted-foreground">{task.lead}</p>
+          <div
+            className={cn(
+              "grid gap-5",
+              task.visual && "xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] xl:items-start",
+            )}
+          >
+            {task.visual && <TaskVisual visual={task.visual} />}
+            <div className="space-y-4">
+              <p className="text-sm leading-relaxed text-muted-foreground">{task.lead}</p>
 
-          <dl className="divide-y divide-border overflow-hidden rounded-lg border border-border">
-            {task.given.map(([k, v], i) => (
-              <div
-                key={i}
-                className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm"
-              >
-                <dt className="text-muted-foreground">{k}</dt>
-                <dd className="font-mono tabular-nums text-foreground">{v}</dd>
-              </div>
-            ))}
-          </dl>
+              {task.given.length > 0 && (
+                <dl className="divide-y divide-border overflow-hidden rounded-lg border border-border">
+                  {task.given.map(([k, v], i) => (
+                    <div
+                      key={i}
+                      className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm"
+                    >
+                      <dt className="text-muted-foreground">{k}</dt>
+                      <dd className="font-mono tabular-nums text-foreground">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
 
-          <p
-            className="text-base leading-relaxed text-card-foreground [&_b]:font-semibold"
-            dangerouslySetInnerHTML={{ __html: task.q }}
-          />
+              <p
+                className="text-base leading-relaxed text-card-foreground [&_b]:font-semibold"
+                dangerouslySetInnerHTML={{ __html: task.q }}
+              />
+            </div>
+          </div>
 
           <form
-            className="flex flex-wrap items-center gap-3"
+            className="space-y-4"
             onSubmit={(e) => {
               e.preventDefault();
               void submit();
             }}
           >
-            <Input
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
+            <TaskAnswerEditor
+              task={task}
+              values={values}
+              onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
+              evaluation={result}
               disabled={!!result}
-              inputMode={task.ip ? "text" : "decimal"}
-              placeholder={task.ip ? "z. B. 192.168.10.0" : "Ergebnis"}
-              aria-label="Antwort"
-              className="max-w-56 font-mono tabular-nums"
             />
-            {task.unit && <span className="text-sm text-muted-foreground">{task.unit}</span>}
-            <Button type="submit" disabled={!!result || !value.trim()}>
-              Prüfen
-            </Button>
-            <Button type="button" variant="outline" onClick={newTask}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Neue Aufgabe
-            </Button>
+            <div className="flex flex-wrap gap-3">
+              <Button type="submit" disabled={!!result || !isSubmissionComplete(task, values)}>
+                Prüfen
+              </Button>
+              <Button type="button" variant="outline" onClick={newTask}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Neue Aufgabe
+              </Button>
+            </div>
           </form>
 
           {result && (
@@ -207,7 +219,7 @@ function RechnenPage() {
               <span>
                 {result.correct
                   ? "Richtig."
-                  : `Leider falsch. Richtig wäre: ${formatAnswer(task)}${task.unit ? " " + task.unit : ""}.`}
+                  : "Noch nicht vollständig richtig. Die markierten Felder zeigen die Sollwerte."}
               </span>
             </div>
           )}

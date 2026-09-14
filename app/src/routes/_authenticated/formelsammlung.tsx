@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 
+import { TaskVisual } from "@/components/ap1/visuals";
 import { Input } from "@/components/ui/input";
 import { FORMEL_KAPITEL } from "@/lib/ap1-formelsammlung";
 import { renderMarkdown } from "@/lib/markdown";
@@ -58,6 +59,7 @@ function FormelsammlungPage() {
           {filtered.map((k) => (
             <section key={k.id} id={k.id} className="scroll-mt-24 space-y-3">
               <h2 className="text-lg font-semibold tracking-tight text-foreground">{k.title}</h2>
+              {k.visual && <TaskVisual visual={k.visual} />}
               <div
                 className="rounded-xl border border-border bg-card p-4 md:p-5 [&_pre]:bg-muted/60 [&_table]:text-xs"
                 dangerouslySetInnerHTML={{ __html: renderMarkdown(k.body_markdown) }}

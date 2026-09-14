@@ -3,11 +3,69 @@
  * Jede Karte: [themen-key, frage-html, antwort-html], gefolgt von der
  * id-Ableitung c0, c1, ... wie im Original.
  */
+import type { TaskVisual } from "./ap1-tasks";
+
 export interface Card {
   id: string;
   topic: string;
   q: string;
   a: string;
+  visual?: TaskVisual;
+}
+
+function visualFor(topic: string): TaskVisual | undefined {
+  if (topic === "bab") {
+    return {
+      type: "illustration",
+      data: { kind: "bab-flow" },
+      alt: "BAB-Ablauf von Gemeinkosten zu Zuschlagssätzen",
+    };
+  }
+  if (topic === "stufenleiter") {
+    return {
+      type: "illustration",
+      data: { kind: "step-down" },
+      alt: "Stufenweise Leistungsverrechnung zwischen Kostenstellen",
+    };
+  }
+  if (topic === "erm") {
+    return {
+      type: "er",
+      alt: "ER-Beispiel Kunde und Auftrag in einer 1:n-Beziehung",
+      data: {
+        entities: [
+          {
+            id: "kunde",
+            name: "KUNDE",
+            x: 30,
+            y: 60,
+            attributes: [{ name: "kunden_id", key: "primary" }, { name: "name" }],
+          },
+          {
+            id: "auftrag",
+            name: "AUFTRAG",
+            x: 360,
+            y: 60,
+            attributes: [
+              { name: "auftrag_id", key: "primary" },
+              { name: "kunden_id", key: "foreign" },
+            ],
+          },
+        ],
+        relations: [
+          {
+            id: "erteilt",
+            from: "kunde",
+            to: "auftrag",
+            label: "erteilt",
+            fromCardinality: "1",
+            toCardinality: "n",
+          },
+        ],
+      },
+    };
+  }
+  return undefined;
 }
 
 export const CARDS: Card[] = [
@@ -196,12 +254,12 @@ export const CARDS: Card[] = [
     "Kurzvorstellung des Auftraggebers · Projektziel · Beschreibung der bestehenden IT-Infrastruktur · funktionale Anforderungen · Zeitrahmen · Anforderungen an IT-Sicherheit und Datenschutz · Abnahmekriterien.",
   ],
   [
-    "projekt",
+    "gantt",
     "Gantt-Diagramm gegenüber Netzplan — je ein Vorteil?",
     "<b>Gantt:</b> zeigt den zeitlichen Ablauf als Balken sehr anschaulich, gut für die Terminplanung.<br><b>Netzplan:</b> zeigt <b>Abhängigkeiten</b>, Puffer und den kritischen Pfad.",
   ],
   [
-    "projekt",
+    "netzplan",
     "Wie erkennst du den kritischen Pfad?",
     "An allen Vorgängen mit <b>Gesamtpuffer GP = 0</b>. Eine Verzögerung dort verschiebt unmittelbar das Projektende.",
   ],
@@ -233,12 +291,12 @@ export const CARDS: Card[] = [
   ],
 
   [
-    "daten",
+    "erm",
     "Was bedeuten die Kardinalitäten 1:1, 1:n und n:m?",
     "<b>1:1</b> — genau ein Datensatz je Seite.<br><b>1:n</b> — ein Datensatz auf der einen Seite, beliebig viele auf der anderen.<br><b>n:m</b> — viele zu vielen; wird über eine <b>Zwischentabelle</b> aufgelöst.",
   ],
   [
-    "daten",
+    "erm",
     "Wie kennzeichnest du Primär- und Fremdschlüssel im ERM?",
     "Der <b>Primärschlüssel</b> wird unterstrichen (oder mit PK markiert). Der <b>Fremdschlüssel</b> bekommt ein nachgestelltes Hash-Zeichen <code>#</code> (oder FK).",
   ],
@@ -277,4 +335,27 @@ export const CARDS: Card[] = [
     "Zwei Vorteile objektorientierter gegenüber prozeduraler Programmierung?",
     "Wiederverwendbarkeit durch Klassen und Vererbung · Kapselung schützt Daten vor unkontrolliertem Zugriff · bessere Wartbarkeit großer Programme · realitätsnähere Modellierung.",
   ],
-].map(([topic, q, a], i): Card => ({ id: "c" + i, topic: topic!, q: q!, a: a! }));
+  [
+    "bab",
+    "Wie wird ein Gemeinkostenbetrag im BAB auf Kostenstellen verteilt?",
+    "Gemeinkostenbetrag × Anteil des <b>Verteilungsschlüssels</b>. Alle Anteile einer Kostenart müssen zusammen 100 % ergeben.",
+  ],
+  [
+    "bab",
+    "Wie lautet die Formel für einen Gemeinkostenzuschlagssatz?",
+    "<b>Gemeinkosten ÷ Zuschlagsgrundlage × 100</b>. Die passende Grundlage hängt von der Kostenstelle ab.",
+  ],
+  [
+    "stufenleiter",
+    "Was ist die zentrale Regel des Stufenleiterverfahrens?",
+    "Eine abgerechnete Hilfskostenstelle ist <b>geschlossen</b>. Spätere Stellen verrechnen keine Leistung mehr an sie zurück.",
+  ],
+  [
+    "stufenleiter",
+    "Wie berechnest du den Verrechnungssatz einer Hilfskostenstelle?",
+    "Aktuelle Kosten der Hilfskostenstelle ÷ an noch offene Kostenstellen abgegebene Leistungseinheiten.",
+  ],
+].map(([topic, q, a], i): Card => {
+  const visual = visualFor(topic!);
+  return { id: "c" + i, topic: topic!, q: q!, a: a!, ...(visual ? { visual } : {}) };
+});

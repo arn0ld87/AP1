@@ -28,20 +28,26 @@ Tasks 1–16); bei Widerspruch zur Spec gilt dieses Dokument als aktueller.
 
 ## Feature-Module (7)
 
-| # | Modul | Route | Quelle im Repo | Ersetzt | Stand |
-|---|---|---|---|---|---|
-| 1 | Rechnen üben | `/rechnen` | `AP1-Trainer.html` (`TOPICS`, `GEN`, `pick`) | Generator-Teil des Trainers | **fertig** |
-| 2 | Wissenskarten | `/wissenskarten` | `AP1-Trainer.html` (`CARDS`) | Flashcard-Teil des Trainers | **fertig** |
-| 3 | Lernblätter | `/lernblaetter` | `lernen/*.md` (9 Dateien, migriert nach `data/migration/lernblaetter.json`) | manuelles Nachschlagen | **fertig** |
-| 4 | Formelsammlung | `/formelsammlung` | `02_FORMELSAMMLUNG.md` (migriert nach `data/migration/formelsammlung.json`) | manuelles Nachschlagen | **fertig** |
-| 5 | Probeprüfungen + KI-Bewertung | `/probepruefungen` | `probepruefungen/`, `loesungen/` (migriert, `exam_questions`-Tabelle befüllt) | manuelle Korrektur | **fertig** |
-| 6 | Fortschritt & Fehlerliste | `/fortschritt` | abgeleitet aus 1/2/5 | `04_LERNFORTSCHRITT.md`, `05_FEHLERLISTE.md` | **fertig** |
-| 7 | Tagesplan | `/tagesplan` | `01_LERNPLAN.md` (migriert nach `data/migration/lernplan.json`) | manuelles Abhaken | **fertig** |
+| #   | Modul                         | Route              | Quelle im Repo                                                              | Ersetzt                                      | Stand      |
+| --- | ----------------------------- | ------------------ | --------------------------------------------------------------------------- | -------------------------------------------- | ---------- |
+| 1   | Rechnen üben                  | `/rechnen`         | `AP1-Trainer.html` + strukturierte Fachgeneratoren                          | Generator-Teil des Trainers                  | **fertig** |
+| 2   | Wissenskarten                 | `/wissenskarten`   | `AP1-Trainer.html` (`CARDS`)                                                | Flashcard-Teil des Trainers                  | **fertig** |
+| 3   | Lernblätter                   | `/lernblaetter`    | `lernen/*.md` + visuelle Lerninhalte im Frontend                            | manuelles Nachschlagen                       | **fertig** |
+| 4   | Formelsammlung                | `/formelsammlung`  | `02_FORMELSAMMLUNG.md` (migriert nach `data/migration/formelsammlung.json`) | manuelles Nachschlagen                       | **fertig** |
+| 5   | Probeprüfungen + KI-Bewertung | `/probepruefungen` | `probepruefungen/`, `loesungen/` und kuratierte Visual-Metadaten            | manuelle Korrektur                           | **fertig** |
+| 6   | Fortschritt & Fehlerliste     | `/fortschritt`     | abgeleitet aus 1/2/5                                                        | `04_LERNFORTSCHRITT.md`, `05_FEHLERLISTE.md` | **fertig** |
+| 7   | Tagesplan                     | `/tagesplan`       | `01_LERNPLAN.md` (migriert nach `data/migration/lernplan.json`)             | manuelles Abhaken                            | **fertig** |
 
 Alle 7 Module sind implementiert (Routes unter `app/src/routes/_authenticated/`) inklusive
 serverseitigem Fortschritts-Upsert gegen `topic_mastery` bzw. `flashcard_progress`; das
 Probeprüfungs-Modul bewertet über die Edge Function `grade-exam-answer` (siehe
 [api.md](api.md)).
+
+Strukturierte Lernaufgaben verwenden die discriminated union in `app/src/lib/ap1-tasks.ts`.
+Deterministische Fachberechnungen für Netzplan, BAB und Stufenleiterverfahren liegen getrennt von
+den Generatoren in `ap1-structured-generators.ts`; React rendert dieselben Daten über das
+Visual-System unter `app/src/components/ap1/visuals/`. Aufgabe, Diagramm und Lösung stammen damit
+aus einem gemeinsamen Datenmodell statt aus voneinander abweichenden Darstellungen.
 
 ## Auth & Deploy
 
@@ -65,7 +71,7 @@ Probeprüfungs-Modul bewertet über die Edge Function `grade-exam-answer` (siehe
   erhalten). Router-Datei `/opt/traefik/dynamic/pruefung.yml`, Vorlage
   `deploy/traefik-pruefung.yml`. `/opt/pruefung-frontend/` auf dem Server ist ein Git-Checkout
   des Repos (`main`); Update-Flow: `git pull && docker compose -f deploy/docker-compose.pruefung.yml
-  up -d --build` (`.env` in `deploy/` bleibt untracked und erhalten). `ap1.alexle135.de` ist
+up -d --build` (`.env` in `deploy/` bleibt untracked und erhalten). `ap1.alexle135.de` ist
   dagegen der ältere Vor-Pivot-Deploy (Lovable-Projekt „ap1-skill-simulator") und läuft
   unberührt parallel.
 - Supabase ist für den öffentlichen App-Zugriff nötig (`supabase.alexle135.de`, ebenfalls
@@ -116,8 +122,8 @@ self-hosted Supabase (`supabase.alexle135.de`), Traefik mit den Entry Points `we
 `supabase.alexle135.de` → A `89.58.35.35` (proxied).
 
 1. Repo auf den Server: `/opt/pruefung-frontend/` als Git-Checkout (`git init && git remote add
-   origin https://github.com/arn0ld87/AP1.git && git fetch origin main && git reset --hard
-   origin/main`); `.env` aus `deploy/.env.example` befüllen (`VITE_SUPABASE_URL`,
+origin https://github.com/arn0ld87/AP1.git && git fetch origin main && git reset --hard
+origin/main`); `.env` aus `deploy/.env.example` befüllen (`VITE_SUPABASE_URL`,
    `VITE_SUPABASE_PUBLISHABLE_KEY`) — bleibt untracked und von Pulls unberührt.
 2. Schema aufbauen: alle Migrationen aus `app/supabase/migrations/` in Reihenfolge anwenden
    (auf dem armserver per `psql -U supabase_admin` im Container `supabase-db`); Verifikation

@@ -6,6 +6,7 @@ REPO = Path(__file__).resolve().parents[2]
 Q_DIR = REPO / "probepruefungen"
 L_DIR = REPO / "loesungen"
 OUT = REPO / "data" / "migration" / "exam_questions.json"
+ENRICHMENTS = REPO / "data" / "source" / "exam_question_enrichments.json"
 
 AUFGABE_RE = re.compile(r"^## (\d+)\. Aufgabe \((\d+) Punkte\)\s*$", re.MULTILINE)
 TEIL_Q_RE = re.compile(r"\*\*([a-z]{1,2})\)\*\*")
@@ -86,6 +87,8 @@ def merge_leadin_parents(q_teile: dict[str, str], l_teile: dict[str, tuple[int, 
 def main():
     results = []
     q_files = sorted(Q_DIR.glob("probepruefung_*.md"))
+    enrichments = json.loads(ENRICHMENTS.read_text(encoding="utf-8")) if ENRICHMENTS.exists() else {}
+    used_enrichments: set[str] = set()
 
     for q_path in q_files:
         exam_id = q_path.stem
@@ -125,11 +128,16 @@ def main():
             for letter, frage in q_teile.items():
                 punkte, musterloesung = l_teile[letter]
                 punkte_summe += punkte
+                enrichment_key = f"{exam_id}:{nr}:{letter}"
+                enrichment = enrichments.get(enrichment_key, {})
+                if enrichment:
+                    used_enrichments.add(enrichment_key)
                 teilaufgaben.append({
                     "teil": letter,
                     "frage": frage,
                     "max_punkte": punkte,
                     "musterloesung": musterloesung,
+                    **enrichment,
                 })
             assert punkte_summe == max_punkte, (
                 f"{exam_id} Aufgabe {nr}: Teilpunkte summieren zu {punkte_summe}, erwartet {max_punkte}"
@@ -151,6 +159,9 @@ def main():
             "ausgangssituation": ausgangssituation,
             "aufgaben": aufgaben_out,
         })
+
+    unused_enrichments = set(enrichments) - used_enrichments
+    assert not unused_enrichments, f"Enrichments ohne passende Teilaufgabe: {sorted(unused_enrichments)}"
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")

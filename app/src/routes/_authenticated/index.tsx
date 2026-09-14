@@ -130,14 +130,24 @@ function IndexPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 pt-4 md:pt-8">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Willkommen beim AP1 Trainer
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Dein persönlicher Lernbereich für die IHK-Abschlussprüfung Teil 1 (Fachinformatiker
-          Systemintegration).
-        </p>
+      <header className="grid overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[minmax(0,1fr)_minmax(260px,0.8fr)]">
+        <div className="flex flex-col justify-center space-y-2 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            AP1 Lernwerkstatt
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Willkommen beim AP1 Trainer
+          </h1>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Dein persönlicher Lernbereich für die IHK-Abschlussprüfung Teil 1 (Fachinformatiker
+            Systemintegration).
+          </p>
+        </div>
+        <img
+          src="/visuals/server-room-learning.webp"
+          alt="Auszubildender analysiert ein Server-Rack"
+          className="h-48 w-full border-t border-border object-cover md:h-full md:min-h-52 md:border-l md:border-t-0"
+        />
       </header>
 
       <section className="rounded-xl border border-border bg-card p-6 text-center">

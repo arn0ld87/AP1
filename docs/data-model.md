@@ -13,14 +13,14 @@ Die Spec sah zusätzlich eine `profiles`-Tabelle vor; Lovable hat bei der Schema
 (Task 7) nur die folgenden 6 Tabellen angelegt. Kein nachgelagerter Task konsumiert `profiles` — bei
 Bedarf (z. B. Anzeigename statt E-Mail) müsste sie nachträglich per Migration ergänzt werden.
 
-| Tabelle | Zweck | Schlüsselfelder |
-|---|---|---|
-| `topic_mastery` | Fortschritt „Rechnen üben" pro Thema | `user_id`, `topic_id`, `richtig`, `falsch`, `updated_at` |
-| `flashcard_progress` | Fortschritt „Wissenskarten" pro Karte | `user_id`, `card_id`, `richtig`, `falsch`, `updated_at` |
-| `exam_questions` | Einmalig aus den `.md`-Dateien migrierte Prüfungsfragen | Prüfung, Aufgabennummer, Teilaufgaben-Text, Musterlösung, Punkteverteilung |
-| `exam_attempts` | Ein Durchlauf einer Probeprüfung | `user_id`, `exam_id`, `started_at`, `finished_at`, `gesamtpunkte` |
-| `exam_answers` | Antwort + KI-Bewertung pro Teilaufgabe | `attempt_id`, `question_id`, `antworttext`, `ki_punkte`, `ki_feedback`, `user_id`, `created_at` |
-| `error_log` | Automatisch befüllt aus falschen Generator-Antworten und niedrig bewerteten KI-Antworten | Thema, Zeitpunkt, Kurzbeschreibung |
+| Tabelle              | Zweck                                                                                    | Schlüsselfelder                                                                                                                 |
+| -------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `topic_mastery`      | Fortschritt „Rechnen üben" pro Thema                                                     | `user_id`, `topic_id`, `richtig`, `falsch`, `updated_at`                                                                        |
+| `flashcard_progress` | Fortschritt „Wissenskarten" pro Karte                                                    | `user_id`, `card_id`, `richtig`, `falsch`, `updated_at`                                                                         |
+| `exam_questions`     | Einmalig migrierte Prüfungsfragen mit optionalen Visuals                                 | Prüfung, Aufgabennummer, Text, Musterlösung, Punkte, `visual_type`, `visual_data`, `visual_path`, `visual_alt`, `answer_schema` |
+| `exam_attempts`      | Ein Durchlauf einer Probeprüfung                                                         | `user_id`, `exam_id`, `started_at`, `finished_at`, `gesamtpunkte`                                                               |
+| `exam_answers`       | Antwort + KI-Bewertung pro Teilaufgabe                                                   | `attempt_id`, `question_id`, `antworttext`, `ki_punkte`, `ki_feedback`, `user_id`, `created_at`                                 |
+| `error_log`          | Automatisch befüllt aus falschen Generator-Antworten und niedrig bewerteten KI-Antworten | Thema, Zeitpunkt, Kurzbeschreibung                                                                                              |
 
 ## Herkunft der Daten
 
@@ -28,7 +28,9 @@ Bedarf (z. B. Anzeigename statt E-Mail) müsste sie nachträglich per Migration 
   Laufzeit durch Nutzung der App (ersetzen `ap1state` in `localStorage` sowie die manuell gepflegten
   `04_LERNFORTSCHRITT.md` / `05_FEHLERLISTE.md`).
 - `exam_questions`: einmaliger Import via `scripts/migrate/parse_exams.py` aus `probepruefungen/` +
-  `loesungen/` — danach ist `exam_questions` die Quelle der Wahrheit, nicht mehr die `.md`-Dateien.
+  `loesungen/`; optionale Visual- und Antwortschemata werden aus
+  `data/source/exam_question_enrichments.json` zugemischt. Bestehende Fragen ohne diese Felder
+  bleiben Freitext. Danach ist `exam_questions` die Quelle der Wahrheit, nicht mehr die `.md`-Dateien.
 - Lernblätter (`lernen/*.md`), Formelsammlung (`02_FORMELSAMMLUNG.md`) und Lernplan
   (`01_LERNPLAN.md`) sind per `parse_lernblaetter.py`/`parse_formelsammlung.py`/`parse_lernplan.py`
   bereits nach `data/migration/*.json` migriert, bekommen aber **keine** eigene Postgres-Tabelle —

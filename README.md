@@ -88,16 +88,16 @@ nach dessen Credit-Limit aber exportiert und lokal weiterentwickelt.
 
 ### Module
 
-| Modul | Route | Stand |
-|---|---|---|
-| Rechnen üben | `/rechnen` | fertig — 7 Aufgaben-Generatoren, `topic_mastery`-Upsert |
-| Wissenskarten | `/wissenskarten` | fertig — 47 Karten, Gewichtung `(falsch+1)/(richtig+falsch+2)`, `flashcard_progress`-Upsert |
-| Lernblätter | `/lernblaetter` | fertig — statischer Content aus `data/migration/lernblaetter.json` |
-| Formelsammlung | `/formelsammlung` | fertig — Suche und Sprungnavigation |
-| Tagesplan | `/tagesplan` | fertig — migrierter Tagesplan mit Abhaken |
-| Probeprüfungen | `/probepruefungen` | fertig — 90-Minuten-Timer, KI-Bewertung via Bedrock Edge-Function, Selbst-Einschätzungs-Fallback |
-| Fortschritt & Fehlerliste | `/fortschritt` | fertig — Supabase-Dashboard |
-| Dashboard | `/` (authentifiziert) | fertig — Countdown, Modul-Kacheln, Fortschritt |
+| Modul                     | Route                 | Stand                                                                                        |
+| ------------------------- | --------------------- | -------------------------------------------------------------------------------------------- |
+| Rechnen üben              | `/rechnen`            | fertig — 11 Themen-Generatoren inklusive Netzplan, ERM, Gantt, BAB und Stufenleiterverfahren |
+| Wissenskarten             | `/wissenskarten`      | fertig — gewichtete Wiederholung mit technischen Lernvisuals                                 |
+| Lernblätter               | `/lernblaetter`       | fertig — visuelle Blätter inklusive Rechnungswesen und Projektplanung                        |
+| Formelsammlung            | `/formelsammlung`     | fertig — Suche, Sprungnavigation und fachliche Diagramme                                     |
+| Tagesplan                 | `/tagesplan`          | fertig — migrierter Tagesplan mit Abhaken                                                    |
+| Probeprüfungen            | `/probepruefungen`    | fertig — 90-Minuten-Timer, KI-Bewertung, Diagramme und strukturierte Antworttabellen         |
+| Fortschritt & Fehlerliste | `/fortschritt`        | fertig — Supabase-Dashboard                                                                  |
+| Dashboard                 | `/` (authentifiziert) | fertig — Countdown, Modul-Kacheln, Fortschritt                                               |
 
 ### Installation
 
@@ -140,4 +140,3 @@ liefen über Lovable-MCP; seit dem Credit-Stopp wird direkt in `app/`
 implementiert. Der PR dazu: arn0ld87/AP1#33. CI für PRs läuft seit
 arn0ld87/AP1#38 (`.github/workflows/pr-check.yml`: Lint, Prettier, Typecheck,
 Build, Edge-Function-Check, Migrationsskripte-Check).
-

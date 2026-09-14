@@ -2,6 +2,7 @@ import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Search } from "lucide-react";
 
+import { TaskVisual } from "@/components/ap1/visuals";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { LERNBLAETTER, type Lernblatt } from "@/lib/ap1-lernblaetter";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/lernblaetter")({
       {
         name: "description",
         content:
-          "Neun Lernblätter zu den A- und B-Themen der AP1: verstehen, auswendig wissen, Formeln, Musteraufgabe, Lösungsschritte, häufige Fehler, Merksatz.",
+          "Visuelle Lernblätter zu den A- und B-Themen der AP1: verstehen, auswendig wissen, Formeln, Musteraufgabe, Lösungsschritte, häufige Fehler, Merksatz.",
       },
       { property: "og:title", content: "Lernblätter – AP1 Trainer" },
     ],
@@ -29,7 +30,19 @@ export const Route = createFileRoute("/_authenticated/lernblaetter")({
 
 type Bewertung = "sicher" | "unsicher" | null;
 
-const ABSCHNITTE: { key: keyof Lernblatt; label: string }[] = [
+const ABSCHNITTE: {
+  key: keyof Pick<
+    Lernblatt,
+    | "verstehen"
+    | "auswendig_wissen"
+    | "formeln"
+    | "musteraufgabe"
+    | "loesungsschritte"
+    | "haeufige_fehler"
+    | "merksatz"
+  >;
+  label: string;
+}[] = [
   { key: "verstehen", label: "Verstehen" },
   { key: "auswendig_wissen", label: "Auswendig wissen" },
   { key: "formeln", label: "Formeln" },
@@ -88,12 +101,20 @@ function LernblaetterPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 pt-4 md:pt-8">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Lernblätter</h1>
-        <p className="text-sm text-muted-foreground">
-          {LERNBLAETTER.length} Blätter zu den A- und B-Themen — Struktur überall gleich.
-        </p>
+    <div className="mx-auto w-full max-w-5xl space-y-6 pt-4 md:pt-8">
+      <header className="grid overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-[minmax(0,1fr)_240px]">
+        <div className="flex flex-col justify-center space-y-2 p-5 sm:p-6">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Lernblätter</h1>
+          <p className="text-sm text-muted-foreground">
+            {LERNBLAETTER.length} Blätter zu den A- und B-Themen — mit Diagrammen, Beispielen und
+            Prüfungsfallen.
+          </p>
+        </div>
+        <img
+          src="/visuals/project-learning.webp"
+          alt="Technische Projektplanung mit Netzplan, Gantt und Datenmodell"
+          className="h-36 w-full border-t border-border object-cover sm:h-full sm:border-l sm:border-t-0"
+        />
       </header>
 
       <div className="relative">
@@ -207,6 +228,10 @@ function Detail({
           )}
         </div>
       </header>
+
+      {blatt.visuals?.map((visual, index) => (
+        <TaskVisual key={`${blatt.id}-${index}`} visual={visual} />
+      ))}
 
       {ABSCHNITTE.map(({ key, label }) => (
         <section key={key} className="space-y-2">

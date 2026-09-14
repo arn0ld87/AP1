@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, RotateCw, Sparkles, ThumbsDown, ThumbsUp, X } from "lucide-react";
 
+import { TaskVisual } from "@/components/ap1/visuals";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CARDS } from "@/lib/ap1-cards";
+import { CARDS, type Card } from "@/lib/ap1-cards";
 import { TOPICS, mastery } from "@/lib/ap1-topics";
 import {
   fetchFlashcardProgress,
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/_authenticated/wissenskarten")({
   component: WissenskartenPage,
 });
 
-const CARD_TOPICS = TOPICS.filter((t) => t.kind === "card");
+const CARD_TOPICS = TOPICS.filter((t) => t.kind !== "calc");
 const T = Object.fromEntries(TOPICS.map((t) => [t.id, t]));
 const CARDS_PER_TOPIC = CARDS.reduce<Record<string, number>>((acc, c) => {
   acc[c.topic] = (acc[c.topic] ?? 0) + 1;
@@ -272,6 +273,7 @@ function WissenskartenPage() {
               topic={T[card.topic]?.name ?? card.topic}
               quote={m.n > 0 ? `${m.pct}%` : "neu"}
               hidden={flipped}
+              visual={card.visual}
             />
             <CardFace
               seite="Antwort"
@@ -281,6 +283,7 @@ function WissenskartenPage() {
               hidden={!flipped}
               back
               result={lastResult}
+              visual={card.visual}
             />
           </button>
         </section>
@@ -345,6 +348,7 @@ function CardFace({
   hidden,
   back = false,
   result = null,
+  visual,
 }: {
   seite: string;
   html: string;
@@ -353,6 +357,7 @@ function CardFace({
   hidden: boolean;
   back?: boolean;
   result?: "right" | "wrong" | null;
+  visual?: Card["visual"];
 }) {
   return (
     <div
@@ -393,6 +398,8 @@ function CardFace({
           <span className="font-mono text-xs tabular-nums text-muted-foreground">{quote}</span>
         </div>
       </div>
+
+      {visual && <TaskVisual visual={visual} />}
 
       <div
         className={cn(

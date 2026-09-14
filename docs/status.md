@@ -5,20 +5,21 @@ Aktueller Stand der AP1-Plattform. Dies ist die Kurzübersicht — Detailgründe
 
 ## Stand 14.09.2026
 
-| Bereich | Status |
-|---|---|
-| Tasks 1–9 (Migration, Auth, Content-Import, Rechnen üben) | gemerged (PR #33) |
-| Tasks 10–13 (Wissenskarten, Lernblätter, Formelsammlung, Tagesplan) | gemerged (PR #34) |
-| Tasks 14–15 (Probeprüfungen + KI-Bewertung, Fortschritt & Fehlerliste) | gemerged (PR #36) |
-| Edge-Function-Fix (Env-Name, `verify_jwt`) | gemerged (PR #37) |
-| CI-Checks je PR | live (PR #38) |
-| Task 16: Live-Deploy `pruefung.alexle135.de` | live (PR #39) |
-| Doku: CI-Aufzeichnung (PR #40), Agent-Skills-Setup (PR #41), ADRs 0001–0005 + Status (PR #42), Dashboard-Startseite (PR #43) | gemerged |
-| Remediation (`fix/remediation-all`): Bestehenslogik, RAID-10, Prüfungs-Persistenz, Schema-Drift, Edge-Function-Härtung, Tests, CI-Gate | gemerged (PR #44) |
-| Deploy-Doku (Git-Checkout-Flow) + öffentlicher Zugriff auf `pruefung.alexle135.de` | gemerged (PR #45) |
-| Registrierung geöffnet: Signup, Rechtsseiten, KI-Tageslimit, Selbstlöschung | gemerged (PR #46) |
-| UI: Prüfungsmodus volle Breite, Markdown-Tabellen, Flip-Karten, Mobile-Layout | gemerged (PR #47) |
-| Final-Quality-Pass: SelfGrade-Konsistenz (Server-RPC), Edge-Function-Persistenzfehler, Attempt/Question-Kopplung, unabhängige Generator-Referenztests, echter Doppelabgabe-Test, sicheres Restore-Verfahren | **in Arbeit** (PR folgt, `fix/final-quality-pass`) |
+| Bereich                                                                                                                                                                                                     | Status                                                       |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Tasks 1–9 (Migration, Auth, Content-Import, Rechnen üben)                                                                                                                                                   | gemerged (PR #33)                                            |
+| Tasks 10–13 (Wissenskarten, Lernblätter, Formelsammlung, Tagesplan)                                                                                                                                         | gemerged (PR #34)                                            |
+| Tasks 14–15 (Probeprüfungen + KI-Bewertung, Fortschritt & Fehlerliste)                                                                                                                                      | gemerged (PR #36)                                            |
+| Edge-Function-Fix (Env-Name, `verify_jwt`)                                                                                                                                                                  | gemerged (PR #37)                                            |
+| CI-Checks je PR                                                                                                                                                                                             | live (PR #38)                                                |
+| Task 16: Live-Deploy `pruefung.alexle135.de`                                                                                                                                                                | live (PR #39)                                                |
+| Doku: CI-Aufzeichnung (PR #40), Agent-Skills-Setup (PR #41), ADRs 0001–0005 + Status (PR #42), Dashboard-Startseite (PR #43)                                                                                | gemerged                                                     |
+| Remediation (`fix/remediation-all`): Bestehenslogik, RAID-10, Prüfungs-Persistenz, Schema-Drift, Edge-Function-Härtung, Tests, CI-Gate                                                                      | gemerged (PR #44)                                            |
+| Visuelle Lernaufgaben: ERM, vollständiger Netzplan, Gantt, BAB, Stufenleiterverfahren, Lernvisuals und strukturierte Prüfungsantworten                                                                      | implementiert auf `codex/visual-learning`, Review ausstehend |
+| Deploy-Doku (Git-Checkout-Flow) + öffentlicher Zugriff auf `pruefung.alexle135.de`                                                                                                                          | gemerged (PR #45)                                            |
+| Registrierung geöffnet: Signup, Rechtsseiten, KI-Tageslimit, Selbstlöschung                                                                                                                                 | gemerged (PR #46)                                            |
+| UI: Prüfungsmodus volle Breite, Markdown-Tabellen, Flip-Karten, Mobile-Layout                                                                                                                               | gemerged (PR #47)                                            |
+| Final-Quality-Pass: SelfGrade-Konsistenz (Server-RPC), Edge-Function-Persistenzfehler, Attempt/Question-Kopplung, unabhängige Generator-Referenztests, echter Doppelabgabe-Test, sicheres Restore-Verfahren | **in Arbeit** (PR folgt, `fix/final-quality-pass`)           |
 
 ## CI (PR #38, erweitert durch Remediation)
 

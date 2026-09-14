@@ -2,6 +2,8 @@
  * Lernblätter aus data/migration/lernblaetter.json (Task 1) — statischer
  * Content, bewusst nicht in der DB (selten geändert, kein Admin-Bedarf).
  */
+import type { TaskVisual } from "./ap1-tasks";
+
 export interface Lernblatt {
   id: string;
   title: string;
@@ -12,6 +14,7 @@ export interface Lernblatt {
   loesungsschritte: string;
   haeufige_fehler: string;
   merksatz: string;
+  visuals?: TaskVisual[];
 }
 
 export const LERNBLAETTER: Lernblatt[] = [
@@ -68,6 +71,78 @@ export const LERNBLAETTER: Lernblatt[] = [
   {
     id: "netzplan",
     title: "Netzplantechnik",
+    visuals: [
+      {
+        type: "netzplan",
+        alt: "Vollständig berechneter Vorgangsknoten-Netzplan mit parallelem Pfad",
+        data: {
+          projectDuration: 8,
+          nodes: [
+            {
+              id: "A",
+              name: "Analyse",
+              duration: 2,
+              faz: 0,
+              fez: 2,
+              saz: 0,
+              sez: 2,
+              totalFloat: 0,
+              freeFloat: 0,
+              x: 20,
+              y: 105,
+              critical: true,
+            },
+            {
+              id: "B",
+              name: "Beschaffung",
+              duration: 4,
+              faz: 2,
+              fez: 6,
+              saz: 2,
+              sez: 6,
+              totalFloat: 0,
+              freeFloat: 0,
+              x: 220,
+              y: 25,
+              critical: true,
+            },
+            {
+              id: "C",
+              name: "Konfiguration",
+              duration: 3,
+              faz: 2,
+              fez: 5,
+              saz: 3,
+              sez: 6,
+              totalFloat: 1,
+              freeFloat: 1,
+              x: 220,
+              y: 190,
+            },
+            {
+              id: "D",
+              name: "Abnahme",
+              duration: 2,
+              faz: 6,
+              fez: 8,
+              saz: 6,
+              sez: 8,
+              totalFloat: 0,
+              freeFloat: 0,
+              x: 440,
+              y: 105,
+              critical: true,
+            },
+          ],
+          edges: [
+            { from: "A", to: "B" },
+            { from: "A", to: "C" },
+            { from: "B", to: "D" },
+            { from: "C", to: "D" },
+          ],
+        },
+      },
+    ],
     verstehen:
       "Ein Netzplan wird in **drei getrennten Durchgängen** gerechnet. Wer vermischt, verrechnet sich.\n\n1. **Vorwärts** durch den ganzen Plan: FAZ und FEZ für alle Vorgänge\n2. **Rückwärts** durch den ganzen Plan: SEZ und SAZ für alle Vorgänge\n3. Erst danach die **Puffer**",
     auswendig_wissen:
@@ -85,6 +160,18 @@ export const LERNBLAETTER: Lernblatt[] = [
   {
     id: "netzwerkdiagnose",
     title: "Netzwerkdiagnose, OSI-Modell und Konsolenbefehle",
+    visuals: [
+      {
+        type: "illustration",
+        data: { kind: "osi" },
+        alt: "Sieben OSI-Schichten als Diagnoseleiter",
+      },
+      {
+        type: "illustration",
+        data: { kind: "network-path" },
+        alt: "Vereinfachter Datenweg vom Client über einen Switch zum Server",
+      },
+    ],
     verstehen:
       "Die Prüfung will eine **Systematik** sehen, keine Bastellösung: von unten nach oben durch das\nOSI-Modell, und zu jedem vermuteten Fehler ein Befehl, der ihn beweist oder ausschließt.",
     auswendig_wissen:
@@ -101,6 +188,13 @@ export const LERNBLAETTER: Lernblatt[] = [
   {
     id: "raid",
     title: "RAID, NAS, SAN und Speichersysteme",
+    visuals: [
+      {
+        type: "illustration",
+        data: { kind: "raid" },
+        alt: "Verteilte Daten- und Paritätsblöcke eines RAID-5-Verbunds",
+      },
+    ],
     verstehen:
       "RAID erhöht **Ausfallsicherheit** oder **Geschwindigkeit** — nicht die Datensicherheit.\nEin RAID ersetzt kein Backup: Wer eine Datei löscht, hat sie auf allen Platten gleichzeitig gelöscht.",
     auswendig_wissen:
@@ -136,6 +230,13 @@ export const LERNBLAETTER: Lernblatt[] = [
   {
     id: "subnetting",
     title: "Subnetting und IPv4-Adressierung",
+    visuals: [
+      {
+        type: "illustration",
+        data: { kind: "subnetting" },
+        alt: "Netz- und Hostanteil sowie Adressbereich eines IPv4-/26-Subnetzes",
+      },
+    ],
     verstehen:
       "Eine IPv4-Adresse hat 32 Bit. Der Präfix (`/26`) sagt, wie viele davon zum **Netz** gehören.\nDer Rest sind **Hostbits**. Aus den Hostbits folgt alles Weitere: Blockgröße, Netzadresse, Broadcast, Anzahl Hosts.",
     auswendig_wissen:
@@ -167,5 +268,172 @@ export const LERNBLAETTER: Lernblatt[] = [
       "- Rabatt auf den falschen Posten angewendet (im Beispiel nur auf PC und Monitor, nicht auf Leasing)\n- Nutzungsdauer in Jahren gelassen, obwohl Monatskosten gefragt sind\n- Netto und Brutto vertauscht: Brutto **mal** 1,19, Netto **durch** 1,19\n- Feiertage/Urlaub bei den Nettoarbeitstagen vergessen\n- Ergebnis nicht auf die geforderte Genauigkeit gerundet\n- Rechenweg nicht aufgeschrieben, obwohl ausdrücklich verlangt → Teilpunkte verschenkt",
     merksatz:
       "> **Erst Rabatt, dann Bezugskosten. Anschaffung durch Nutzungsmonate. Brutto ist mal 1,19.**",
+  },
+  {
+    id: "erm",
+    title: "ER-Diagramme und relationale Modelle",
+    visuals: [
+      {
+        type: "er",
+        alt: "ER-Diagramm Kunde, Auftrag und Produkt mit Schlüsseln und Kardinalitäten",
+        data: {
+          entities: [
+            {
+              id: "kunde",
+              name: "KUNDE",
+              x: 20,
+              y: 60,
+              attributes: [{ name: "kunden_id", key: "primary" }, { name: "name" }],
+            },
+            {
+              id: "auftrag",
+              name: "AUFTRAG",
+              x: 280,
+              y: 40,
+              attributes: [
+                { name: "auftrag_id", key: "primary" },
+                { name: "kunden_id", key: "foreign" },
+                { name: "datum" },
+              ],
+            },
+            {
+              id: "produkt",
+              name: "PRODUKT",
+              x: 540,
+              y: 60,
+              attributes: [{ name: "produkt_id", key: "primary" }, { name: "bezeichnung" }],
+            },
+          ],
+          relations: [
+            {
+              id: "erteilt",
+              from: "kunde",
+              to: "auftrag",
+              label: "erteilt",
+              fromCardinality: "1",
+              toCardinality: "n",
+            },
+            {
+              id: "enthaelt",
+              from: "auftrag",
+              to: "produkt",
+              label: "enthält",
+              fromCardinality: "n",
+              toCardinality: "n",
+            },
+          ],
+        },
+      },
+    ],
+    verstehen:
+      "Entitäten sind fachliche Objekte, Attribute beschreiben sie. Beziehungen verbinden Entitäten; Kardinalitäten geben an, wie viele Exemplare beteiligt sein dürfen.",
+    auswendig_wissen:
+      "- Primärschlüssel identifiziert eindeutig\n- Fremdschlüssel verweist auf eine andere Tabelle\n- 1:n: Fremdschlüssel liegt auf der n-Seite\n- n:m: eigene Zwischentabelle",
+    formeln:
+      "ERM ist keine Rechenformel. Entscheidend ist die Leserichtung: **Ein A gehört zu wie vielen B – und umgekehrt?**",
+    musteraufgabe:
+      "Ein Kunde kann viele Aufträge erteilen; jeder Auftrag gehört genau einem Kunden. Ein Auftrag kann viele Produkte enthalten, ein Produkt in vielen Aufträgen vorkommen.",
+    loesungsschritte:
+      "1. KUNDE–AUFTRAG als 1:n markieren.\n2. `kunden_id` als Fremdschlüssel in AUFTRAG übernehmen.\n3. AUFTRAG–PRODUKT als n:m erkennen.\n4. Zwischentabelle AUFTRAGSPOSITION anlegen.",
+    haeufige_fehler:
+      "- Leserichtung vertauscht\n- Fremdschlüssel auf die 1-Seite gelegt\n- n:m ohne Zwischentabelle umgesetzt",
+    merksatz:
+      "> **Bei 1:n wandert der Schlüssel zur n-Seite; bei n:m entsteht eine Zwischentabelle.**",
+  },
+  {
+    id: "gantt",
+    title: "Gantt-Diagramme und Terminplanung",
+    visuals: [
+      {
+        type: "gantt",
+        alt: "Gantt-Diagramm mit parallelen Vorgängen und Go-live-Meilenstein",
+        data: {
+          duration: 8,
+          tasks: [
+            { id: "A", name: "Analyse", start: 0, end: 2, critical: true },
+            { id: "B", name: "Beschaffung", start: 2, end: 6, predecessors: ["A"], critical: true },
+            { id: "C", name: "Konfiguration", start: 2, end: 5, predecessors: ["A"] },
+            {
+              id: "D",
+              name: "Abnahme",
+              start: 6,
+              end: 8,
+              predecessors: ["B", "C"],
+              critical: true,
+            },
+            {
+              id: "M",
+              name: "Go-live",
+              start: 8,
+              end: 8,
+              predecessors: ["D"],
+              milestone: true,
+              critical: true,
+            },
+          ],
+        },
+      },
+    ],
+    verstehen:
+      "Ein Gantt-Diagramm legt Vorgänge als Balken auf eine Zeitachse. Balkenlänge zeigt Dauer, Überlappung zeigt Parallelität, Rauten markieren Meilensteine.",
+    auswendig_wissen:
+      "- Ende = Start + Dauer\n- Nachfolger beginnen erst nach ihren Vorgängern\n- Meilenstein hat Dauer 0\n- Puffer entscheidet über Terminwirkung",
+    formeln: "```\nEnde = Start + Dauer\nNeues Ende = alter Start + Verschiebung + Dauer\n```",
+    musteraufgabe:
+      "Analyse dauert 2 Tage. Danach laufen Beschaffung (4 Tage) und Konfiguration (3 Tage) parallel. Abnahme (2 Tage) wartet auf beide.",
+    loesungsschritte:
+      "Analyse 0–2. Beschaffung 2–6 und Konfiguration 2–5. Abnahme startet an Tag 6 und endet an Tag 8.",
+    haeufige_fehler:
+      "- Parallele Balken addiert\n- Meilenstein als Vorgang behandelt\n- nur den kürzeren Vorgänger geprüft",
+    merksatz: "> **Im Gantt zählt bei mehreren Vorgängern das späteste Ende.**",
+  },
+  {
+    id: "bab",
+    title: "Betriebsabrechnungsbogen (BAB)",
+    visuals: [
+      {
+        type: "illustration",
+        data: { kind: "bab-flow" },
+        alt: "BAB-Ablauf von Gemeinkosten über Schlüssel zu Kostenstellen und Zuschlägen",
+      },
+    ],
+    verstehen:
+      "Der BAB verteilt Gemeinkosten verursachungsgerecht auf Kostenstellen. Erst werden Kostenarten verteilt, dann Spaltensummen und daraus Zuschlagssätze gebildet.",
+    auswendig_wissen:
+      "- Schlüssel je Kostenart ergibt 100 %\n- Zeile: Kostenart\n- Spalte: Kostenstelle\n- Zuschlagsgrundlage muss fachlich passen",
+    formeln:
+      "```\nAnteil = Gemeinkosten × Schlüsselanteil\nZuschlagssatz [%] = Kostenstellengemeinkosten / Zuschlagsgrundlage × 100\n```",
+    musteraufgabe:
+      "1.000 EUR Miete werden zu 60 % auf Fertigung und 40 % auf Verwaltung verteilt. Grundlagen: 3.000 EUR und 2.000 EUR.",
+    loesungsschritte:
+      "Fertigung: 600 EUR und 20 %. Verwaltung: 400 EUR und 20 %. Erst verteilen, dann spaltenweise summieren.",
+    haeufige_fehler:
+      "- Prozent als ganze Zahl multipliziert\n- Zeile und Spalte verwechselt\n- falsche Zuschlagsgrundlage",
+    merksatz: "> **Erst verteilen, dann summieren, dann den Zuschlag berechnen.**",
+  },
+  {
+    id: "stufenleiter",
+    title: "Stufenleiterverfahren",
+    visuals: [
+      {
+        type: "illustration",
+        data: { kind: "step-down" },
+        alt: "Stufenweise Verrechnung zweier Hilfskostenstellen auf Hauptkostenstellen",
+      },
+    ],
+    verstehen:
+      "Hilfskostenstellen werden in fester Reihenfolge vollständig entlastet. Jede geschlossene Stufe bleibt geschlossen; es gibt keine Rückverrechnung.",
+    auswendig_wissen:
+      "- Reihenfolge festlegen\n- Sekundärkosten erhöhen die nächste Kostenbasis\n- geschlossene Stellen aus dem Nenner entfernen\n- Hilfskostenstellen enden mit Saldo 0",
+    formeln:
+      "```\nVerrechnungssatz = aktuelle Kosten / Leistung an offene Stellen\nSekundärkosten = Satz × empfangene Leistung\n```",
+    musteraufgabe:
+      "Energie hat 1.000 EUR Kosten und 100 ME. Reinigung empfängt 20 ME und hat primär 500 EUR. Danach wird Reinigung verrechnet.",
+    loesungsschritte:
+      "Energiesatz 10 EUR/ME; Reinigung übernimmt 200 EUR und steht bei 700 EUR. Danach verteilt Reinigung nur an offene Hauptkostenstellen.",
+    haeufige_fehler:
+      "- Sekundärkosten nicht addiert\n- geschlossene Stelle im Nenner gelassen\n- Restkosten auf Hilfskostenstelle",
+    merksatz:
+      "> **Jede Stufe übernimmt Kosten, verteilt vollständig und wird danach nicht mehr belastet.**",
   },
 ];

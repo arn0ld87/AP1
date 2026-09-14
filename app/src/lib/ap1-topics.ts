@@ -1,4 +1,4 @@
-export type TopicKind = "calc" | "card";
+export type TopicKind = "calc" | "card" | "both";
 
 export interface Topic {
   id: string;
@@ -7,6 +7,7 @@ export interface Topic {
   prio: "A" | "B";
   kind: TopicKind;
   hint: string;
+  group?: "technik" | "projekt" | "rewe";
 }
 
 export const TOPICS: Topic[] = [
@@ -51,12 +52,49 @@ export const TOPICS: Topic[] = [
     hint: "Bezugspreis, MwSt, Amortisation",
   },
   {
+    id: "bab",
+    name: "BAB",
+    rel: 4,
+    prio: "A",
+    kind: "both",
+    hint: "Gemeinkosten, Kostenstellen, Zuschlagssätze",
+    group: "rewe",
+  },
+  {
+    id: "stufenleiter",
+    name: "Stufenleiterverfahren",
+    rel: 4,
+    prio: "A",
+    kind: "both",
+    hint: "Innerbetriebliche Leistungsverrechnung",
+    group: "rewe",
+  },
+  {
+    id: "erm",
+    name: "ER-Diagramme",
+    rel: 4,
+    prio: "A",
+    kind: "both",
+    hint: "Entitäten, Schlüssel, Beziehungen, Kardinalitäten",
+    group: "technik",
+  },
+  {
     id: "netzplan",
     name: "Netzplantechnik",
     rel: 4,
     prio: "A",
-    kind: "calc",
+    kind: "both",
     hint: "FAZ, FEZ, SAZ, SEZ, GP, FP",
+    group: "projekt",
+  },
+  {
+    id: "gantt",
+    name: "Gantt / Projektplanung",
+    rel: 4,
+    prio: "A",
+    kind: "both",
+    hint: "Balken, Abhängigkeiten, Termine, Meilensteine",
+    group: "projekt",
   },
   {
     id: "raid",
@@ -126,7 +164,7 @@ export const TOPICS: Topic[] = [
 
 export const T: Record<string, Topic> = Object.fromEntries(TOPICS.map((t) => [t.id, t]));
 
-export const CALC_TOPICS = TOPICS.filter((t) => t.kind === "calc");
+export const CALC_TOPICS = TOPICS.filter((t) => t.kind !== "card");
 
 export type MasteryKey = "none" | "good" | "mid" | "bad";
 
