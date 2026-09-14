@@ -7,6 +7,31 @@ Version.
 
 ## [Unreleased]
 
+### Schema-Baseline (14.09.2026)
+
+#### Fixed
+
+- **Schema-Drift zwischen Repository und Produktion:** Die Live-Datenbank enthielt 57 Tabellen und
+  44 Funktionen, die Migrationen beschrieben davon nur 7 bzw. 6. Die fehlenden 50 Tabellen,
+  38 Funktionen, 7 Views und 33 Enum-Typen (Kompetenzmodell, Rubrics, Prüfungs-Blueprints,
+  Quellenverwaltung) waren direkt in der Datenbank entstanden und hatten **keine SQL-Quelle** —
+  weder im Repository noch auf dem Server. Ein Wiederaufbau nach `docs/backup-restore.md` hätte sie
+  samt Daten (u. a. 18.316 Zeilen `source_chunk_reference`) verloren, und der CI-Job
+  `migration-validation` validierte ein Schema ohne Bezug zur Produktion. Der Ist-Zustand ist jetzt
+  als Baseline-Migration `20260914170000_baseline_live_schema.sql` aufgenommen; nachgewiesen über
+  einen Objektvergleich frische DB ↔ Produktion (1655 Objekteigenschaften, keine Abweichung).
+  Siehe [ADR-0006](docs/adr/0006-schema-baseline-statt-drift.md).
+- **`error_log.erledigt`:** live `NOT NULL DEFAULT false`, aus den Migrationen aber nullable ohne
+  Default — die einzige verbliebene Abweichung an den bereits migrierten Tabellen
+  (`20260914180000_error_log_erledigt_not_null.sql`).
+
+#### Changed
+
+- `scripts/validate_migrations.py` erzwingt RLS jetzt über **alle** Tabellen des `public`-Schemas
+  statt nur über eine feste Namensliste, und verlangt für jede Tabelle entweder eine RLS-Policy
+  oder einen bewussten Eintrag in `NO_POLICY_TABLES` (Deny-all, Zugriff nur über `service_role`
+  bzw. `security definer`-RPCs). Eine neue Tabelle ohne Absicherung lässt den CI-Job fehlschlagen.
+
 ### Remediation (11.09.2026)
 
 #### Fixed

@@ -12,6 +12,12 @@ Postgres 15/16) auf dem armserver. Backup/Restore nutzt die Standardwerkzeuge `p
   `/opt/supabase/volumes/functions/main/grade-exam-answer/index.ts` — durch Git abgedeckt.
 - **Secrets** (Vaultwarden, Edge-Function-Env) werden nicht im Backup der DB gespeichert.
 
+> **Das Datenbank-Backup ist die einzige vollständige Quelle der Daten.** Das Schema selbst lässt
+> sich seit dem 14.09.2026 wieder vollständig aus `app/supabase/migrations/` aufbauen
+> ([ADR-0006](adr/0006-schema-baseline-statt-drift.md)) — bis dahin war das nicht der Fall: 50 der
+> 57 Tabellen existierten nur in der Live-Datenbank. Ein Wiederaufbau allein aus dem Repository
+> hätte sie verloren. Die **Daten** stehen ohnehin ausschließlich im `pg_dump`, nicht im Repo.
+
 ## Backup
 
 Auf dem armserver (Beispiel, ohne echte Credentials — Werte aus Vaultwarden/`docker exec`):
