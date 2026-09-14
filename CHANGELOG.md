@@ -62,6 +62,12 @@ Version.
 
 ### Fixed
 
+- **exam_attempts vom Client überschreibbar:** `gesamtpunkte` und `finished_at` ließen sich
+  per direktem PostgREST-Update auf beliebige Werte setzen, entkoppelt von den bewerteten
+  `exam_answers`; über `INSERT` ließ sich ein bereits „fertiger" Attempt anlegen. Der
+  Abschluss läuft jetzt über die serverseitige RPC `finish_exam_attempt` (Ownership-Prüfung,
+  Row-Lock, Summe aus `exam_answers`); `UPDATE` ist entzogen, `INSERT` auf `exam_id`/`user_id`
+  beschränkt.
 - Edge Function liest `AWS_BEDROCK_API_KEY` korrekt, `verify_jwt` fest gepinnt (PR #37).
 - Incomplete Bedrock-Response-Typ-Annotation in `grade-exam-answer.ts` (von `deno check` in CI
   gefunden, PR #38).

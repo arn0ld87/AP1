@@ -52,3 +52,9 @@ auf mehrere Nutzer skaliert — die Registrierung ist seit `public-signup` offen
 erforderlich). Kostenkontrolle: die KI-Bewertung ist auf 50 Bewertungen je Nutzer/Tag begrenzt
 (`exam_answers.created_at`, geprüft in der Edge Function). Account-Löschung entfernt den
 `auth.users`-Eintrag; alle Fachdaten hängen per FK `ON DELETE CASCADE` daran.
+
+Schreibzugriff auf Bewertungsdaten läuft ausschließlich über geprüfte serverseitige Pfade:
+`exam_answers` hat für `authenticated` kein `INSERT`/`UPDATE` (nur `submit_self_grade` und die
+Edge Function mit `service_role`), `exam_attempts` kein `UPDATE` und `INSERT` nur auf
+`exam_id`/`user_id`. `gesamtpunkte` wird nie vom Client gesetzt, sondern von
+`finish_exam_attempt` bzw. `submit_self_grade` aus `sum(exam_answers.ki_punkte)` berechnet.
