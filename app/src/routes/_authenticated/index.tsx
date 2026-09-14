@@ -14,7 +14,6 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { PLAN_TAGE } from "@/lib/ap1-tagesplan";
-import { fetchFlashcardProgress, type FlashcardRow } from "@/lib/flashcard-progress";
 import {
   buildDailyMission,
   calculateReadiness,
@@ -77,7 +76,6 @@ function IndexPage() {
   const today = todayLabel();
 
   const [topicRows, setTopicRows] = useState<Record<string, AdaptiveMasteryRow>>({});
-  const [cardRows, setCardRows] = useState<FlashcardRow[]>([]);
   const [datenError, setDatenError] = useState<string | null>(null);
   const [offeneFehler, setOffeneFehler] = useState<number | null>(null);
   const [fehlerError, setFehlerError] = useState<string | null>(null);
@@ -99,9 +97,6 @@ function IndexPage() {
         setDatenError(msg(e));
         setFehlerError(msg(e));
       });
-    fetchFlashcardProgress()
-      .then(setCardRows)
-      .catch((e) => setDatenError((prev) => prev ?? msg(e)));
     supabase.auth
       .getUser()
       .then(({ data }) => setUserId(data.user?.id ?? null))
@@ -122,18 +117,13 @@ function IndexPage() {
     setAbgehakteTage(tage.size);
   }, [userId]);
 
-  // Gesamt-Trefferrate: alle topic_mastery-Zeilen (Rechnen + Lernblätter) + alle Wissenskarten
+  // fetchMissionSnapshot führt topic_mastery und Wissenskarten bereits pro Thema zusammen.
   const gesamt = useMemo(() => {
-    const agg = Object.values(topicRows).reduce(
+    return Object.values(topicRows).reduce(
       (a, r) => ({ richtig: a.richtig + r.richtig, falsch: a.falsch + r.falsch }),
       { richtig: 0, falsch: 0 },
     );
-    for (const r of cardRows) {
-      agg.richtig += r.richtig;
-      agg.falsch += r.falsch;
-    }
-    return agg;
-  }, [topicRows, cardRows]);
+  }, [topicRows]);
   const gesamtN = gesamt.richtig + gesamt.falsch;
   const gesamtPct = gesamtN ? Math.round((100 * gesamt.richtig) / gesamtN) : 0;
 

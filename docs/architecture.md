@@ -39,7 +39,7 @@ Tasks 1–16); bei Widerspruch zur Spec gilt dieses Dokument als aktueller.
 | 6   | Fortschritt & Fehlerliste     | `/fortschritt`     | abgeleitet aus 1/2/5                                                        | `04_LERNFORTSCHRITT.md`, `05_FEHLERLISTE.md` | **fertig** |
 | 7   | Tagesplan                     | `/tagesplan`       | `01_LERNPLAN.md` (migriert nach `data/migration/lernplan.json`)             | manuelles Abhaken                            | **fertig** |
 
-Alle 7 Module sind implementiert (Routes unter `app/src/routes/_authenticated/`) inklusive
+Alle 8 Module sind implementiert (Routes unter `app/src/routes/_authenticated/`) inklusive
 serverseitigem Fortschritts-Upsert gegen `topic_mastery` bzw. `flashcard_progress`; das
 Probeprüfungs-Modul bewertet über die Edge Function `grade-exam-answer` (siehe
 [api.md](api.md)).

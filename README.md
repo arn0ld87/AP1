@@ -79,9 +79,9 @@ nach dessen Credit-Limit aber exportiert und lokal weiterentwickelt.
 
 - **Frontend:** TanStack Start (Vite + React 19 + TypeScript), Tailwind, shadcn/ui
 - **Backend:** self-hosted Supabase auf dem armserver (`supabase.alexle135.de`),
-  Multi-User mit offener Registrierung (E-Mail+Passwort, E-Mail-Bestätigung, Self-Service-Kontolöschung), 6 Tabellen mit Row Level Security:
+  Multi-User mit offener Registrierung (E-Mail+Passwort, E-Mail-Bestätigung, Self-Service-Kontolöschung), 8 von der App genutzte Tabellen mit Row Level Security:
   `topic_mastery`, `flashcard_progress`, `exam_questions` (read-only für den Client),
-  `exam_attempts`, `exam_answers`, `error_log`
+  `exam_attempts`, `exam_answers`, `error_log`, `ai_budget_daily`, `learning_session`
 - **Build-Output:** Nitro (Cloudflare-Worker-kompatibel), Deploy-Ziel ist
   `pruefung.alexle135.de` hinter Traefik auf dem armserver (Router-Vorlage:
   `deploy/traefik-pruefung.yml`)

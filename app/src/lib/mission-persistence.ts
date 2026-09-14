@@ -16,6 +16,13 @@ export interface MissionSnapshot {
   } | null;
 }
 
+export interface MissionAttemptResult {
+  correct: boolean;
+  duplicate: boolean;
+  queue: Json[];
+  xp: number;
+}
+
 export async function fetchMissionSnapshot(): Promise<MissionSnapshot> {
   const [masteryResult, flashcardResult, errorsResult, sessionResult] = await Promise.all([
     supabase
@@ -90,20 +97,53 @@ export async function startMissionSession(details: Json): Promise<string> {
 }
 
 export async function recordMissionAttempt(input: {
+  attemptId: string;
   sessionId: string;
   topicId: string;
   correct: boolean;
   confidence: AnswerConfidence;
-  xp: number;
+  nextQueue: Json;
   errorDescription?: string;
-}): Promise<void> {
-  const { error } = await supabase.rpc("record_mission_attempt", {
+}): Promise<MissionAttemptResult> {
+  const { data, error } = await supabase.rpc("record_mission_attempt", {
+    p_attempt_id: input.attemptId,
     p_session_id: input.sessionId,
     p_topic_id: input.topicId,
     p_correct: input.correct,
     p_confidence: input.confidence,
-    p_xp: input.xp,
+    p_next_queue: input.nextQueue,
     p_error_description: input.errorDescription ?? null,
+  });
+  if (error) throw error;
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Ungültige Antwort beim Speichern des Missionsversuchs.");
+  }
+  const result = data as Record<string, Json | undefined>;
+  if (
+    typeof result["correct"] !== "boolean" ||
+    typeof result["duplicate"] !== "boolean" ||
+    !Array.isArray(result["queue"]) ||
+    typeof result["xp"] !== "number"
+  ) {
+    throw new Error("Unvollständige Antwort beim Speichern des Missionsversuchs.");
+  }
+  return {
+    correct: result["correct"],
+    duplicate: result["duplicate"],
+    queue: result["queue"],
+    xp: result["xp"],
+  };
+}
+
+export async function advanceMissionSession(input: {
+  sessionId: string;
+  attemptId: string;
+  nextIndex: number;
+}): Promise<void> {
+  const { error } = await supabase.rpc("advance_mission_session", {
+    p_session_id: input.sessionId,
+    p_attempt_id: input.attemptId,
+    p_next_index: input.nextIndex,
   });
   if (error) throw error;
 }
@@ -125,10 +165,5 @@ export async function finishMissionSession(
       details,
     })
     .eq("id", sessionId);
-  if (error) throw error;
-}
-
-export async function saveMissionProgress(sessionId: string, details: Json): Promise<void> {
-  const { error } = await supabase.from("learning_session").update({ details }).eq("id", sessionId);
   if (error) throw error;
 }

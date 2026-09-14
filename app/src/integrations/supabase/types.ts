@@ -274,6 +274,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      advance_mission_session: {
+        Args: {
+          p_attempt_id: string;
+          p_next_index: number;
+          p_session_id: string;
+        };
+        Returns: Json;
+      };
       increment_flashcard_progress: {
         Args: { p_card_id: string; p_correct: boolean };
         Returns: undefined;
@@ -284,12 +292,13 @@ export type Database = {
       };
       record_mission_attempt: {
         Args: {
+          p_attempt_id: string;
           p_confidence: string;
           p_correct: boolean;
           p_error_description?: string | null;
+          p_next_queue: Json;
           p_session_id: string;
           p_topic_id: string;
-          p_xp: number;
         };
         Returns: Json;
       };

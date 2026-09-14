@@ -32,10 +32,10 @@ import {
 import { TOPICS, T } from "@/lib/ap1-topics";
 import { evaluateTaskAnswer, isSubmissionComplete, type TaskEvaluation } from "@/lib/ap1-tasks";
 import {
+  advanceMissionSession,
   fetchMissionSnapshot,
   finishMissionSession,
   recordMissionAttempt,
-  saveMissionProgress,
   startMissionSession,
   type MissionSnapshot,
 } from "@/lib/mission-persistence";
@@ -68,6 +68,8 @@ interface StoredProgress {
   queue: MissionQuestion[];
   currentIndex: number;
   stats: SessionStats;
+  answeredQuestionId: string | null;
+  answeredResult: { correct: boolean; xp: number } | null;
 }
 
 const CARD_HTML =
@@ -110,6 +112,11 @@ function parseStoredProgress(value: Json): StoredProgress | null {
   ) {
     return null;
   }
+  const answeredResult = candidate["answeredResult"];
+  const parsedAnsweredResult =
+    answeredResult && typeof answeredResult === "object" && !Array.isArray(answeredResult)
+      ? (answeredResult as Record<string, Json | undefined>)
+      : null;
   return {
     queue: candidate["queue"] as unknown as MissionQuestion[],
     currentIndex: candidate["currentIndex"],
@@ -118,6 +125,13 @@ function parseStoredProgress(value: Json): StoredProgress | null {
       correct: typedStats["correct"],
       xp: typedStats["xp"],
     },
+    answeredQuestionId:
+      typeof candidate["answeredQuestionId"] === "string" ? candidate["answeredQuestionId"] : null,
+    answeredResult:
+      typeof parsedAnsweredResult?.["correct"] === "boolean" &&
+      typeof parsedAnsweredResult["xp"] === "number"
+        ? { correct: parsedAnsweredResult["correct"], xp: parsedAnsweredResult["xp"] }
+        : null,
   };
 }
 
@@ -137,6 +151,7 @@ function MissionPage() {
   const [cardAnswer, setCardAnswer] = useState("");
   const [saving, setSaving] = useState(false);
   const [stored, setStored] = useState(false);
+  const [storedResult, setStoredResult] = useState<{ correct: boolean; xp: number } | null>(null);
   const [complete, setComplete] = useState(false);
 
   const load = useCallback(() => {
@@ -173,19 +188,6 @@ function MissionPage() {
   const current = queue[currentIndex] ?? null;
   const answeredCurrent = stored;
 
-  const persistState = useCallback(
-    async (nextQueue: MissionQuestion[], nextIndex: number, nextStats: SessionStats) => {
-      if (!sessionId) return;
-      const details = {
-        queue: nextQueue,
-        currentIndex: nextIndex,
-        stats: nextStats,
-      } as unknown as Json;
-      await saveMissionProgress(sessionId, details);
-    },
-    [sessionId],
-  );
-
   const begin = async () => {
     setError(null);
     const stored = snapshot?.openSession ? parseStoredProgress(snapshot.openSession.details) : null;
@@ -195,6 +197,12 @@ function MissionPage() {
       setQueue(stored.queue);
       setCurrentIndex(stored.currentIndex);
       setStats(stored.stats);
+      const answered =
+        stored.answeredQuestionId === stored.queue[stored.currentIndex]?.id &&
+        stored.answeredResult !== null;
+      setStored(answered);
+      setStoredResult(answered ? stored.answeredResult : null);
+      setCardRevealed(answered && stored.queue[stored.currentIndex]?.kind === "card");
       return;
     }
     const nextQueue = createQueue(mission);
@@ -229,34 +237,34 @@ function MissionPage() {
     setCardRevealed(false);
     setCardAnswer("");
     setStored(false);
+    setStoredResult(null);
   };
 
   const storeAnswer = async (correct: boolean, description: string): Promise<boolean> => {
     if (!current || !sessionId || !confidence || saving || stored) return false;
-    const taskKind = current.isBoss ? "boss" : current.kind === "calc" ? "calculation" : "quick";
-    const xp = calculateXp(correct, confidence, taskKind);
     const retryQuestion =
       !correct && !current.retry ? createQuestion(current.topicId, false, true) : null;
     const nextQueue = retryQuestion ? [...queue, retryQuestion] : queue;
-    const nextStats = {
-      answered: stats.answered + 1,
-      correct: stats.correct + (correct ? 1 : 0),
-      xp: stats.xp + xp,
-    };
     setSaving(true);
     setError(null);
     try {
-      await recordMissionAttempt({
+      const result = await recordMissionAttempt({
+        attemptId: current.id,
         sessionId,
         topicId: current.topicId,
         correct,
         confidence,
-        xp,
+        nextQueue: nextQueue as unknown as Json,
         errorDescription: description,
       });
-      setQueue(nextQueue);
+      const nextStats = {
+        answered: stats.answered + 1,
+        correct: stats.correct + (result.correct ? 1 : 0),
+        xp: stats.xp + result.xp,
+      };
+      setQueue(result.queue as unknown as MissionQuestion[]);
       setStats(nextStats);
-      await persistState(nextQueue, currentIndex, nextStats);
+      setStoredResult({ correct: result.correct, xp: result.xp });
       setStored(true);
       return true;
     } catch (reason) {
@@ -286,7 +294,7 @@ function MissionPage() {
   };
 
   const next = async () => {
-    if (!sessionId || !startedAt) return;
+    if (!sessionId || !startedAt || !current) return;
     if (currentIndex + 1 >= queue.length) {
       setSaving(true);
       try {
@@ -307,12 +315,20 @@ function MissionPage() {
       return;
     }
     const nextIndex = currentIndex + 1;
-    setCurrentIndex(nextIndex);
-    resetQuestion();
+    setSaving(true);
+    setError(null);
     try {
-      await persistState(queue, nextIndex, stats);
-    } catch {
-      setError("Der Wiederaufnahmepunkt konnte nicht gespeichert werden.");
+      await advanceMissionSession({ sessionId, attemptId: current.id, nextIndex });
+      setCurrentIndex(nextIndex);
+      resetQuestion();
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Der Wiederaufnahmepunkt konnte nicht gespeichert werden.",
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -330,6 +346,8 @@ function MissionPage() {
       setQueue([]);
       resetQuestion();
       load();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Session konnte nicht beendet werden.");
     } finally {
       setSaving(false);
     }
@@ -496,9 +514,9 @@ function MissionPage() {
               values={values}
               onChange={(id, value) => setValues((state) => ({ ...state, [id]: value }))}
               evaluation={evaluation}
-              disabled={evaluation !== null || saving}
+              disabled={evaluation !== null || saving || stored}
             />
-            {!evaluation && (
+            {!evaluation && !stored && (
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <ConfidencePicker value={confidence} onChange={setConfidence} />
                 <Button
@@ -512,12 +530,18 @@ function MissionPage() {
             {evaluation && (
               <ResultPanel
                 correct={evaluation.correct}
-                xp={calculateXp(
-                  evaluation.correct,
-                  confidence ?? "unsure",
-                  current.isBoss ? "boss" : "calculation",
-                )}
+                xp={
+                  storedResult?.xp ??
+                  calculateXp(
+                    evaluation.correct,
+                    confidence ?? "unsure",
+                    current.isBoss ? "boss" : "calculation",
+                  )
+                }
               />
+            )}
+            {!evaluation && storedResult && (
+              <ResultPanel correct={storedResult.correct} xp={storedResult.xp} />
             )}
           </div>
         ) : (
