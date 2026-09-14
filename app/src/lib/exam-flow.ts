@@ -95,15 +95,23 @@ export interface SubmitExamDeps {
   answers: Record<string, string>;
   attemptId: string;
   callGrade: (input: GradeFnInput) => Promise<GradeFnOutput>;
-  /** Persistiert gesamtpunkte + finished_at in exam_attempts. */
-  persist: (gesamtpunkte: number) => Promise<unknown>;
+  /**
+   * Schließt den Attempt serverseitig ab und liefert die dort berechnete
+   * Gesamtpunktzahl zurück. Bewusst ohne Parameter: die Summe darf nicht vom
+   * Client stammen (siehe persistAttemptFinish).
+   */
+  persist: () => Promise<number>;
 }
 
 /**
- * Abschluss-Flow: bewertet zuerst alles (unabhängig von React-State),
- * berechnet die Summe aus dem Ergebniswert und persistiert erst danach.
+ * Abschluss-Flow: bewertet zuerst alles (unabhängig von React-State) und
+ * schließt den Attempt erst danach serverseitig ab.
  * Timeout und manueller Abgabe-Button nutzen denselben Flow; die Route
  * verhindert Parallel-Ausführung über einen Ref-Guard.
+ *
+ * Maßgeblich ist die vom Server zurückgegebene Summe, nicht eine lokal
+ * gerechnete: nur so zeigt die Ergebnisansicht denselben Wert, der auch
+ * nach einem Reload aus der Datenbank gelesen wird.
  */
 export async function submitExamFlow(
   deps: SubmitExamDeps,
@@ -114,27 +122,28 @@ export async function submitExamFlow(
     deps.attemptId,
     deps.callGrade,
   );
-  const gesamtpunkte = gesamtpunkteVon(deps.fragen, results);
-  await deps.persist(gesamtpunkte);
+  const gesamtpunkte = await deps.persist();
   return { results, gesamtpunkte };
 }
 
 /**
- * Persistiert den Abschluss (gesamtpunkte + finished_at) in exam_attempts.
- * Supabase-js meldet Schreibfehler als `{ error }` statt per Exception —
- * hier wird daraus bewusst eine Exception, damit der Aufrufer nicht
- * stillschweigend über einen fehlgeschlagenen Save hinweggeht.
+ * Schließt den Attempt über die serverseitige RPC `finish_exam_attempt` ab.
+ * Die RPC prüft Ownership, sperrt die Zeile, berechnet gesamtpunkte aus
+ * exam_answers und setzt finished_at — der Client übergibt keine Punktzahl
+ * mehr. Vorher lief der Abschluss als direktes UPDATE auf exam_attempts;
+ * damit konnte ein angemeldeter Nutzer sein Ergebnis per PostgREST-Aufruf
+ * frei setzen (Migration 20260914140000 entzieht dieses UPDATE-Recht).
+ *
+ * Supabase-js meldet Fehler als `{ error }` statt per Exception — hier wird
+ * daraus bewusst eine Exception, damit der Aufrufer nicht stillschweigend
+ * über einen fehlgeschlagenen Abschluss hinweggeht.
  */
-export async function persistAttemptFinish(
-  db: SupabaseClient,
-  attemptId: string,
-  gesamtpunkte: number,
-): Promise<void> {
-  const { error } = await db
-    .from("exam_attempts")
-    .update({ gesamtpunkte, finished_at: new Date().toISOString() })
-    .eq("id", attemptId);
+export async function persistAttemptFinish(db: SupabaseClient, attemptId: string): Promise<number> {
+  const { data, error } = await db.rpc("finish_exam_attempt", {
+    p_attempt_id: attemptId,
+  });
   if (error) throw new Error("Abschluss konnte nicht gespeichert werden: " + error.message);
+  return data as number;
 }
 
 export interface SingleFlightGuard {

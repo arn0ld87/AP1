@@ -107,14 +107,15 @@ describe("gradeAllQuestions", () => {
 describe("submitExamFlow", () => {
   const fragen = [frage("a", 10), frage("b", 20)];
 
-  it("manuelle Abgabe: persistiert Summe exakt aus Einzelpunkten, Reihenfolge grading → persist", async () => {
+  it("manuelle Abgabe: Reihenfolge grading → persist, Summe stammt vom Server", async () => {
     const calls: string[] = [];
     const callGrade = vi.fn(async ({ question_id }: { question_id: string }) => {
       calls.push("grade:" + question_id);
       return { punkte: question_id === "a" ? 8 : 17, begruendung: "" };
     });
-    const persist = vi.fn(async (gesamtpunkte: number) => {
-      calls.push("persist:" + gesamtpunkte);
+    const persist = vi.fn(async () => {
+      calls.push("persist");
+      return 25;
     });
     const { gesamtpunkte, results } = await submitExamFlow({
       fragen,
@@ -125,13 +126,31 @@ describe("submitExamFlow", () => {
     });
     expect(gesamtpunkte).toBe(25);
     expect(persist).toHaveBeenCalledTimes(1);
-    expect(persist).toHaveBeenCalledWith(25);
-    expect(calls).toEqual(["grade:a", "grade:b", "persist:25"]);
+    // Kein Argument: der Client darf keine Punktzahl mehr vorgeben.
+    expect(persist).toHaveBeenCalledWith();
+    expect(calls).toEqual(["grade:a", "grade:b", "persist"]);
     expect(results["b"]!.punkte).toBe(17);
   });
 
+  it("Regression P0: die serverseitig berechnete Summe gewinnt gegen jede lokale Rechnung", async () => {
+    // Der Server summiert über exam_answers.ki_punkte. Weicht sein Ergebnis von
+    // dem ab, was der Client aus den Einzelbewertungen ableiten würde (z. B.
+    // weil eine Antwort persistiert wurde, deren Response verloren ging), ist
+    // der Serverwert maßgeblich — sonst zeigt die Ergebnisansicht etwas
+    // anderes als die Datenbank nach einem Reload.
+    const persist = vi.fn(async () => 7);
+    const { gesamtpunkte } = await submitExamFlow({
+      fragen,
+      answers: { a: "1", b: "2" },
+      attemptId: "att-1",
+      callGrade: async () => ({ punkte: 99, begruendung: "" }),
+      persist,
+    });
+    expect(gesamtpunkte).toBe(7);
+  });
+
   it("aufeinanderfolgende Abgaben liefern denselben deterministischen Wert (State-unabhängig)", async () => {
-    const persist = vi.fn(async () => {});
+    const persist = vi.fn(async () => 20);
     const run = () =>
       submitExamFlow({
         fragen,
@@ -148,8 +167,10 @@ describe("submitExamFlow", () => {
   });
 
   it("nicht bewertbare Fragen (KI-Fehler) zählen 0 in der Gesamtsumme", async () => {
-    const persist = vi.fn(async () => {});
-    const { gesamtpunkte } = await submitExamFlow({
+    // Serverseitig bildet `coalesce(sum(ki_punkte), 0)` dieselbe Semantik ab:
+    // eine Frage ohne Bewertung hat ki_punkte null und trägt 0 bei.
+    const persist = vi.fn(async () => 20);
+    const { gesamtpunkte, results } = await submitExamFlow({
       fragen,
       answers: {},
       attemptId: "att-1",
@@ -160,7 +181,8 @@ describe("submitExamFlow", () => {
       persist,
     });
     expect(gesamtpunkte).toBe(20);
-    expect(persist).toHaveBeenCalledWith(20);
+    expect(results["a"]!.punkte).toBeNull();
+    expect(gesamtpunkteVon(fragen, results)).toBe(20);
   });
 
   it("Persistenzfehler propagiert (Exam-Update schlägt fehl → Fehler sichtbar)", async () => {
@@ -179,29 +201,45 @@ describe("submitExamFlow", () => {
   });
 });
 
-describe("persistAttemptFinish (Supabase-{ error }-Feld)", () => {
-  // Supabase-js wirft bei Schreibfehlern nicht, sondern liefert { error }.
+describe("persistAttemptFinish (RPC finish_exam_attempt — Regression P0: gesamtpunkte war client-seitig setzbar)", () => {
+  // Supabase-js wirft bei Fehlern nicht, sondern liefert { error }.
   // Der Helfer muss genau dieses Feld in eine Exception überführen.
-  const fakeDb = (result: { error: { message: string } | null }) => {
-    const eq = vi.fn(async () => result);
-    const update = vi.fn(() => ({ eq }));
-    const from = vi.fn(() => ({ update }));
-    return { db: { from } as unknown as SupabaseClient, eq, update };
+  const fakeRpcDb = (result: { data: number | null; error: { message: string } | null }) => {
+    const rpc = vi.fn(async (_fn: string, _args: Record<string, unknown>) => result);
+    return { db: { rpc } as unknown as SupabaseClient, rpc };
   };
 
-  it("persistAttemptFinish: zurückgegebenes { error } wird zu Exception", async () => {
-    const { db, update } = fakeDb({ error: { message: "row-level security" } });
-    await expect(persistAttemptFinish(db, "att-1", 25)).rejects.toThrow("row-level security");
-    expect(update).toHaveBeenCalledWith(
-      expect.objectContaining({ gesamtpunkte: 25, finished_at: expect.any(String) }),
-    );
+  it("zurückgegebenes { error } wird zu Exception", async () => {
+    const { db } = fakeRpcDb({ data: null, error: { message: "insufficient_privilege" } });
+    await expect(persistAttemptFinish(db, "att-1")).rejects.toThrow("insufficient_privilege");
   });
 
-  it("persistAttemptFinish: error null → resolves, gefiltert auf attempt-id", async () => {
-    const { db, eq, update } = fakeDb({ error: null });
-    await expect(persistAttemptFinish(db, "att-1", 25)).resolves.toBeUndefined();
-    expect(update).toHaveBeenCalledTimes(1);
-    expect(eq).toHaveBeenCalledWith("id", "att-1");
+  it("ruft die RPC mit p_attempt_id auf und liefert die serverseitige Summe zurück", async () => {
+    const { db, rpc } = fakeRpcDb({ data: 63, error: null });
+    await expect(persistAttemptFinish(db, "att-1")).resolves.toBe(63);
+    expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("finish_exam_attempt", { p_attempt_id: "att-1" });
+  });
+
+  it("übergibt keinerlei Punktzahl an den Server (kein manipulierbarer Wert im Payload)", async () => {
+    const { db, rpc } = fakeRpcDb({ data: 0, error: null });
+    await persistAttemptFinish(db, "att-1");
+    const payload = rpc.mock.calls[0]![1] as Record<string, unknown>;
+    expect(Object.keys(payload)).toEqual(["p_attempt_id"]);
+    expect(JSON.stringify(payload)).not.toMatch(/punkte|finished/i);
+  });
+
+  it("schreibt nicht mehr direkt auf die Tabelle exam_attempts", async () => {
+    // Der alte Pfad war db.from('exam_attempts').update(...). Ein `from` am
+    // Client-Objekt darf für den Abschluss gar nicht mehr angefasst werden —
+    // das UPDATE-Recht existiert seit Migration 20260914140000 nicht mehr.
+    const rpc = vi.fn(async () => ({ data: 12, error: null }));
+    const from = vi.fn(() => {
+      throw new Error("from() darf im Abschluss-Pfad nicht verwendet werden");
+    });
+    const db = { rpc, from } as unknown as SupabaseClient;
+    await expect(persistAttemptFinish(db, "att-1")).resolves.toBe(12);
+    expect(from).not.toHaveBeenCalled();
   });
 });
 

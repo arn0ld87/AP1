@@ -202,7 +202,7 @@ function ProbepruefungenPage() {
           answers,
           attemptId: attempt.id,
           callGrade,
-          persist: (gesamtpunkte) => persistAttemptFinish(supabase, attempt.id, gesamtpunkte),
+          persist: () => persistAttemptFinish(supabase, attempt.id),
         });
         setResults(graded);
         setPhase("ergebnis");
