@@ -20,6 +20,7 @@ Aktueller Stand der AP1-Plattform. Dies ist die Kurzübersicht — Detailgründe
 | Registrierung geöffnet: Signup, Rechtsseiten, KI-Tageslimit, Selbstlöschung                                                                                                                                 | gemerged (PR #46)                                            |
 | UI: Prüfungsmodus volle Breite, Markdown-Tabellen, Flip-Karten, Mobile-Layout                                                                                                                               | gemerged (PR #47)                                            |
 | Final-Quality-Pass: SelfGrade-Konsistenz (Server-RPC), Edge-Function-Persistenzfehler, Attempt/Question-Kopplung, unabhängige Generator-Referenztests, echter Doppelabgabe-Test, sicheres Restore-Verfahren | **in Arbeit** (PR folgt, `fix/final-quality-pass`)           |
+| P0-Sicherheitsfix exam_attempts: serverseitiger Abschluss über RPC `finish_exam_attempt` (Migration `20260914140000`), kein Client-`UPDATE`/`INSERT` auf `gesamtpunkte`/`finished_at` | implementiert auf `fix/exam-attempts-server-side-scoring`, Review ausstehend |
 
 ## CI (PR #38, erweitert durch Remediation)
 

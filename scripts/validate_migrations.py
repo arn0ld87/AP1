@@ -56,7 +56,12 @@ EXPECT_COLUMNS = {
     "exam_answers": ["user_id", "ki_punkte", "ki_feedback"],
 }
 
-EXPECT_RPC = ["increment_topic_mastery", "increment_flashcard_progress", "submit_self_grade"]
+EXPECT_RPC = [
+    "increment_topic_mastery",
+    "increment_flashcard_progress",
+    "submit_self_grade",
+    "finish_exam_attempt",
+]
 
 EXPECT_UNIQUE_INDEX = "exam_answers_attempt_question_uq"
 
@@ -318,12 +323,125 @@ def main() -> int:
     if select_granted != "1":
         failures.append("exam_answers: SELECT für authenticated fehlt (Ergebnisanzeige)")
 
+    # 10) finish_exam_attempt + exam_attempts-Rechte (Migration 20260914140000).
+    #     Regression P0: gesamtpunkte/finished_at waren vom Client frei setzbar,
+    #     der Abschluss lief als direktes UPDATE auf exam_attempts.
+    #
+    # 10a) UPDATE auf exam_attempts ist entzogen — kein Client-Pfad darf ein
+    #      Ergebnis schreiben.
+    upd_granted = scalar(
+        "select count(*) from information_schema.role_table_grants "
+        "where table_schema = 'public' and table_name = 'exam_attempts' "
+        "and grantee = 'authenticated' and privilege_type = 'UPDATE';"
+    )
+    if upd_granted != "0":
+        failures.append(
+            f"exam_attempts: UPDATE für authenticated hätte entzogen sein müssen (count={upd_granted})"
+        )
+
+    # 10b) INSERT nur noch spaltenweise auf exam_id/user_id — gesamtpunkte und
+    #      finished_at dürfen beim Anlegen nicht mitgegeben werden können.
+    insert_cols = {
+        r
+        for r in psql(
+            "select column_name from information_schema.column_privileges "
+            "where table_schema = 'public' and table_name = 'exam_attempts' "
+            "and grantee = 'authenticated' and privilege_type = 'INSERT';"
+        ).splitlines()
+        if r
+    }
+    if insert_cols != {"exam_id", "user_id"}:
+        failures.append(
+            "exam_attempts: INSERT-Spalten für authenticated erwartet {'exam_id','user_id'}, "
+            f"sind {sorted(insert_cols)}"
+        )
+    sel_attempts = scalar(
+        "select count(*) from information_schema.role_table_grants "
+        "where table_schema = 'public' and table_name = 'exam_attempts' "
+        "and grantee = 'authenticated' and privilege_type = 'SELECT';"
+    )
+    if sel_attempts != "1":
+        failures.append("exam_attempts: SELECT für authenticated fehlt (Statusliste/Ergebnis)")
+
+    # 10c) Smoke: Summe kommt aus exam_answers, nicht vom Aufrufer.
+    fe_attempt_id = "44444444-4444-4444-4444-444444444444"
+    psql(
+        f"insert into public.exam_attempts (id, user_id, exam_id) "
+        f"values ('{fe_attempt_id}', '{user_id}', '{sg_exam_id}') on conflict (id) do nothing;"
+    )
+    # Zwei bewertete Antworten (4 + 6) und eine unbewertete (null → zählt 0).
+    zweite_frage_id = "finish-test-frage-2"
+    dritte_frage_id = "finish-test-frage-3"
+    for qid in (zweite_frage_id, dritte_frage_id):
+        psql(
+            f"insert into public.exam_questions (id, exam_id, max_punkte) "
+            f"values ('{qid}', '{sg_exam_id}', 10) on conflict (id) do nothing;"
+        )
+    psql(
+        f"insert into public.exam_answers (attempt_id, question_id, antworttext, ki_punkte) values "
+        f"('{fe_attempt_id}', '{sg_question_id}', 'a', 4), "
+        f"('{fe_attempt_id}', '{zweite_frage_id}', 'b', 6), "
+        f"('{fe_attempt_id}', '{dritte_frage_id}', 'c', null);"
+    )
+    fe_ret = scalar_last(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.finish_exam_attempt('{fe_attempt_id}');"
+    )
+    if fe_ret != "10":
+        failures.append(f"finish_exam_attempt: erwartete Summe 10 (4+6+0), bekam {fe_ret!r}")
+    fe_persisted = scalar(
+        f"select gesamtpunkte from public.exam_attempts where id = '{fe_attempt_id}';"
+    )
+    if fe_persisted != "10":
+        failures.append(
+            f"finish_exam_attempt: exam_attempts.gesamtpunkte erwartet 10, ist {fe_persisted!r}"
+        )
+    fe_finished = scalar(
+        f"select finished_at is not null from public.exam_attempts where id = '{fe_attempt_id}';"
+    )
+    if fe_finished != "t":
+        failures.append("finish_exam_attempt: finished_at wurde nicht gesetzt")
+
+    # 10d) Idempotenz: erneuter Abschluss aktualisiert die Summe, verschiebt aber
+    #      den ursprünglichen Abgabezeitpunkt nicht.
+    erster_abschluss = scalar(
+        f"select finished_at from public.exam_attempts where id = '{fe_attempt_id}';"
+    )
+    psql(
+        f"update public.exam_answers set ki_punkte = 9 "
+        f"where attempt_id = '{fe_attempt_id}' and question_id = '{sg_question_id}';"
+    )
+    fe_ret2 = scalar_last(
+        f"select set_config('request.jwt.claim.sub', '{user_id}', false);\n"
+        f"select public.finish_exam_attempt('{fe_attempt_id}');"
+    )
+    if fe_ret2 != "15":
+        failures.append(f"finish_exam_attempt: erneuter Abschluss erwartet 15 (9+6+0), bekam {fe_ret2!r}")
+    zweiter_abschluss = scalar(
+        f"select finished_at from public.exam_attempts where id = '{fe_attempt_id}';"
+    )
+    if erster_abschluss != zweiter_abschluss:
+        failures.append(
+            "finish_exam_attempt: finished_at darf beim erneuten Abschluss nicht verschoben werden "
+            f"({erster_abschluss!r} → {zweiter_abschluss!r})"
+        )
+
+    # 10e) Ownership: fremder Nutzer darf den Attempt nicht abschließen.
+    if not psql_expect_fail(
+        f"select set_config('request.jwt.claim.sub', '{other_user_id}', false);\n"
+        f"select public.finish_exam_attempt('{fe_attempt_id}');"
+    ):
+        failures.append("finish_exam_attempt: fremder Nutzer hätte abgelehnt werden müssen (Ownership)")
+
     if failures:
         print("SCHEMA-VALIDIERUNG FEHLGESCHLAGEN:")
         for f in failures:
             print(f"  - {f}")
         return 1
-    print("Schema-Validierung OK: Tabellen, Drift-Spalten, RLS, Policies, RPCs, Fremdschlüssel, Unique-Index, RPC-Smoke.")
+    print(
+        "Schema-Validierung OK: Tabellen, Drift-Spalten, RLS, Policies, RPCs, Fremdschlüssel, "
+        "Unique-Index, RPC-Smoke, Schreibrechte auf exam_answers/exam_attempts."
+    )
     return 0
 
 
