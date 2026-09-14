@@ -17,6 +17,13 @@ Postgres 15/16) auf dem armserver. Backup/Restore nutzt die Standardwerkzeuge `p
 > ([ADR-0006](adr/0006-schema-baseline-statt-drift.md)) — bis dahin war das nicht der Fall: 50 der
 > 57 Tabellen existierten nur in der Live-Datenbank. Ein Wiederaufbau allein aus dem Repository
 > hätte sie verloren. Die **Daten** stehen ohnehin ausschließlich im `pg_dump`, nicht im Repo.
+>
+> Für einen Schema-Aufbau aus den Migrationen (nicht aus einem Dump) ist
+> `scripts/apply_migrations.py --apply` der Weg — es wendet ausstehende Migrationen an und trägt
+> sie in `public.schema_migrations` ein ([ADR-0007](adr/0007-migrationsstand-in-der-datenbank.md)).
+> Eine per `pg_restore` wiederhergestellte Datenbank bringt diese Tabelle samt Inhalt aus dem Dump
+> mit; der Stand stimmt also automatisch. Nach einem Restore lohnt `--check` als Kontrolle,
+> ob inzwischen neue Migrationen im Repository liegen.
 
 ## Backup
 

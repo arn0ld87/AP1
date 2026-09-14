@@ -189,6 +189,7 @@ def main() -> int:
         "prompt_version",
         "rubric",
         "rubric_criterion",
+        "schema_migrations",
         "source_chunk_competency",
         "source_chunk_reference",
         "source_chunk_topic",
