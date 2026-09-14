@@ -466,18 +466,27 @@ def main() -> int:
             f"ai_budget_daily: keine Grants für anon/authenticated erwartet (count={budget_grants})"
         )
 
-    # 11b) EXECUTE auf beide Budget-RPCs ist anon/authenticated entzogen.
-    budget_exec = scalar(
-        "select count(*) from information_schema.role_routine_grants "
-        "where routine_schema = 'public' "
-        "and routine_name in ('consume_ai_budget', 'release_ai_budget') "
-        "and grantee in ('anon', 'authenticated');"
-    )
-    if budget_exec != "0":
-        failures.append(
-            "Budget-RPCs: EXECUTE für anon/authenticated hätte entzogen sein müssen "
-            f"(count={budget_exec})"
-        )
+    # 11b) EXECUTE auf beide Budget-RPCs ist Clients effektiv entzogen.
+    #      has_function_privilege prüft auch die PUBLIC-Vererbung —
+    #      direkte Grants allein sind keine hinreichende Verifikation.
+    for rpc_sig in (
+        "public.consume_ai_budget(uuid,integer)",
+        "public.release_ai_budget(uuid)",
+    ):
+        for client_role in ("anon", "authenticated"):
+            eff = scalar(
+                f"select has_function_privilege('{client_role}', '{rpc_sig}', 'EXECUTE');"
+            )
+            if eff != "f":
+                failures.append(
+                    f"{rpc_sig}: effektives EXECUTE für {client_role} erwartet f "
+                    f"(bekam {eff!r}) — PUBLIC-Grant entzogen?"
+                )
+        svc = scalar(f"select has_function_privilege('service_role', '{rpc_sig}', 'EXECUTE');")
+        if svc != "t":
+            failures.append(
+                f"{rpc_sig}: EXECUTE für service_role erwartet t (bekam {svc!r})"
+            )
 
     # 11c) Smoke — atomares Limit mit p_limit=2: zwei Reservierungen gehen
     #      durch, die dritte wird abgelehnt.
