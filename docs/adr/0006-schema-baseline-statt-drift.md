@@ -76,10 +76,11 @@ Views, Enum-Werte, Policies samt Kommando, Indizes, Constraints und RLS-Status.
   diese zweite Generation in die App integriert wird, ist offen und nicht Gegenstand dieser
   Entscheidung.
 
-## Offener Folgepunkt
+## Folgepunkt (erledigt am 14.09.2026, siehe ADR-0007)
 
-Es existiert weiterhin **kein Mechanismus, der Drift verhindert**: Migrationen werden auf dem
-armserver von Hand eingespielt, und nichts hindert daran, wieder direkt in der Datenbank zu
-arbeiten. Der dokumentierte Update-Ablauf in [architecture.md](../architecture.md) enthält bis
-heute keinen Migrationsschritt (Backlog-Punkt P1-5). Ohne den bleibt diese Baseline eine
-Momentaufnahme, die erneut veraltet.
+Der hier notierte offene Punkt — kein Mechanismus, der Drift verhindert — ist mit
+[ADR-0007](0007-migrationsstand-in-der-datenbank.md) geschlossen: `public.schema_migrations`
+hält den angewendeten Stand fest, `scripts/apply_migrations.py --check` ist das Gate vor jedem
+Rebuild, und der Update-Ablauf in [architecture.md](../architecture.md) enthält den
+Migrationsschritt. Offen bleibt allein die einmalige Stempelung der Produktionsdatenbank
+(`--baseline`), ohne die das Gate dort noch nicht greift.
