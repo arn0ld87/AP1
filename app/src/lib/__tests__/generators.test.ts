@@ -157,12 +157,22 @@ describe("subnetting — unabhängige IPv4-Bitrechnung (32-Bit-Integer statt Okt
         const mask = (0xffffffff << (32 - p)) >>> 0;
         const network = (ipInt & mask) >>> 0;
         const broadcast = (network | (~mask >>> 0)) >>> 0;
-        const hosts = Math.pow(2, 32 - p) - 2;
+        // RFC 3021 (/31) und Hostroute (/32): die klassische Formel
+        // 2^h − 2 gilt hier nicht (siehe eigene Sonderfall-Tests unten).
+        const hosts = p === 31 ? 2 : p === 32 ? 1 : Math.pow(2, 32 - p) - 2;
 
         if (task.q.includes("Netzadresse")) {
+          expect(
+            p,
+            `Seed ${seed}: /31 und /32 dürfen nie nach der Netzadresse fragen`,
+          ).toBeLessThan(31);
           expect(task.answer, `Seed ${seed}`).toBe(intToIp(network));
           checked++;
         } else if (task.q.includes("Broadcast")) {
+          expect(
+            p,
+            `Seed ${seed}: /31 und /32 dürfen nie nach der Broadcast-Adresse fragen`,
+          ).toBeLessThan(31);
           expect(task.answer, `Seed ${seed}`).toBe(intToIp(broadcast));
           checked++;
         } else if (task.q.includes("Subnetzmaske")) {
@@ -172,12 +182,62 @@ describe("subnetting — unabhängige IPv4-Bitrechnung (32-Bit-Integer statt Okt
           expect(task.answer, `Seed ${seed}`).toBe(hosts);
           checked++;
         } else if (task.q.includes("letzte nutzbare Hostadresse")) {
+          expect(
+            p,
+            `Seed ${seed}: /31 und /32 dürfen nie nach der letzten nutzbaren Hostadresse fragen`,
+          ).toBeLessThan(31);
           expect(task.answer, `Seed ${seed}`).toBe(intToIp(broadcast - 1));
           checked++;
         }
       });
     }
     expect(checked).toBe(300);
+  });
+
+  it("/31 (RFC 3021, Punkt-zu-Punkt): keine Netz-/Broadcastadresse, genau 2 nutzbare Hosts", () => {
+    let checked = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      seededRun(seed, () => {
+        const task = GEN["subnetting"]!();
+        const [, pStr] = given(task, "IP-Adresse mit Präfix").split("/");
+        if (Number(pStr) !== 31) return;
+        const asksHosts = task.q.includes("nutzbarer Hostadressen");
+        const asksMask = task.q.includes("Subnetzmaske");
+        expect(asksHosts || asksMask, `Seed ${seed}: unerwartete Frage für /31: ${task.q}`).toBe(
+          true,
+        );
+        if (asksHosts) {
+          expect(task.answer, `Seed ${seed}`).toBe(2);
+        } else {
+          expect(task.answer, `Seed ${seed}`).toBe("255.255.255.254");
+        }
+        checked++;
+      });
+    }
+    expect(checked).toBeGreaterThan(10);
+  });
+
+  it("/32 (Hostroute): keine Netz-/Broadcastadresse, genau 1 nutzbare Adresse", () => {
+    let checked = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      seededRun(seed, () => {
+        const task = GEN["subnetting"]!();
+        const [, pStr] = given(task, "IP-Adresse mit Präfix").split("/");
+        if (Number(pStr) !== 32) return;
+        const asksHosts = task.q.includes("nutzbarer Hostadressen");
+        const asksMask = task.q.includes("Subnetzmaske");
+        expect(asksHosts || asksMask, `Seed ${seed}: unerwartete Frage für /32: ${task.q}`).toBe(
+          true,
+        );
+        if (asksHosts) {
+          expect(task.answer, `Seed ${seed}`).toBe(1);
+        } else {
+          expect(task.answer, `Seed ${seed}`).toBe("255.255.255.255");
+        }
+        checked++;
+      });
+    }
+    expect(checked).toBeGreaterThan(10);
   });
 });
 
@@ -313,7 +373,7 @@ describe("strom — Einheitenkontrolle und Grenzfälle", () => {
 });
 
 describe("wirtschaft — Rückrechnung statt Vorwärtsformel", () => {
-  it("Bezugspreis: aus Bezugspreis − Lieferkosten lässt sich der Rabattsatz zurückrechnen", () => {
+  it("Bezugspreis: vollständige Kette Listenpreis → Rabatt → Skonto → Bezugskosten von Hand nachgerechnet", () => {
     let checked = 0;
     for (let seed = 1; seed <= 300; seed++) {
       seededRun(seed, () => {
@@ -321,12 +381,24 @@ describe("wirtschaft — Rückrechnung statt Vorwärtsformel", () => {
         if (!task.q.includes("Bezugspreis pro Stück")) return;
         const lp = parseDe(given(task, "Listenpreis"));
         const rab = parseDe(given(task, "Rabatt"));
+        const skonto = parseDe(given(task, "Skonto"));
         const lief = parseDe(given(task, "Lieferkosten je Stück"));
-        const bp = task.answer as number;
-        // Rückrechnung: (bp - Lieferkosten) muss dem rabattierten Listenpreis entsprechen.
-        const rabattierterPreis = bp - lief;
-        const impliziterRabatt = (1 - rabattierterPreis / lp) * 100;
-        expect(impliziterRabatt, `Seed ${seed}`).toBeCloseTo(rab, 4);
+        // Unabhängige Handrechnung der Bezugskalkulation (Prozent als Abzug
+        // formuliert, nicht als Multiplikator wie im Generator):
+        //   Listeneinkaufspreis − Rabatt  = Zieleinkaufspreis
+        //   Zieleinkaufspreis  − Skonto   = Bareinkaufspreis
+        //   Bareinkaufspreis   + Bezugskosten = Bezugspreis
+        const rabattBetrag = (lp * rab) / 100;
+        const zielEinkaufspreis = lp - rabattBetrag;
+        const skontoBetrag = (zielEinkaufspreis * skonto) / 100;
+        const barEinkaufspreis = zielEinkaufspreis - skontoBetrag;
+        const erwarteterBezugspreis = barEinkaufspreis + lief;
+        expect(task.answer as number, `Seed ${seed}`).toBeCloseTo(erwarteterBezugspreis, 4);
+        // Regressionsschutz gegen das ursprüngliche Bug: Skonto darf den
+        // Bezugspreis nicht wirkungslos lassen (skonto ist nie 0 in diesem
+        // Generator, s. o.).
+        const ohneSkonto = zielEinkaufspreis + lief;
+        expect(task.answer as number, `Seed ${seed}`).toBeLessThan(ohneSkonto);
         checked++;
       });
     }

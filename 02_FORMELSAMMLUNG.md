@@ -182,6 +182,14 @@ Blockgröße             = 256 − letzter Maskenwert
 | /28 | 255.255.255.240 | 16 | 14 |
 | /29 | 255.255.255.248 | 8 | 6 |
 | /30 | 255.255.255.252 | 4 | 2 |
+| /31 | 255.255.255.254 | 2 | 2* |
+| /32 | 255.255.255.255 | 1 | 1* |
+
+*Sonderfälle, für die `2^h − 2` **nicht** gilt:*
+- **/31 (RFC 3021):** Punkt-zu-Punkt-Verbindung (z. B. Router-Link). Es gibt keine eigene
+  Netz- oder Broadcastadresse — **beide** Adressen des Zweierblocks sind nutzbare Hosts.
+- **/32:** Hostroute. Adressiert genau **einen** einzelnen Host, kein Subnetz — ebenfalls
+  keine eigene Netz- oder Broadcastadresse.
 
 **Beispiel (F2026 2a):** 192.168.16.52/25 → Maske 255.255.255.128, Blockgröße 128
 → Netz **192.168.16.0**, Broadcast **192.168.16.127**, Hosts **126**

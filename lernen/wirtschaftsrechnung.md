@@ -65,15 +65,31 @@ Ab welcher Lizenzanzahl ist die Eigenentwicklung über 10 Jahre günstiger?
 
 *(Originalaufgabe: Frühjahr 2022, Aufgabe 4c.)*
 
+## Typische Prüfungsaufgabe 4: Bezugspreiskalkulation (Rabatt und Skonto)
+
+Ein Lieferant bietet einen Listeneinkaufspreis von 1.250,00 EUR je Stück an, 5 % Rabatt und
+2 % Skonto bei Zahlung innerhalb der Frist. Lieferkosten je Stück: 18,00 EUR. Berechnen Sie den
+Bezugspreis pro Stück.
+
+### Lösungsschritte
+1. Listeneinkaufspreis − Rabatt = Zieleinkaufspreis: 1.250,00 × 0,95 = **1.187,50 EUR**
+2. Zieleinkaufspreis − Skonto = Bareinkaufspreis: 1.187,50 × 0,98 = **1.163,75 EUR**
+3. Bareinkaufspreis + Bezugskosten = Bezugspreis: 1.163,75 + 18,00 = **1.181,75 EUR**
+
+Die vollständige Kette hat **zwei** Abzüge vor den Bezugskosten — Rabatt und Skonto. Wird der
+Skonto-Schritt übersprungen, ergäbe sich fälschlich 1.205,50 EUR statt 1.181,75 EUR.
+
 ## Häufige Fehler
 
 - Rabatt auf den falschen Posten angewendet (im Beispiel nur auf PC und Monitor, nicht auf Leasing)
 - Nutzungsdauer in Jahren gelassen, obwohl Monatskosten gefragt sind
 - Netto und Brutto vertauscht: Brutto **mal** 1,19, Netto **durch** 1,19
 - Feiertage/Urlaub bei den Nettoarbeitstagen vergessen
+- **Skonto-Schritt in der Bezugskalkulation übersprungen** oder auf den Listenpreis statt auf
+  den bereits rabattierten Zieleinkaufspreis bezogen
 - Ergebnis nicht auf die geforderte Genauigkeit gerundet
 - Rechenweg nicht aufgeschrieben, obwohl ausdrücklich verlangt → Teilpunkte verschenkt
 
 ## Merksatz
 
-> **Erst Rabatt, dann Bezugskosten. Anschaffung durch Nutzungsmonate. Brutto ist mal 1,19.**
+> **Erst Rabatt, dann Skonto, dann Bezugskosten. Anschaffung durch Nutzungsmonate. Brutto ist mal 1,19.**

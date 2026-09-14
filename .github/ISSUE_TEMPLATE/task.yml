@@ -1,0 +1,63 @@
+name: Aufgabe
+description: Feature, Refactor oder eine Aufgabe für das Repo
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Labels vergibt das Triage. Die Angaben unten sind ein Vorschlag —
+        sie landen im Text, nicht automatisch als Label.
+
+  - type: dropdown
+    attributes:
+      label: Art
+      options:
+        - "type:feature — neue Funktion"
+        - "type:content — Lern- oder Prüfungsinhalt"
+        - "type:documentation — Dokumentation"
+        - "type:testing — Tests und Validierung"
+        - "type:automation — Automatisierung / CI"
+        - "type:refactor — Strukturverbesserung ohne Funktionsänderung"
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Vorgeschlagene Priorität
+      options:
+        - "priority:P0 — kritisch / blockierend"
+        - "priority:P1 — hoher Nutzen"
+        - "priority:P2 — sinnvolle Verbesserung"
+        - "priority:P3 — nice-to-have"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Kontext
+      description: Warum ist diese Aufgabe nötig? Welches Problem löst sie?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Akzeptanzkriterien
+      description: Was muss erfüllt sein, damit die Aufgabe erledigt ist?
+      placeholder: |
+        - [ ] Punkt 1
+        - [ ] Punkt 2
+        - [ ] Test für X geschrieben
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Weitere Details
+      description: Entwurf, Architektur-Überlegungen, Abhängigkeiten?
+
+  - type: checkboxes
+    attributes:
+      label: Vorbereitung
+      options:
+        - label: Aufgabe ist klar definiert
+          required: true
+        - label: Abhängigkeiten sind bekannt

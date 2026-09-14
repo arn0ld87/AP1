@@ -20,11 +20,21 @@
  *   flashcard_progress, error_log) hängen per FK ON DELETE CASCADE an
  *   auth.users — der GoTrue-Admin-Delete räumt sie mit ab.
  * - Session-Invalidierung passiert clientseitig per signOut nach Erfolg.
+ * - CORS: Access-Control-Allow-Origin ist auf die tatsächliche App-Herkunft
+ *   (ALLOWED_ORIGIN, Default https://pruefung.alexle135.de) eingeschränkt
+ *   statt "*" — ein Wildcard erlaubte jeder beliebigen Seite, die Function
+ *   per Browser-Fetch mit dem JWT eines eingeloggten Nutzers anzusprechen.
  */
+
+/** Live-Herkunft der App — Default für ALLOWED_ORIGIN, damit das Deployment
+ *  ohne neue Konfiguration funktioniert (siehe docs/architecture.md). */
+export const DEFAULT_ALLOWED_ORIGIN = "https://pruefung.alexle135.de";
 
 export interface FunctionEnv {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
+  /** Überschreibt Access-Control-Allow-Origin (Default: DEFAULT_ALLOWED_ORIGIN). */
+  ALLOWED_ORIGIN?: string;
 }
 
 function json(status: number, body: unknown, cors: Record<string, string>): Response {
@@ -152,7 +162,7 @@ export async function verifiedJwtSub(
  */
 export async function handleRequest(req: Request, env: FunctionEnv): Promise<Response> {
   const cors = {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN || DEFAULT_ALLOWED_ORIGIN,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
@@ -210,6 +220,7 @@ if (import.meta.main) {
     const env: FunctionEnv = {
       SUPABASE_URL: Deno.env.get("SUPABASE_URL") ?? "",
       SUPABASE_SERVICE_ROLE_KEY: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      ALLOWED_ORIGIN: Deno.env.get("ALLOWED_ORIGIN") ?? undefined,
     };
     return handleRequest(req, env);
   });

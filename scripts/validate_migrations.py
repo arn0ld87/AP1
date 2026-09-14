@@ -64,6 +64,18 @@ EXPECT_COLUMNS = {
     "exam_answers": ["user_id", "ki_punkte", "ki_feedback"],
 }
 
+# CHECK-Constraints der Visual-Spalten (20260914120000_exam_question_visuals.sql).
+# Der Spalten-Check oben prueft nur, dass die Spalten existieren -- nicht, dass
+# ihre CHECK-Constraints mitkamen bzw. tatsaechlich greifen. Je Tabelle: Liste
+# von (Constraint-Name, Beispiel-Werte die ihn verletzen muessen).
+EXPECT_CHECK_CONSTRAINTS = {
+    "exam_questions": [
+        "exam_questions_visual_type_check",
+        "exam_questions_visual_alt_check",
+        "exam_questions_answer_schema_check",
+    ],
+}
+
 EXPECT_RPC = [
     "increment_topic_mastery",
     "increment_flashcard_progress",
@@ -157,6 +169,64 @@ def main() -> int:
         for c in cols:
             if c not in have:
                 failures.append(f"Spalte fehlt: {table}.{c}")
+
+    # 3b) CHECK-Constraints der Visual-Spalten vorhanden?
+    for table, constraints in EXPECT_CHECK_CONSTRAINTS.items():
+        have = {
+            r
+            for r in psql(
+                "select conname from pg_constraint "
+                f"where conrelid = 'public.{table}'::regclass and contype = 'c';"
+            ).splitlines()
+            if r
+        }
+        for c in constraints:
+            if c not in have:
+                failures.append(f"CHECK-Constraint fehlt: {table}.{c}")
+
+    # 3c) CHECK-Constraints der Visual-Spalten auch tatsaechlich wirksam?
+    #     Ein Konstraint kann per Namen existieren, aber (z.B. durch eine
+    #     spaetere fehlerhafte Aenderung) nicht mehr die erwarteten Werte
+    #     ablehnen -- deshalb zusaetzlich zur Existenzpruebung ein Smoke-Test
+    #     je Constraint, analog zu den Clamping-Tests von submit_self_grade.
+    vc_exam_id = "visual-check-test-exam"
+    if not psql_expect_fail(
+        f"insert into public.exam_questions (id, exam_id, visual_type) "
+        f"values ('visual-check-bad-type', '{vc_exam_id}', 'ungueltig');"
+    ):
+        failures.append(
+            "exam_questions_visual_type_check: unbekannter visual_type haette abgelehnt werden muessen"
+        )
+    if not psql_expect_fail(
+        f"insert into public.exam_questions (id, exam_id, visual_type, visual_alt) "
+        f"values ('visual-check-missing-alt', '{vc_exam_id}', 'gantt', null);"
+    ):
+        failures.append(
+            "exam_questions_visual_alt_check: gesetzter visual_type ohne visual_alt "
+            "haette abgelehnt werden muessen"
+        )
+    if not psql_expect_fail(
+        f"insert into public.exam_questions (id, exam_id, answer_schema) "
+        f"values ('visual-check-bad-schema', '{vc_exam_id}', '[1,2,3]'::jsonb);"
+    ):
+        failures.append(
+            "exam_questions_answer_schema_check: answer_schema als Array (statt Objekt) "
+            "haette abgelehnt werden muessen"
+        )
+    # Gueltige Kombination muss weiterhin durchgehen (kein Ueberschiessen der
+    # Constraints auf legitime Werte).
+    psql(
+        f"insert into public.exam_questions (id, exam_id, visual_type, visual_alt, answer_schema) "
+        f"values ('visual-check-valid', '{vc_exam_id}', 'gantt', 'Gantt-Diagramm der Projektphasen', "
+        f"'{{\"felder\": []}}'::jsonb) on conflict (id) do nothing;"
+    )
+    valid_ok = scalar(
+        "select count(*) from public.exam_questions where id = 'visual-check-valid';"
+    )
+    if valid_ok != "1":
+        failures.append(
+            "Visual-CHECK-Constraints lehnen eine gueltige Kombination faelschlich ab"
+        )
 
     # 4) RLS aktiv — auf JEDER Tabelle im public-Schema, nicht nur auf den
     #    namentlich erwarteten. Seit der Baseline-Migration (20260914170000)
@@ -551,6 +621,55 @@ def main() -> int:
     # 11f) p_user null wird abgelehnt.
     if not psql_expect_fail("select public.consume_ai_budget(null, 2);"):
         failures.append("consume_ai_budget: p_user=NULL hätte abgelehnt werden müssen")
+
+    # 12) topic_mastery/flashcard_progress: Direktschreibzugriff fuer
+    #     authenticated entzogen (Migration 20260914200000). Gepflegt werden
+    #     beide Tabellen ausschliesslich ueber increment_topic_mastery bzw.
+    #     increment_flashcard_progress (SECURITY DEFINER); SELECT bleibt fuer
+    #     die Fortschrittsanzeige erhalten.
+    for table in ("topic_mastery", "flashcard_progress"):
+        for privilege in ("INSERT", "UPDATE", "DELETE"):
+            granted = scalar(
+                "select count(*) from information_schema.role_table_grants "
+                f"where table_schema = 'public' and table_name = '{table}' "
+                f"and grantee = 'authenticated' and privilege_type = '{privilege}';"
+            )
+            if granted != "0":
+                failures.append(
+                    f"{table}: {privilege} fuer authenticated haette entzogen sein muessen "
+                    f"(count={granted})"
+                )
+        select_granted = scalar(
+            "select count(*) from information_schema.role_table_grants "
+            f"where table_schema = 'public' and table_name = '{table}' "
+            "and grantee = 'authenticated' and privilege_type = 'SELECT';"
+        )
+        if select_granted != "1":
+            failures.append(f"{table}: SELECT fuer authenticated fehlt (Fortschrittsanzeige)")
+
+    # 12b) Smoke: direkter Schreibzugriff wird von Postgres selbst abgelehnt,
+    #      nicht nur "kein Grant laut information_schema" (RESTRICT statt nur
+    #      Konvention). set_config auf den Testnutzer aus Abschnitt 8, damit
+    #      RLS greifen wuerde, faellt die Ablehnung bereits vorher unter
+    #      "permission denied" durch den fehlenden Tabellen-Grant.
+    if not psql_expect_fail(
+        f"set role authenticated;\n"
+        f"insert into public.topic_mastery (user_id, topic_id, richtig, falsch) "
+        f"values ('{user_id}', 'direct-write-test', 1, 0);\n"
+        "reset role;"
+    ):
+        failures.append(
+            "topic_mastery: direktes INSERT als authenticated haette abgelehnt werden muessen"
+        )
+    if not psql_expect_fail(
+        f"set role authenticated;\n"
+        f"insert into public.flashcard_progress (user_id, card_id, richtig, falsch) "
+        f"values ('{user_id}', 'direct-write-test', 1, 0);\n"
+        "reset role;"
+    ):
+        failures.append(
+            "flashcard_progress: direktes INSERT als authenticated haette abgelehnt werden muessen"
+        )
 
     if failures:
         print("SCHEMA-VALIDIERUNG FEHLGESCHLAGEN:")

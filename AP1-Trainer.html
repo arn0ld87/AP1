@@ -387,15 +387,21 @@ function intIp(v){return [v>>>24,(v>>>16)&255,(v>>>8)&255,v&255].join('.')}
 
 const GEN = {
   subnetting(){
-    const p = pick([25,26,27,28,29]);
+    // /30: klassische Punkt-zu-Punkt-Maske (4 Adressen, 2 nutzbar), in
+    // Altpruefungen der haeufigste WAN-Link-Fall.
+    const p = pick([25,26,27,28,29,30,31,32]);
     const base = pick(['192.168.','172.20.','10.42.','192.168.']);
     const o3 = rnd(0,60), o4 = rnd(1,254);
     const ip = base+o3+'.'+o4;
     const bits=32-p, block=Math.pow(2,bits);
     const net = Math.floor(o4/block)*block, bc = net+block-1;
     const netIp = base+o3+'.'+net, bcIp = base+o3+'.'+bc;
-    const hosts = block-2;
-    const q = pick(['net','bc','hosts','mask','last']);
+    // Sonderfälle ohne eigene Netz-/Broadcastadresse:
+    // /31 = RFC 3021 (Punkt-zu-Punkt-Verbindung) — beide Adressen nutzbar.
+    // /32 = Hostroute — adressiert genau einen einzelnen Host.
+    const isP2P = p===31, isHostRoute = p===32;
+    const hosts = isP2P ? 2 : isHostRoute ? 1 : block-2;
+    const q = (isP2P||isHostRoute) ? pick(['hosts','mask']) : pick(['net','bc','hosts','mask','last']);
     const map={
       net:  {t:'Geben Sie die <b>Netzadresse</b> an.', a:netIp, u:'', ip:true},
       bc:   {t:'Geben Sie die <b>Broadcast-Adresse</b> an.', a:bcIp, u:'', ip:true},
@@ -404,19 +410,38 @@ const GEN = {
       last: {t:'Geben Sie die <b>letzte nutzbare Hostadresse</b> an.', a:base+o3+'.'+(bc-1), u:'', ip:true}
     };
     const s=map[q];
-    return {
-      topic:'subnetting', pts:rnd(1,2),
-      lead:'Ein Arbeitsplatzrechner hat die folgende Konfiguration erhalten.',
-      q:s.t, given:[['IP-Adresse mit Präfix', ip+'/'+p]],
-      answer:s.a, unit:s.u, ip:!!s.ip,
-      steps:[
+    const lead = isP2P ? 'Zwei Router sind über eine Punkt-zu-Punkt-WAN-Strecke verbunden.'
+      : isHostRoute ? 'Für einen einzelnen Zielrechner soll eine Hostroute eingetragen werden.'
+      : 'Ein Arbeitsplatzrechner hat die folgende Konfiguration erhalten.';
+    const steps = isP2P ? [
+        `Präfix /31 ist ein Sonderfall nach <b>RFC 3021</b>: <code>${bits}</code> Hostbit, Blockgröße <code>${block}</code>.`,
+        `Subnetzmaske: <code>${maskOf(p)}</code>`,
+        `Für Punkt-zu-Punkt-Verbindungen gibt es <b>keine</b> eigene Netz- oder Broadcastadresse — beide Adressen des Blocks (<code>${netIp}</code> und <code>${bcIp}</code>) sind nutzbare Hosts.`,
+        `Nutzbare Hosts: <code>2</code> (nicht <code>2^${bits} − 2 = 0</code>)`
+      ] : isHostRoute ? [
+        `Präfix /32 hat <code>${bits}</code> Hostbits, Blockgröße <code>${block}</code> — es adressiert genau einen einzigen Host (Hostroute).`,
+        `Subnetzmaske: <code>${maskOf(p)}</code>`,
+        `Es gibt keine eigene Netz- oder Broadcastadresse — <code>${ip}</code> bezeichnet nur diese eine Adresse.`,
+        `Nutzbare Hosts: <code>1</code>`
+      ] : [
         `Präfix /${p} bedeutet <code>${bits}</code> Hostbits.`,
         `Subnetzmaske: <code>${maskOf(p)}</code>`,
         `Blockgröße: <code>256 − ${maskOf(p).split('.')[3]} = ${block}</code>`,
         `Der Block, in dem .${o4} liegt: <code>${net} – ${bc}</code>`,
         `Netzadresse <code>${netIp}</code>, Broadcast <code>${bcIp}</code>, Hosts <code>2^${bits} − 2 = ${hosts}</code>`
-      ],
-      trap:'Anzahl der Hosts ist 2^h <b>minus zwei</b> — Netz- und Broadcastadresse sind nicht vergebbar.'
+      ];
+    const trap = isP2P
+      ? 'Bei /31 (RFC 3021, Punkt-zu-Punkt) gibt es <b>keine</b> Netz- oder Broadcastadresse — beide Adressen sind nutzbar, die Hostzahl ist <b>2</b>, nicht 2^1 − 2 = 0.'
+      : isHostRoute
+      ? 'Eine /32-Maske ist eine <b>Hostroute</b> und adressiert genau einen Host, kein Subnetz — Netz- und Broadcastadresse gibt es hier nicht.'
+      : 'Anzahl der Hosts ist 2^h <b>minus zwei</b> — Netz- und Broadcastadresse sind nicht vergebbar.';
+    return {
+      topic:'subnetting', pts:rnd(1,2),
+      lead,
+      q:s.t, given:[['IP-Adresse mit Präfix', ip+'/'+p]],
+      answer:s.a, unit:s.u, ip:!!s.ip,
+      steps,
+      trap
     };
   },
 
@@ -568,19 +593,22 @@ const GEN = {
   wirtschaft(){
     const mode=pick(['bezug','brutto','amort','monat']);
     if(mode==='bezug'){
-      const lp=pick([890,1190,1250,1320,1480]), rab=pick([0,3,5,8,10]), lief=pick([0,9,12,18,25]);
-      const bp=lp*(1-rab/100)+lief;
+      const lp=pick([890,1190,1250,1320,1480]), rab=pick([0,3,5,8,10]), skonto=pick([2,3]), lief=pick([0,9,12,18,25]);
+      // Bezugskalkulation, vollständige Kette:
+      // Listeneinkaufspreis − Rabatt = Zieleinkaufspreis − Skonto = Bareinkaufspreis + Bezugskosten = Bezugspreis
+      const zep=lp*(1-rab/100), bep=zep*(1-skonto/100), bp=bep+lief;
       return {
-        topic:'wirtschaft', pts:3,
+        topic:'wirtschaft', pts:4,
         lead:'Für eine Beschaffung liegt ein Angebot vor.',
         q:'Berechnen Sie den <b>Bezugspreis pro Stück in EUR</b>.',
-        given:[['Listenpreis',de(lp,2)+' EUR'],['Rabatt',rab+' %'],['Lieferkosten je Stück',de(lief,2)+' EUR']],
+        given:[['Listenpreis',de(lp,2)+' EUR'],['Rabatt',rab+' %'],['Skonto',skonto+' %'],['Lieferkosten je Stück',de(lief,2)+' EUR']],
         answer:bp, unit:'EUR', dec:2,
         steps:[
-          `Rabatt abziehen: <code>${de(lp,2)} × ${de(1-rab/100,2)} = ${de(lp*(1-rab/100),2)} EUR</code>`,
-          `Lieferkosten addieren: <code>+ ${de(lief,2)} = ${de(bp,2)} EUR</code>`
+          `Rabatt abziehen → Zieleinkaufspreis: <code>${de(lp,2)} × ${de(1-rab/100,2)} = ${de(zep,2)} EUR</code>`,
+          `Skonto abziehen → Bareinkaufspreis: <code>${de(zep,2)} × ${de(1-skonto/100,2)} = ${de(bep,2)} EUR</code>`,
+          `Bezugskosten addieren → Bezugspreis: <code>${de(bep,2)} + ${de(lief,2)} = ${de(bp,2)} EUR</code>`
         ],
-        trap:'Reihenfolge: erst Rabatt vom Listenpreis, dann Bezugskosten dazu.'
+        trap:'Reihenfolge: erst Rabatt vom Listenpreis (→ Zieleinkaufspreis), dann Skonto vom Zieleinkaufspreis (→ Bareinkaufspreis) — erst danach die Bezugskosten addieren.'
       };
     }
     if(mode==='brutto'){

@@ -1,0 +1,68 @@
+name: Fehler
+description: Fehlerhaftes Verhalten oder Crash melden
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        `type:bug` wird automatisch gesetzt. Priorität und Aufwand vergibt das Triage —
+        die Angaben unten sind ein Vorschlag, kein Label.
+
+  - type: dropdown
+    attributes:
+      label: Vorgeschlagene Priorität
+      description: P0 = blockiert die Nutzung, P3 = Kosmetik
+      options:
+        - "priority:P0 — kritisch / blockierend"
+        - "priority:P1 — hoher Nutzen"
+        - "priority:P2 — sinnvolle Verbesserung"
+        - "priority:P3 — nice-to-have"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Beschreibung
+      description: Was geht schief? Kurze Zusammenfassung.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Schritte zum Reproduzieren
+      description: Wie kann ich den Fehler selbst nachvollziehen?
+      placeholder: |
+        1. Öffne ...
+        2. Klicke auf ...
+        3. Fehler erscheint
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Erwartetes Verhalten
+      description: Was sollte stattdessen passieren?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Umgebung
+      description: Browser, Betriebssystem, App-Version?
+      placeholder: |
+        - Browser: Chrome 130
+        - OS: macOS 15
+        - App-Version: 0.5.0
+
+  - type: textarea
+    attributes:
+      label: Screenshots / Logs
+      description: Optional, aber hilfreich — Fehlerausgabe, Screenshots.
+
+  - type: checkboxes
+    attributes:
+      label: Voruntersuchung
+      options:
+        - label: Ich habe den Fehler reproduziert
+          required: true
+        - label: Der Fehler ist neu (nicht schon bekannt)
