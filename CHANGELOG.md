@@ -7,6 +7,18 @@ Version.
 
 ## [Unreleased]
 
+### Adaptive AP1 Mission (14.09.2026)
+
+#### Added
+
+- Zentrale Route `/mission` mit datenbasierter Tagesmission, aktiver Abfrage, Antwortsicherheit,
+  Fehlerwiederholung als neue Variante, Mini-Boss und persistierter Session-Auswertung.
+- Deterministische Lernlogik für Priorität, Spaced Repetition (1/3/7/14 Tage), XP,
+  Prüfungsbereitschaft und Countdown samt unabhängigen Unit-Tests.
+- Migration `20260914210000_ap1_mission.sql`: Erweiterung von `learning_session` und
+  `topic_mastery`; atomarer RPC `record_mission_attempt` für Fortschritt, Confidence, XP und
+  Fehlerbuch.
+
 ### Drift-Prävention (14.09.2026)
 
 #### Added

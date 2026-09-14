@@ -185,27 +185,87 @@ export type Database = {
         };
         Relationships: [];
       };
+      learning_session: {
+        Row: {
+          active_seconds: number | null;
+          created_at: string;
+          details: Json;
+          ended_at: string | null;
+          exam_id: string | null;
+          id: string;
+          points_earned: number | null;
+          points_possible: number | null;
+          questions_answered: number;
+          session_kind: string;
+          started_at: string;
+          user_id: string;
+          was_interrupted: boolean;
+          xp_earned: number;
+        };
+        Insert: {
+          active_seconds?: number | null;
+          created_at?: string;
+          details?: Json;
+          ended_at?: string | null;
+          exam_id?: string | null;
+          id?: string;
+          points_earned?: number | null;
+          points_possible?: number | null;
+          questions_answered?: number;
+          session_kind?: string;
+          started_at?: string;
+          user_id: string;
+          was_interrupted?: boolean;
+          xp_earned?: number;
+        };
+        Update: {
+          active_seconds?: number | null;
+          details?: Json;
+          ended_at?: string | null;
+          points_earned?: number | null;
+          points_possible?: number | null;
+          questions_answered?: number;
+          was_interrupted?: boolean;
+          xp_earned?: number;
+        };
+        Relationships: [];
+      };
       topic_mastery: {
         Row: {
+          confidence_score: number;
           falsch: number;
+          last_seen_at: string | null;
+          next_review_at: string | null;
           richtig: number;
+          streak: number;
           topic_id: string;
           updated_at: string;
           user_id: string;
+          xp: number;
         };
         Insert: {
+          confidence_score?: number;
           falsch?: number;
+          last_seen_at?: string | null;
+          next_review_at?: string | null;
           richtig?: number;
+          streak?: number;
           topic_id: string;
           updated_at?: string;
           user_id: string;
+          xp?: number;
         };
         Update: {
+          confidence_score?: number;
           falsch?: number;
+          last_seen_at?: string | null;
+          next_review_at?: string | null;
           richtig?: number;
+          streak?: number;
           topic_id?: string;
           updated_at?: string;
           user_id?: string;
+          xp?: number;
         };
         Relationships: [];
       };
@@ -214,6 +274,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      advance_mission_session: {
+        Args: {
+          p_attempt_id: string;
+          p_next_index: number;
+          p_session_id: string;
+        };
+        Returns: Json;
+      };
       increment_flashcard_progress: {
         Args: { p_card_id: string; p_correct: boolean };
         Returns: undefined;
@@ -221,6 +289,18 @@ export type Database = {
       increment_topic_mastery: {
         Args: { p_topic_id: string; p_correct: boolean };
         Returns: undefined;
+      };
+      record_mission_attempt: {
+        Args: {
+          p_attempt_id: string;
+          p_confidence: string;
+          p_correct: boolean;
+          p_error_description?: string | null;
+          p_next_queue: Json;
+          p_session_id: string;
+          p_topic_id: string;
+        };
+        Returns: Json;
       };
     };
     Enums: {

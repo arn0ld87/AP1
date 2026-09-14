@@ -38,10 +38,12 @@ wirkt als Deny-all, der Zugriff läuft dort ausschließlich über `service_role`
 `security definer`-Funktionen. `scripts/validate_migrations.py` erzwingt, dass jede Tabelle einem
 der beiden Muster folgt.
 
-## Tabellen (Lernplattform-Kern)
+## Von der App genutzte Tabellen
 
 Die Spec sah zusätzlich eine `profiles`-Tabelle vor; Lovable hat bei der Schema-Implementierung
-(Task 7) nur die folgenden 6 Tabellen angelegt (`ai_budget_daily` kam später dazu). Kein
+(Task 7) zunächst 6 Tabellen angelegt. `ai_budget_daily` kam später hinzu; die AP1 Mission nutzt
+außerdem `learning_session` aus der zweiten Schema-Generation. Damit verwendet die App heute 8
+Tabellen. `learning_session` wird in der Gesamtzahl von 57 Tabellen nur einmal gezählt. Kein
 nachgelagerter Task konsumiert `profiles` — bei Bedarf (z. B. Anzeigename statt E-Mail) müsste sie
 nachträglich per Migration ergänzt werden. Die zweite Schema-Generation bringt inzwischen eine
 eigene `user_profile`-Tabelle mit, die die App bislang nicht nutzt.
@@ -54,6 +56,8 @@ eigene `user_profile`-Tabelle mit, die die App bislang nicht nutzt.
 | `exam_attempts`      | Ein Durchlauf einer Probeprüfung                                                         | `user_id`, `exam_id`, `started_at`, `finished_at`, `gesamtpunkte`                                                               |
 | `exam_answers`       | Antwort + KI-Bewertung pro Teilaufgabe                                                   | `attempt_id`, `question_id`, `antworttext`, `ki_punkte`, `ki_feedback`, `user_id`, `created_at`                                 |
 | `error_log`          | Automatisch befüllt aus falschen Generator-Antworten und niedrig bewerteten KI-Antworten | Thema, Zeitpunkt, Kurzbeschreibung                                                                                              |
+| `ai_budget_daily`    | Tagesbudget für KI-Bewertungen pro Nutzer                                                | `user_id`, `budget_date`, `request_count`                                                                                       |
+| `learning_session`   | Prüfungs- und Missionssitzungen samt atomarem Wiederaufnahmepunkt                        | `id`, `user_id`, `exam_id`, `session_kind`, `details`, `questions_answered`, `xp_earned`                                        |
 
 ## Herkunft der Daten
 
@@ -78,7 +82,19 @@ exam_attempts 1──n exam_answers n──1 exam_questions
 auth.users 1──n topic_mastery
 auth.users 1──n flashcard_progress
 auth.users 1──n exam_attempts
+auth.users 1──n learning_session
+exam 1──n learning_session (nur session_kind = 'exam')
 ```
+
+## Adaptive AP1 Mission
+
+Migration `20260914210000_ap1_mission.sql` verwendet die bereits vorhandene Tabelle
+`learning_session` auch für Generator-Sessions (`session_kind = 'mission'`; `exam_id` darf dafür
+leer sein). `topic_mastery` trägt zusätzlich Confidence, Erfolgsserie, nächste Wiederholung,
+letzte Bearbeitung und XP. Der RPC `record_mission_attempt` bindet jeden Versuch an die aktuelle
+Aufgabe, berechnet XP serverseitig und schreibt Themenfortschritt, Session-Zähler, Fehlerprotokoll
+sowie einen idempotenten Antwortmarker atomar. `advance_mission_session` verschiebt den
+Wiederaufnahmepunkt anschließend nur für diesen gespeicherten Versuch.
 
 Schreibzugriff auf Bewertungsdaten läuft ausschließlich über geprüfte serverseitige Pfade:
 `exam_answers` hat für `authenticated` kein `INSERT`/`UPDATE` (nur `submit_self_grade` und die Edge

@@ -17,6 +17,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedFormelsammlungRouteImport } from './routes/_authenticated/formelsammlung'
 import { Route as AuthenticatedFortschrittRouteImport } from './routes/_authenticated/fortschritt'
 import { Route as AuthenticatedLernblaetterRouteImport } from './routes/_authenticated/lernblaetter'
+import { Route as AuthenticatedMissionRouteImport } from './routes/_authenticated/mission'
 import { Route as AuthenticatedProbepruefungenRouteImport } from './routes/_authenticated/probepruefungen'
 import { Route as AuthenticatedRechnenRouteImport } from './routes/_authenticated/rechnen'
 import { Route as AuthenticatedTagesplanRouteImport } from './routes/_authenticated/tagesplan'
@@ -64,6 +65,11 @@ const AuthenticatedLernblaetterRoute =
     path: '/lernblaetter',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMissionRoute = AuthenticatedMissionRouteImport.update({
+  id: '/mission',
+  path: '/mission',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProbepruefungenRoute =
   AuthenticatedProbepruefungenRouteImport.update({
     id: '/probepruefungen',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/fortschritt': typeof AuthenticatedFortschrittRoute
   '/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/mission': typeof AuthenticatedMissionRoute
   '/probepruefungen': typeof AuthenticatedProbepruefungenRoute
   '/rechnen': typeof AuthenticatedRechnenRoute
   '/tagesplan': typeof AuthenticatedTagesplanRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/fortschritt': typeof AuthenticatedFortschrittRoute
   '/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/mission': typeof AuthenticatedMissionRoute
   '/probepruefungen': typeof AuthenticatedProbepruefungenRoute
   '/rechnen': typeof AuthenticatedRechnenRoute
   '/tagesplan': typeof AuthenticatedTagesplanRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/_authenticated/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/_authenticated/fortschritt': typeof AuthenticatedFortschrittRoute
   '/_authenticated/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/_authenticated/mission': typeof AuthenticatedMissionRoute
   '/_authenticated/probepruefungen': typeof AuthenticatedProbepruefungenRoute
   '/_authenticated/rechnen': typeof AuthenticatedRechnenRoute
   '/_authenticated/tagesplan': typeof AuthenticatedTagesplanRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/formelsammlung'
     | '/fortschritt'
     | '/lernblaetter'
+    | '/mission'
     | '/probepruefungen'
     | '/rechnen'
     | '/tagesplan'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/formelsammlung'
     | '/fortschritt'
     | '/lernblaetter'
+    | '/mission'
     | '/probepruefungen'
     | '/rechnen'
     | '/tagesplan'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/_authenticated/formelsammlung'
     | '/_authenticated/fortschritt'
     | '/_authenticated/lernblaetter'
+    | '/_authenticated/mission'
     | '/_authenticated/probepruefungen'
     | '/_authenticated/rechnen'
     | '/_authenticated/tagesplan'
@@ -236,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLernblaetterRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mission': {
+      id: '/_authenticated/mission'
+      path: '/mission'
+      fullPath: '/mission'
+      preLoaderRoute: typeof AuthenticatedMissionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/probepruefungen': {
       id: '/_authenticated/probepruefungen'
       path: '/probepruefungen'
@@ -271,6 +290,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFormelsammlungRoute: typeof AuthenticatedFormelsammlungRoute
   AuthenticatedFortschrittRoute: typeof AuthenticatedFortschrittRoute
   AuthenticatedLernblaetterRoute: typeof AuthenticatedLernblaetterRoute
+  AuthenticatedMissionRoute: typeof AuthenticatedMissionRoute
   AuthenticatedProbepruefungenRoute: typeof AuthenticatedProbepruefungenRoute
   AuthenticatedRechnenRoute: typeof AuthenticatedRechnenRoute
   AuthenticatedTagesplanRoute: typeof AuthenticatedTagesplanRoute
@@ -282,6 +302,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFormelsammlungRoute: AuthenticatedFormelsammlungRoute,
   AuthenticatedFortschrittRoute: AuthenticatedFortschrittRoute,
   AuthenticatedLernblaetterRoute: AuthenticatedLernblaetterRoute,
+  AuthenticatedMissionRoute: AuthenticatedMissionRoute,
   AuthenticatedProbepruefungenRoute: AuthenticatedProbepruefungenRoute,
   AuthenticatedRechnenRoute: AuthenticatedRechnenRoute,
   AuthenticatedTagesplanRoute: AuthenticatedTagesplanRoute,

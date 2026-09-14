@@ -12,6 +12,7 @@ import {
   Loader2,
   LogOut,
   Sigma,
+  Target,
   Trash2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const navItems = [
+  { title: "AP1 Mission", url: "/mission", icon: Target },
   { title: "Rechnen üben", url: "/rechnen", icon: Calculator },
   { title: "Wissenskarten", url: "/wissenskarten", icon: BookOpen },
   { title: "Lernblätter", url: "/lernblaetter", icon: FileText },

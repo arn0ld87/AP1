@@ -26,10 +26,11 @@ Tasks 1–16); bei Widerspruch zur Spec gilt dieses Dokument als aktueller.
      unter `app/` implementiert, gegen ein **self-hosted Supabase** auf dem armserver
      (`supabase.alexle135.de`) statt Lovables gehostetes Projekt.
 
-## Feature-Module (7)
+## Feature-Module (8)
 
 | #   | Modul                         | Route              | Quelle im Repo                                                              | Ersetzt                                      | Stand      |
 | --- | ----------------------------- | ------------------ | --------------------------------------------------------------------------- | -------------------------------------------- | ---------- |
+| 0   | AP1 Mission                   | `/mission`         | Generatoren, Wissenskarten, `topic_mastery`, `error_log`                    | manuelle Wahl der nächsten Lernaktivität     | **fertig** |
 | 1   | Rechnen üben                  | `/rechnen`         | `AP1-Trainer.html` + strukturierte Fachgeneratoren                          | Generator-Teil des Trainers                  | **fertig** |
 | 2   | Wissenskarten                 | `/wissenskarten`   | `AP1-Trainer.html` (`CARDS`)                                                | Flashcard-Teil des Trainers                  | **fertig** |
 | 3   | Lernblätter                   | `/lernblaetter`    | `lernen/*.md` + visuelle Lerninhalte im Frontend                            | manuelles Nachschlagen                       | **fertig** |
@@ -38,7 +39,7 @@ Tasks 1–16); bei Widerspruch zur Spec gilt dieses Dokument als aktueller.
 | 6   | Fortschritt & Fehlerliste     | `/fortschritt`     | abgeleitet aus 1/2/5                                                        | `04_LERNFORTSCHRITT.md`, `05_FEHLERLISTE.md` | **fertig** |
 | 7   | Tagesplan                     | `/tagesplan`       | `01_LERNPLAN.md` (migriert nach `data/migration/lernplan.json`)             | manuelles Abhaken                            | **fertig** |
 
-Alle 7 Module sind implementiert (Routes unter `app/src/routes/_authenticated/`) inklusive
+Alle 8 Module sind implementiert (Routes unter `app/src/routes/_authenticated/`) inklusive
 serverseitigem Fortschritts-Upsert gegen `topic_mastery` bzw. `flashcard_progress`; das
 Probeprüfungs-Modul bewertet über die Edge Function `grade-exam-answer` (siehe
 [api.md](api.md)).
@@ -94,7 +95,7 @@ aus einem gemeinsamen Datenmodell statt aus voneinander abweichenden Darstellung
 
 ## Design-System
 
-„Discord-Stil": dunkles Theme, linke Sidebar mit den 7 Feature-Modulen, Content-Pane rechts,
+„Discord-Stil": dunkles Theme, linke Sidebar mit den 8 Feature-Modulen, Content-Pane rechts,
 abgerundete Karten, eigenständige Optik ohne Bezug zum alexle135-Branding.
 
 ## KI-Bewertungs-Flow (Kurzfassung)
@@ -127,7 +128,7 @@ origin https://github.com/arn0ld87/AP1.git && git fetch origin main && git reset
 origin/main`); `.env` aus `deploy/.env.example` befüllen (`VITE_SUPABASE_URL`,
    `VITE_SUPABASE_PUBLISHABLE_KEY`) — bleibt untracked und von Pulls unberührt.
 2. Schema aufbauen: `AP1_PSQL="docker exec -i supabase-db psql -U supabase_admin -d postgres"
-   python3 scripts/apply_migrations.py --apply` wendet alle Migrationen aus
+python3 scripts/apply_migrations.py --apply` wendet alle Migrationen aus
    `app/supabase/migrations/` in Reihenfolge an und trägt sie in `public.schema_migrations` ein.
    Verifikation auf frischer DB: `python3 scripts/validate_migrations.py`.
 3. Content laden: `python3 scripts/migrate/parse_exams.py` (u. a.) erzeugt `data/migration/*.json`,
