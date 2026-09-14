@@ -47,7 +47,15 @@ as $$
 $$;
 """
 
-EXPECT_TABLES = ["topic_mastery", "flashcard_progress", "exam_questions", "exam_attempts", "exam_answers", "error_log"]
+EXPECT_TABLES = [
+    "topic_mastery",
+    "flashcard_progress",
+    "exam_questions",
+    "exam_attempts",
+    "exam_answers",
+    "error_log",
+    "ai_budget_daily",
+]
 
 # Spalten, die historisch nur manuell in der Live-DB existierten (Drift)
 EXPECT_COLUMNS = {
@@ -61,6 +69,8 @@ EXPECT_RPC = [
     "increment_flashcard_progress",
     "submit_self_grade",
     "finish_exam_attempt",
+    "consume_ai_budget",
+    "release_ai_budget",
 ]
 
 EXPECT_UNIQUE_INDEX = "exam_answers_attempt_question_uq"
@@ -156,12 +166,20 @@ def main() -> int:
     for t in sorted(unsecured & set(EXPECT_TABLES)):
         failures.append(f"RLS nicht aktiv: {t}")
 
-    # 5) Policies vorhanden?
+    # 5) Policies vorhanden? Ausnahme: ai_budget_daily wird bewusst ohne
+    #    Policy betrieben — RLS ohne Policy wirkt als Deny-all, Zugriff
+    #    läuft ausschließlich über die security-definer-RPCs. Für diese
+    #    Tabelle wird zusätzlich positiv geprüft, dass KEINE Policy
+    #    existiert (Block 11a sichert die fehlenden Grants ab).
+    NO_POLICY_TABLES = {"ai_budget_daily"}
     policies = {r for r in psql(
         "select tablename from pg_policies where schemaname = 'public';"
     ).splitlines() if r}
     for t in EXPECT_TABLES:
-        if t not in policies:
+        if t in NO_POLICY_TABLES:
+            if t in policies:
+                failures.append(f"RLS-Policy unerwünscht (Deny-all über RLS): {t}")
+        elif t not in policies:
             failures.append(f"Keine RLS-Policy: {t}")
 
     # 6) RPCs vorhanden und ausführbar?
@@ -433,6 +451,64 @@ def main() -> int:
     ):
         failures.append("finish_exam_attempt: fremder Nutzer hätte abgelehnt werden müssen (Ownership)")
 
+    # 11) ai_budget_daily + atomares KI-Tageslimit (Migration 20260914150000).
+    #     Regression P1-3: read-then-act-Race in der Edge Function.
+    #
+    # 11a) Keine Client-Rechte an der Tabelle — Zugriff nur über die
+    #      security-definer-RPCs (Edge Function mit service_role).
+    budget_grants = scalar(
+        "select count(*) from information_schema.role_table_grants "
+        "where table_schema = 'public' and table_name = 'ai_budget_daily' "
+        "and grantee in ('anon', 'authenticated');"
+    )
+    if budget_grants != "0":
+        failures.append(
+            f"ai_budget_daily: keine Grants für anon/authenticated erwartet (count={budget_grants})"
+        )
+
+    # 11b) EXECUTE auf beide Budget-RPCs ist anon/authenticated entzogen.
+    budget_exec = scalar(
+        "select count(*) from information_schema.role_routine_grants "
+        "where routine_schema = 'public' "
+        "and routine_name in ('consume_ai_budget', 'release_ai_budget') "
+        "and grantee in ('anon', 'authenticated');"
+    )
+    if budget_exec != "0":
+        failures.append(
+            "Budget-RPCs: EXECUTE für anon/authenticated hätte entzogen sein müssen "
+            f"(count={budget_exec})"
+        )
+
+    # 11c) Smoke — atomares Limit mit p_limit=2: zwei Reservierungen gehen
+    #      durch, die dritte wird abgelehnt.
+    budget_user = "55555555-5555-5555-5555-555555555555"
+    psql(f"insert into auth.users (id) values ('{budget_user}') on conflict (id) do nothing;")
+    c1 = scalar(f"select public.consume_ai_budget('{budget_user}', 2);")
+    c2 = scalar(f"select public.consume_ai_budget('{budget_user}', 2);")
+    c3 = scalar(f"select public.consume_ai_budget('{budget_user}', 2);")
+    if (c1, c2, c3) != ("t", "t", "f"):
+        failures.append(
+            f"consume_ai_budget: erwartet t,t,f bei p_limit=2 — bekam {c1!r},{c2!r},{c3!r}"
+        )
+
+    # 11d) release gibt ein Stück zurück; danach ist die Reservierung wieder
+    #      möglich.
+    psql(f"select public.release_ai_budget('{budget_user}');")
+    c4 = scalar(f"select public.consume_ai_budget('{budget_user}', 2);")
+    if c4 != "t":
+        failures.append(f"release_ai_budget: nach Freigabe consume=false (bekam {c4!r})")
+
+    # 11e) Budgets sind je Nutzer isoliert.
+    c_other = scalar(f"select public.consume_ai_budget('{other_user_id}', 2);")
+    if c_other != "t":
+        failures.append(
+            f"consume_ai_budget: fremder Nutzer hätte eigenes Budget haben müssen (bekam {c_other!r})"
+        )
+
+    # 11f) p_user null wird abgelehnt.
+    if not psql_expect_fail("select public.consume_ai_budget(null, 2);"):
+        failures.append("consume_ai_budget: p_user=NULL hätte abgelehnt werden müssen")
+
     if failures:
         print("SCHEMA-VALIDIERUNG FEHLGESCHLAGEN:")
         for f in failures:
@@ -440,7 +516,8 @@ def main() -> int:
         return 1
     print(
         "Schema-Validierung OK: Tabellen, Drift-Spalten, RLS, Policies, RPCs, Fremdschlüssel, "
-        "Unique-Index, RPC-Smoke, Schreibrechte auf exam_answers/exam_attempts."
+        "Unique-Index, RPC-Smoke, Schreibrechte auf exam_answers/exam_attempts, "
+        "atomares KI-Tageslimit."
     )
     return 0
 

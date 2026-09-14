@@ -25,9 +25,11 @@ interface StubState {
   attemptsLookupFails?: boolean;
   /** exam_id des Attempts laut Lookup — Default entspricht QUESTION.exam_id. */
   attemptExamId?: string | null;
-  /** Anzahl heute (UTC) bereits erzeugter KI-Bewertungen für den Nutzer. */
-  answersToday: number;
-  limitLookupFails?: boolean;
+  /** Ergebnis der atomaren Budget-Reservierung (consume_ai_budget). */
+  budgetGranted: boolean;
+  budgetLookupFails?: boolean;
+  /** RPC-Aufrufe (consume_ai_budget/release_ai_budget) mit Body. */
+  rpcCalls: { fn: string; body: Record<string, unknown> }[];
   question: {
     frage: string;
     musterloesung: string;
@@ -59,13 +61,20 @@ function stubFetch(state: StubState): typeof fetch {
         { status: 200 },
       );
     }
-    // Tageslimit-Zählung: GET auf /exam_answers mit created_at-Filter
-    if (url.includes("/exam_answers") && String(init?.method ?? "GET") === "GET") {
-      if (state.limitLookupFails) return new Response("err", { status: 500 });
-      return new Response(
-        JSON.stringify(Array.from({ length: state.answersToday }, (_, i) => ({ id: String(i) }))),
-        { status: 200 },
-      );
+    if (url.includes("/rpc/consume_ai_budget")) {
+      state.rpcCalls.push({
+        fn: "consume_ai_budget",
+        body: init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {},
+      });
+      if (state.budgetLookupFails) return new Response("err", { status: 500 });
+      return new Response(JSON.stringify(state.budgetGranted), { status: 200 });
+    }
+    if (url.includes("/rpc/release_ai_budget")) {
+      state.rpcCalls.push({
+        fn: "release_ai_budget",
+        body: init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {},
+      });
+      return new Response(null, { status: 200 });
     }
     if (url.includes("/exam_questions?")) {
       if (state.questionStatus) return new Response("err", { status: state.questionStatus });
@@ -119,7 +128,8 @@ const QUESTION = {
 
 const baseState = (): StubState => ({
   attemptOwned: true,
-  answersToday: 0,
+  budgetGranted: true,
+  rpcCalls: [],
   question: QUESTION,
   bedrockStatus: 200,
   bedrockBody: JSON.stringify({
@@ -202,48 +212,58 @@ Deno.test("Attempt-Lookup schlägt fehl (HTTP 500) → 503 statt 403, kein Inser
   }
 });
 
-Deno.test("Tageslimit erreicht (50 heute) → 429, kein Bedrock-Call, kein Insert", async () => {
-  const state = baseState();
-  state.answersToday = 50;
-  globalThis.fetch = stubFetch(state);
-  try {
-    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
-    assertEquals(res.status, 429);
-    const body = (await res.json()) as { error: string };
-    assertEquals(body.error.includes("Tageslimit"), true);
-    assertEquals(state.inserts.length, 0);
-  } finally {
-    globalThis.fetch = fetchOriginal;
-  }
-});
+Deno.test(
+  "Tageslimit erreicht (Reservierung abgelehnt) → 429, kein Bedrock-Call, kein Insert",
+  async () => {
+    const state = baseState();
+    state.budgetGranted = false;
+    globalThis.fetch = stubFetch(state);
+    try {
+      const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+      assertEquals(res.status, 429);
+      const body = (await res.json()) as { error: string };
+      assertEquals(body.error.includes("Tageslimit"), true);
+      assertEquals(state.inserts.length, 0);
+    } finally {
+      globalThis.fetch = fetchOriginal;
+    }
+  },
+);
 
-Deno.test("unter dem Tageslimit (49 heute) → Bewertung läuft normal", async () => {
+Deno.test("Reservierung ruft consume_ai_budget mit p_user aus JWT und p_limit=50", async () => {
   const state = baseState();
-  state.answersToday = 49;
   globalThis.fetch = stubFetch(state);
   try {
     const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
     assertEquals(res.status, 200);
-    const body = await res.json();
-    assertEquals(body.punkte, 3);
-    assertEquals(state.inserts.length, 1); // nur exam_answers (3/4 = 75 % ≥ 50 % → kein error_log)
+    const consume = state.rpcCalls.find((c) => c.fn === "consume_ai_budget");
+    assertEquals(consume?.body.p_user, USER_SUB);
+    assertEquals(consume?.body.p_limit, 50);
+    // Erfolgreiche Bewertung: Budget bleibt verbraucht, kein Release.
+    assertEquals(
+      state.rpcCalls.some((c) => c.fn === "release_ai_budget"),
+      false,
+    );
   } finally {
     globalThis.fetch = fetchOriginal;
   }
 });
 
-Deno.test("Tageslimit-Zählung schlägt fehl → 503, kein Bedrock-Call", async () => {
-  const state = baseState();
-  state.limitLookupFails = true;
-  globalThis.fetch = stubFetch(state);
-  try {
-    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
-    assertEquals(res.status, 503);
-    assertEquals(state.inserts.length, 0);
-  } finally {
-    globalThis.fetch = fetchOriginal;
-  }
-});
+Deno.test(
+  "Reservierung schlägt fehl (HTTP 500) → 503, kein Bedrock-Call, kein Insert",
+  async () => {
+    const state = baseState();
+    state.budgetLookupFails = true;
+    globalThis.fetch = stubFetch(state);
+    try {
+      const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+      assertEquals(res.status, 503);
+      assertEquals(state.inserts.length, 0);
+    } finally {
+      globalThis.fetch = fetchOriginal;
+    }
+  },
+);
 
 Deno.test("erfolgreicher Flow: Bewertung + Upsert mit user_id + Fehlerlog bei <50 %", async () => {
   const state = baseState();
@@ -282,7 +302,7 @@ Deno.test("kein Fehlerlog bei >=50 %", async () => {
   }
 });
 
-Deno.test("Bedrock 500 → Fallback punkte=null, kein Insert", async () => {
+Deno.test("Bedrock 500 → Fallback punkte=null, kein Insert, Budget freigegeben", async () => {
   const state = baseState();
   state.bedrockStatus = 500;
   globalThis.fetch = stubFetch(state);
@@ -291,6 +311,10 @@ Deno.test("Bedrock 500 → Fallback punkte=null, kein Insert", async () => {
     const body = await res.json();
     assertEquals(body.punkte, null);
     assertEquals(state.inserts.length, 0);
+    assertEquals(
+      state.rpcCalls.some((c) => c.fn === "release_ai_budget"),
+      true,
+    );
   } finally {
     globalThis.fetch = fetchOriginal;
   }
@@ -349,29 +373,43 @@ Deno.test("Bedrock-Punkte über max_punkte → nicht akzeptiert", async () => {
   }
 });
 
-Deno.test("exam_answers-Insert schlägt fehl (HTTP 500) → 503, kein Scheinerfolg", async () => {
-  const state = baseState();
-  state.insertStatus = 500;
-  globalThis.fetch = stubFetch(state);
-  try {
-    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
-    assertEquals(res.status, 503);
-  } finally {
-    globalThis.fetch = fetchOriginal;
-  }
-});
+Deno.test(
+  "exam_answers-Insert schlägt fehl (HTTP 500) → 503, kein Scheinerfolg, Budget freigegeben",
+  async () => {
+    const state = baseState();
+    state.insertStatus = 500;
+    globalThis.fetch = stubFetch(state);
+    try {
+      const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+      assertEquals(res.status, 503);
+      assertEquals(
+        state.rpcCalls.some((c) => c.fn === "release_ai_budget"),
+        true,
+      );
+    } finally {
+      globalThis.fetch = fetchOriginal;
+    }
+  },
+);
 
-Deno.test("exam_answers-Insert Netzwerkfehler → 503, kein Scheinerfolg", async () => {
-  const state = baseState();
-  state.examAnswersInsertFails = true;
-  globalThis.fetch = stubFetch(state);
-  try {
-    const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
-    assertEquals(res.status, 503);
-  } finally {
-    globalThis.fetch = fetchOriginal;
-  }
-});
+Deno.test(
+  "exam_answers-Insert Netzwerkfehler → 503, kein Scheinerfolg, Budget freigegeben",
+  async () => {
+    const state = baseState();
+    state.examAnswersInsertFails = true;
+    globalThis.fetch = stubFetch(state);
+    try {
+      const res = await handleRequest(post(validBody(), makeJwt(USER_SUB)), ENV);
+      assertEquals(res.status, 503);
+      assertEquals(
+        state.rpcCalls.some((c) => c.fn === "release_ai_budget"),
+        true,
+      );
+    } finally {
+      globalThis.fetch = fetchOriginal;
+    }
+  },
+);
 
 Deno.test("error_log-Insert schlägt fehl → Hauptbewertung bleibt erfolgreich (200)", async () => {
   const state = baseState();

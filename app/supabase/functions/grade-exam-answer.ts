@@ -10,8 +10,11 @@
  * Sicherheit:
  * - JWT muss vorhanden sein (zusätzlich prüft der Gateway bei VERIFY_JWT).
  * - Tageslimit: max. DAILY_KI_LIMIT KI-Bewertungen je Nutzer/Tag (UTC).
- *   Zählt exam_answers mit ki_punkte des Tages; nicht prüfbar → 503
- *   (fail-closed, Kostenschutz).
+ *   Atomar reserviert über die RPC consume_ai_budget (Row-Lock in
+ *   Postgres, kein read-then-act mehr); Reservierung nicht möglich → 503,
+ *   Limit erreicht → 429 (fail-closed, Kostenschutz). Schlägt die Bewertung
+ *   fehl (Bedrock-/Parse-/Persistenzfehler), gibt release_ai_budget das
+ *   Kontingent zurück — nur erfolgreiche Bewertungen verbrauchen es.
  * - Service Role umgeht RLS bewusst — deshalb Eigentümerschaft serverseitig:
  *   exam_attempts.id = attempt_id AND exam_attempts.user_id = JWT.sub,
  *   sonst 403. Ist die Prüfung selbst nicht möglich (Lookup HTTP-/Netzwerk-
@@ -75,6 +78,30 @@ export interface FunctionEnv {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   AWS_BEDROCK_API_KEY: string;
+}
+
+/** Gibt ein reserviertes Tageslimit-Stück zurück (fehlgeschlagene
+ *  Bewertung). Fehler beim Release werden nur geloggt — die Hauptantwort
+ *  darf dadurch nicht kippen; schlimmstenfalls verbraucht der Nutzer ein
+ *  Kontingentstück zu viel, nie zu wenig. */
+async function releaseBudget(rest: string, key: string, sub: string): Promise<void> {
+  try {
+    const rRes = await fetch(rest + "/rest/v1/rpc/release_ai_budget", {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: "Bearer " + key,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ p_user: sub }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!rRes.ok) {
+      console.error("Budget-Freigabe fehlgeschlagen:", rRes.status);
+    }
+  } catch (e) {
+    console.error("Budget-Freigabe Netzwerkfehler:", e);
+  }
 }
 
 /**
@@ -163,37 +190,39 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
     return json(403, { error: "Attempt gehört nicht zum angemeldeten Nutzer" }, cors);
   }
 
-  // --- Tageslimit: KI-Bewertungen heute (UTC) zählen, sonst 429 ---
-  let limitReached = false;
-  let limitLookupFailed = false;
+  // --- Tageslimit: atomar ein Budget-Stück reservieren (RPC), sonst 429 ---
+  // consume_ai_budget entscheidet in Postgres unter einem Row-Lock —
+  // parallele Anfragen können das Limit nicht mehr überbieten (P1-3:
+  // vorher read-then-act mit Zähl-GET, Race-Fenster über den ganzen
+  // Bedrock-Aufruf). Der Client sendet keine bewertbaren Daten mit,
+  // p_user kommt aus dem serverseitig dekodierten JWT-Sub.
+  let budgetReserved = false;
+  let budgetLookupFailed = false;
   try {
-    const todayStart = new Date().toISOString().slice(0, 10) + "T00:00:00Z";
-    const cRes = await fetch(
-      rest +
-        "/rest/v1/exam_answers?user_id=eq." +
-        encodeURIComponent(sub) +
-        "&created_at=gte." +
-        encodeURIComponent(todayStart) +
-        "&ki_punkte=not.is.null&select=id",
-      {
-        headers: { apikey: key, Authorization: "Bearer " + key },
-        signal: AbortSignal.timeout(10_000),
+    const cRes = await fetch(rest + "/rest/v1/rpc/consume_ai_budget", {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: "Bearer " + key,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({ p_user: sub, p_limit: DAILY_KI_LIMIT }),
+      signal: AbortSignal.timeout(10_000),
+    });
     if (cRes.ok) {
-      limitReached = ((await cRes.json()) as { id: string }[]).length >= DAILY_KI_LIMIT;
+      budgetReserved = (await cRes.json()) === true;
     } else {
-      console.error("Tageslimit-Zählung fehlgeschlagen:", cRes.status);
-      limitLookupFailed = true;
+      console.error("Tageslimit-Reservierung fehlgeschlagen:", cRes.status);
+      budgetLookupFailed = true;
     }
   } catch (e) {
-    console.error("Tageslimit-Zählung Netzwerkfehler:", e);
-    limitLookupFailed = true;
+    console.error("Tageslimit-Reservierung Netzwerkfehler:", e);
+    budgetLookupFailed = true;
   }
-  if (limitLookupFailed) {
+  if (budgetLookupFailed) {
     return json(503, { error: "Tageslimit nicht prüfbar — bitte erneut versuchen" }, cors);
   }
-  if (limitReached) {
+  if (!budgetReserved) {
     return json(
       429,
       {
@@ -318,72 +347,76 @@ export async function handleRequest(req: Request, env: FunctionEnv): Promise<Res
   }
 
   // --- Ergebnis persistieren — nur bei echter Bewertung, idempotent via Upsert ---
-  if (punkte !== null) {
-    const headers = {
-      apikey: key,
-      Authorization: "Bearer " + key,
-      "Content-Type": "application/json",
-      Prefer: "return=minimal,resolution=merge-duplicates",
-    };
-    try {
-      const insRes = await fetch(
-        rest + "/rest/v1/exam_answers?on_conflict=attempt_id,question_id",
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            attempt_id: attemptId,
-            question_id: questionId,
-            antworttext,
-            ki_punkte: punkte,
-            ki_feedback: begruendung,
-            user_id: sub,
-          }),
-          signal: AbortSignal.timeout(10_000),
-        },
-      );
-      if (!insRes.ok) {
-        console.error("exam_answers-Insert fehlgeschlagen:", insRes.status);
-        return json(
-          503,
-          { error: "Bewertung konnte nicht gespeichert werden — bitte erneut versuchen" },
-          cors,
-        );
-      }
-    } catch (e) {
-      console.error("exam_answers-Insert Netzwerkfehler:", e);
+  if (punkte === null) {
+    // Keine Bewertung entstanden (Bedrock-/Parse-Fehler): das reservierte
+    // Budget-Stück zurückgeben — nur erfolgreiche Bewertungen kosten
+    // Kontingent (Verhalten wie vor der atomaren Reservierung).
+    await releaseBudget(rest, key, sub);
+    return json(200, { punkte, begruendung }, cors);
+  }
+  const headers = {
+    apikey: key,
+    Authorization: "Bearer " + key,
+    "Content-Type": "application/json",
+    Prefer: "return=minimal,resolution=merge-duplicates",
+  };
+  try {
+    const insRes = await fetch(rest + "/rest/v1/exam_answers?on_conflict=attempt_id,question_id", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        attempt_id: attemptId,
+        question_id: questionId,
+        antworttext,
+        ki_punkte: punkte,
+        ki_feedback: begruendung,
+        user_id: sub,
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!insRes.ok) {
+      console.error("exam_answers-Insert fehlgeschlagen:", insRes.status);
+      await releaseBudget(rest, key, sub);
       return json(
         503,
         { error: "Bewertung konnte nicht gespeichert werden — bitte erneut versuchen" },
         cors,
       );
     }
+  } catch (e) {
+    console.error("exam_answers-Insert Netzwerkfehler:", e);
+    await releaseBudget(rest, key, sub);
+    return json(
+      503,
+      { error: "Bewertung konnte nicht gespeichert werden — bitte erneut versuchen" },
+      cors,
+    );
+  }
 
-    // Fehlerlog bei <50% der Maximalpunktzahl
-    if (punkte < q.max_punkte * 0.5) {
-      try {
-        const logRes = await fetch(rest + "/rest/v1/error_log", {
-          method: "POST",
-          headers: {
-            apikey: key,
-            Authorization: "Bearer " + key,
-            "Content-Type": "application/json",
-            Prefer: "return=minimal",
-          },
-          body: JSON.stringify({
-            user_id: sub,
-            quelle: "pruefung",
-            thema: q.exam_id + " Aufgabe " + q.aufgabe_nr + q.teil,
-            beschreibung: begruendung,
-          }),
-          signal: AbortSignal.timeout(10_000),
-        });
-        if (!logRes.ok) {
-          console.error("error_log-Insert fehlgeschlagen:", logRes.status);
-        }
-      } catch (e) {
-        console.error("error_log-Insert Netzwerkfehler:", e);
+  // Fehlerlog bei <50% der Maximalpunktzahl
+  if (punkte < q.max_punkte * 0.5) {
+    try {
+      const logRes = await fetch(rest + "/rest/v1/error_log", {
+        method: "POST",
+        headers: {
+          apikey: key,
+          Authorization: "Bearer " + key,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          user_id: sub,
+          quelle: "pruefung",
+          thema: q.exam_id + " Aufgabe " + q.aufgabe_nr + q.teil,
+          beschreibung: begruendung,
+        }),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!logRes.ok) {
+        console.error("error_log-Insert fehlgeschlagen:", logRes.status);
       }
+    } catch (e) {
+      console.error("error_log-Insert Netzwerkfehler:", e);
     }
   }
 
