@@ -172,7 +172,11 @@ function normalizeText(value: string, caseSensitive = false): string {
 
 export function parseGermanNumber(value: string): number {
   const raw = value.trim().replace(/\s/g, "");
-  const normalized = raw.includes(",") ? raw.replace(/\./g, "").replace(",", ".") : raw;
+  const normalized = raw.includes(",")
+    ? raw.replace(/\./g, "").replace(",", ".")
+    : /^[1-9]\d{0,2}(\.\d{3})+$/.test(raw)
+      ? raw.replace(/\./g, "")
+      : raw;
   return Number(normalized);
 }
 
