@@ -27,7 +27,13 @@ das vollständige Schema wieder allein aus `app/supabase/migrations/` auf (nachg
 Objektvergleich: 1655 Objekteigenschaften, keine Abweichung — siehe
 [ADR-0006](adr/0006-schema-baseline-statt-drift.md)).
 
-Alle 57 Tabellen haben RLS aktiviert. 16 davon führen bewusst **keine** Policy — RLS ohne Policy
+Dazu kommt seit dem 14.09.2026 die Betriebstabelle **`schema_migrations`** (`version`,
+`applied_at`, `checksum`): Sie hält fest, welche Migrationen auf einer Datenbank angewendet wurden,
+und ist die Grundlage für `scripts/apply_migrations.py` (siehe
+[ADR-0007](adr/0007-migrationsstand-in-der-datenbank.md)). Sie gehört keiner der beiden
+Schema-Generationen an und wird ausschließlich vom Deploy geschrieben.
+
+Alle Tabellen haben RLS aktiviert. 17 davon führen bewusst **keine** Policy — RLS ohne Policy
 wirkt als Deny-all, der Zugriff läuft dort ausschließlich über `service_role` bzw.
 `security definer`-Funktionen. `scripts/validate_migrations.py` erzwingt, dass jede Tabelle einem
 der beiden Muster folgt.

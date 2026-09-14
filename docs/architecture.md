@@ -70,8 +70,9 @@ aus einem gemeinsamen Datenmodell statt aus voneinander abweichenden Darstellung
   Crowdsec hängt am Entrypoint) und Router `pruefung` am Entrypoint `tswebsecure` (Tailnet, bleibt
   erhalten). Router-Datei `/opt/traefik/dynamic/pruefung.yml`, Vorlage
   `deploy/traefik-pruefung.yml`. `/opt/pruefung-frontend/` auf dem Server ist ein Git-Checkout
-  des Repos (`main`); Update-Flow: `git pull && docker compose -f deploy/docker-compose.pruefung.yml
-up -d --build` (`.env` in `deploy/` bleibt untracked und erhalten). `ap1.alexle135.de` ist
+  des Repos (`main`); Update-Flow siehe [Update eines bestehenden Deployments](#update-eines-bestehenden-deployments)
+  — `git pull` allein genügt nicht, ausstehende Migrationen müssen vorher angewendet werden
+  (`.env` in `deploy/` bleibt untracked und erhalten). `ap1.alexle135.de` ist
   dagegen der ältere Vor-Pivot-Deploy (Lovable-Projekt „ap1-skill-simulator") und läuft
   unberührt parallel.
 - Supabase ist für den öffentlichen App-Zugriff nötig (`supabase.alexle135.de`, ebenfalls
@@ -125,19 +126,57 @@ self-hosted Supabase (`supabase.alexle135.de`), Traefik mit den Entry Points `we
 origin https://github.com/arn0ld87/AP1.git && git fetch origin main && git reset --hard
 origin/main`); `.env` aus `deploy/.env.example` befüllen (`VITE_SUPABASE_URL`,
    `VITE_SUPABASE_PUBLISHABLE_KEY`) — bleibt untracked und von Pulls unberührt.
-2. Schema aufbauen: alle Migrationen aus `app/supabase/migrations/` in Reihenfolge anwenden
-   (auf dem armserver per `psql -U supabase_admin` im Container `supabase-db`); Verifikation
-   auf frischer DB: `python3 scripts/validate_migrations.py`.
+2. Schema aufbauen: `AP1_PSQL="docker exec -i supabase-db psql -U supabase_admin -d postgres"
+   python3 scripts/apply_migrations.py --apply` wendet alle Migrationen aus
+   `app/supabase/migrations/` in Reihenfolge an und trägt sie in `public.schema_migrations` ein.
+   Verifikation auf frischer DB: `python3 scripts/validate_migrations.py`.
 3. Content laden: `python3 scripts/migrate/parse_exams.py` (u. a.) erzeugt `data/migration/*.json`,
    Import der Probeprüfungsfragen in `exam_questions` (77 Aufgaben, je Prüfung exakt 100 Punkte).
-4. App bauen und starten (Update: nur dieser Schritt nach `git pull`):
+4. App bauen und starten:
    `docker compose -f deploy/docker-compose.pruefung.yml up -d --build`
    (Container `pruefung-frontend`, Netz `tsproxy` für Traefik).
 5. Edge Function deployen: Datei nach
-   `/opt/supabase/volumes/functions/main/grade-exam-answer/index.ts` (root-owned — `sudo cp`,
-   vorher Backup), Container `supabase-edge-functions` neu
+   `/opt/supabase/volumes/functions/grade-exam-answer/index.ts` — **top level, nicht unter
+   `main/`** (root-owned — `sudo cp`, vorher Backup), Container `supabase-edge-functions` neu
    starten; Secrets `AWS_BEDROCK_API_KEY` + `VERIFY_JWT=true` am Container setzen.
+   Kontrolle im Log: `serving the request with /home/deno/functions/grade-exam-answer`. Am
+   14.09.2026 lief die Produktion wochenlang auf altem Code, weil eine neue Version nach
+   `main/grade-exam-answer/` kopiert wurde — dorthin schaut der edge-runtime nie.
 6. Smoke-Test: `curl -sI https://pruefung.alexle135.de/` erwartet HTTP 200; der Container-
    Healthcheck (`deploy/docker-compose.pruefung.yml`) prüft alle 30 s `GET /` auf Port 3000
    (HTTP 2xx = healthy, Node-fetch statt curl, da das Image kein curl mitbringt).
    Funktionstest: Login im Browser, eine Probeprüfung starten und bewerten lassen.
+
+## Update eines bestehenden Deployments
+
+Ein `git pull` bringt Anwendungscode **und** Migrationen mit. Wird nur der Container neu gebaut,
+läuft neuer Code gegen ein altes Schema — genau so brach am 13.09.2026 die Probeprüfungsseite.
+Deshalb ist die Reihenfolge Datenbank zuerst, App danach, und der erste Schritt ist ein Gate:
+
+```bash
+cd /opt/pruefung-frontend
+git pull
+
+export AP1_PSQL="docker exec -i supabase-db psql -U supabase_admin -d postgres"
+
+# 1) Gate: stehen Migrationen aus? (Exit 1 = ja, oder eine angewendete Datei wurde editiert)
+python3 scripts/apply_migrations.py --check
+
+# 2) nur falls Schritt 1 etwas meldet: anwenden (jede in eigener Transaktion,
+#    Eintrag in public.schema_migrations, danach notify pgrst 'reload schema')
+python3 scripts/apply_migrations.py --apply
+
+# 3) erst jetzt die App
+docker compose -f deploy/docker-compose.pruefung.yml up -d --build
+```
+
+Hat sich `app/supabase/functions/grade-exam-answer.ts` geändert, gehört Schritt 5 aus der
+Kurzfassung oben dazu — inklusive Log-Kontrolle, dass der servierte Pfad wirklich der
+aktualisierte ist.
+
+`scripts/apply_migrations.py --status` zeigt den Stand jederzeit, ohne etwas zu ändern.
+`--baseline` trägt vorhandene Migrationen als angewendet ein, **ohne sie auszuführen** — das
+war einmalig am 14.09.2026 für die Produktionsdatenbank nötig, die den Zielzustand bereits
+hatte (`20260914170000_baseline_live_schema.sql` ist ein `pg_dump` und nicht idempotent; ein
+erneuter Lauf gegen die Produktion würde fehlschlagen). Auf einer frischen Datenbank ist
+`--baseline` falsch, dort gehört `--apply` hin.

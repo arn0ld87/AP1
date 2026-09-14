@@ -7,6 +7,36 @@ Version.
 
 ## [Unreleased]
 
+### Drift-Prävention (14.09.2026)
+
+#### Added
+
+- **Migrationsstand in der Datenbank** (`public.schema_migrations`, Migration
+  `20260914190000`): Version, Zeitpunkt und SHA-256 jeder angewendeten Migration. RLS an, keine
+  Policy, keine Grants an `anon`/`authenticated` — Zugriff nur über `service_role` bzw.
+  `supabase_admin` beim Deploy.
+- **`scripts/apply_migrations.py`** — gleicht die Dateien in `app/supabase/migrations/` gegen
+  diesen Stand ab: `--check` (ausstehende melden, Exit 1 — das Deploy-Gate), `--apply` (in
+  Reihenfolge anwenden, jede in eigener Transaktion, danach `notify pgrst, 'reload schema'`),
+  `--baseline` (vorhandene als angewendet eintragen, **ohne** sie auszuführen — nötig, weil
+  `20260914170000_baseline_live_schema.sql` ein `pg_dump` und nicht idempotent ist) und
+  `--status`. Zielverbindung über `DATABASE_URL` oder, für die Container-DB auf dem armserver,
+  `AP1_PSQL`.
+- CI-Job `migration-validation` prüft das Gate jetzt selbst mit: `--check` muss auf einer
+  frisch aufgebauten, aber nicht eingetragenen DB fehlschlagen, `--baseline` + `--check` danach
+  durchlaufen, und eine simuliert nachträglich editierte Migration muss erkannt werden.
+
+#### Fixed
+
+- **`docs/architecture.md` beschrieb ein Update ohne Migrationsschritt** („Update: nur dieser
+  Schritt nach `git pull`" = Container-Rebuild). Genau dieses Muster brach am 13.09.2026 die
+  Probeprüfungsseite. Der Ablauf steht jetzt als eigener Abschnitt
+  „Update eines bestehenden Deployments" da: Gate → Migrationen → App.
+- **Falscher Edge-Function-Pfad in der Deploy-Anleitung:** Schritt 5 nannte
+  `/opt/supabase/volumes/functions/main/grade-exam-answer/index.ts`. Der edge-runtime serviert
+  aber aus dem Top-Level-Verzeichnis; die Kopie unter `main/` ist ein Relikt. Am 14.09.2026 lief
+  die Produktion deshalb auf altem Code, dem der atomare KI-Budget-Fix (PR #51) fehlte.
+
 ### Schema-Baseline (14.09.2026)
 
 #### Fixed
