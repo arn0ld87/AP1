@@ -2,6 +2,15 @@
 
 **Status:** Accepted · **Datum:** 11.09.2026 · **Stand:** [docs/architecture.md](../architecture.md)
 
+**Korrektur (14.09.2026):** Die ADR beschreibt die ursprüngliche Planung; der Titel („ohne
+Test-Runner") gilt nicht mehr. Zwischenzeitlich wurde eine Testsuite implementiert: Vitest für
+Generatoren und Prüfungs-Flow (darunter 1000 deterministische RAID-10-Regressionsfälle), Deno-Tests
+für beide Edge Functions (39 Fälle: 26 für `grade-exam-answer`, 13 für `delete-account`). CI umfasst
+8 Jobs (ESLint + Prettier, Typecheck, Vitest, Vite-Build, Deno-Check + Deno-Test,
+Migration-Validation inkl. Deploy-Gate, `py_compile` der Skripte, Compose-Config), Trigger auf PR und
+`main` ohne paths-Filter. Siehe [docs/architecture.md § Verifikation](../architecture.md#verifikation)
+und `.github/workflows/pr-check.yml`.
+
 ## Kontext
 
 Die App entstand im Lovable-Ökosystem (TanStack-Template mit shadcn/ui-Komponenten) und wurde nach

@@ -1,6 +1,12 @@
 # ADR-0002: Single-User-Auth ohne Registrierung und Social Login
 
-**Status:** Accepted · **Datum:** 10.09.2026 · **Stand:** [docs/vision.md](../vision.md), [docs/architecture.md](../architecture.md)
+**Status:** Superseded by implementation (14.09.2026) · **Datum:** 10.09.2026 · **Stand:** [docs/vision.md](../vision.md), [docs/architecture.md](../architecture.md)
+
+**Korrektur (14.09.2026):** Diese ADR beschreibt die ursprüngliche Entscheidung. Im Deployment
+(seit 11.09.2026) wurde Single-User-Auth durch Multi-User mit offener Registrierung ersetzt:
+E-Mail+Passwort, E-Mail-Bestätigung (SMTP: Fastmail), Self-Service-Kontolöschung (Edge Function).
+Registrierung erfolgt im UI-Tab „Registrieren" auf `/auth`, keine manuellen Invites. Siehe
+[architecture.md § Auth & Deploy](../architecture.md#auth--deploy).
 
 ## Kontext
 

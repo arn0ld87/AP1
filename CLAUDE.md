@@ -64,12 +64,12 @@ PR-Verzeichnis zu führen. Arbeitsregeln: Weiterarbeit auf Feature-Branches, nic
 - Datenmodell (self-hosted Supabase/Postgres): [docs/data-model.md](docs/data-model.md)
 - API / KI-Bewertungs-Flow (Edge Function `grade-exam-answer`, implementiert): [docs/api.md](docs/api.md)
 
-Wichtige Constraints (nicht wiederholen, nur verlinkt): Auth ist Single-User (Alex), KI-Modell ist
-Amazon Nova Lite über Amazon Bedrock (Modell-ID `eu.amazon.nova-lite-v1:0` — Anthropic-Modelle sind
-für diesen AWS-Account nicht freigeschaltet, siehe Kommentar in `grade-exam-answer.ts`), Secrets
-ausschließlich als Supabase-Edge-Function-Secret, kein automatisierter Test-Runner für das
-Lernmaterial (die App-CI in `app/` deckt Lint/Typecheck/Build/Vitest/Deno-Tests/Migrationsvalidierung
-ab, siehe `.github/workflows/pr-check.yml`).
+Wichtige Constraints (nicht wiederholen, nur verlinkt): Auth ist Multi-User mit offener Registrierung
+(E-Mail+Passwort, E-Mail-Bestätigung, Self-Service-Kontolöschung), KI-Modell ist Amazon Nova Lite über
+Amazon Bedrock (Modell-ID `eu.amazon.nova-lite-v1:0` — Anthropic-Modelle sind für diesen AWS-Account
+nicht freigeschaltet, siehe Kommentar in `grade-exam-answer.ts`), Secrets ausschließlich als
+Supabase-Edge-Function-Secret, CI-Validierung in `.github/workflows/pr-check.yml` mit Lint/Typecheck/Build/
+Vitest/Deno-Tests/Migrationsvalidierung.
 
 ## Agent skills
 
