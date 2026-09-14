@@ -158,29 +158,62 @@ def main() -> int:
             if c not in have:
                 failures.append(f"Spalte fehlt: {table}.{c}")
 
-    # 4) RLS aktiv auf allen Tabellen?
+    # 4) RLS aktiv — auf JEDER Tabelle im public-Schema, nicht nur auf den
+    #    namentlich erwarteten. Seit der Baseline-Migration (20260914170000)
+    #    stehen 57 Tabellen im Schema; eine Prüfung, die nur EXPECT_TABLES
+    #    betrachtet, würde eine neue Tabelle ohne RLS stillschweigend
+    #    durchlassen. Genau so ist der Drift entstanden, den die Baseline
+    #    aufgenommen hat.
     unsecured = {r for r in psql(
         "select tablename from pg_tables "
         "where schemaname = 'public' and rowsecurity = false;"
     ).splitlines() if r}
-    for t in sorted(unsecured & set(EXPECT_TABLES)):
+    for t in sorted(unsecured):
         failures.append(f"RLS nicht aktiv: {t}")
 
-    # 5) Policies vorhanden? Ausnahme: ai_budget_daily wird bewusst ohne
-    #    Policy betrieben — RLS ohne Policy wirkt als Deny-all, Zugriff
-    #    läuft ausschließlich über die security-definer-RPCs. Für diese
-    #    Tabelle wird zusätzlich positiv geprüft, dass KEINE Policy
-    #    existiert (Block 11a sichert die fehlenden Grants ab).
-    NO_POLICY_TABLES = {"ai_budget_daily"}
+    # 5) Absicherung jeder Tabelle: entweder eine RLS-Policy oder ein
+    #    bewusstes Deny-all (RLS an, keine Policy, kein Client-Grant —
+    #    Zugriff ausschließlich über service_role bzw. security-definer-RPCs).
+    #    Jede Tabelle muss einem der beiden Muster folgen; eine neue Tabelle,
+    #    die weder Policy hat noch hier eingetragen ist, lässt den Job
+    #    fehlschlagen. Das ist Absicht: der Eintrag soll eine bewusste
+    #    Entscheidung sein, kein Versehen.
+    NO_POLICY_TABLES = {
+        "ai_budget_daily",
+        "audit_event",
+        "exam_corpus_entry",
+        "exam_corpus_entry_competency",
+        "exam_corpus_entry_topic",
+        "model_class_route",
+        "model_pricing",
+        "prompt_version",
+        "rubric",
+        "rubric_criterion",
+        "source_chunk_competency",
+        "source_chunk_reference",
+        "source_chunk_topic",
+        "source_document",
+        "source_document_learning_field",
+        "workflow_version",
+    }
     policies = {r for r in psql(
         "select tablename from pg_policies where schemaname = 'public';"
     ).splitlines() if r}
-    for t in EXPECT_TABLES:
+    alle_tabellen = {r for r in psql(
+        "select tablename from pg_tables where schemaname = 'public';"
+    ).splitlines() if r}
+    for t in sorted(alle_tabellen):
         if t in NO_POLICY_TABLES:
             if t in policies:
-                failures.append(f"RLS-Policy unerwünscht (Deny-all über RLS): {t}")
+                failures.append(
+                    f"RLS-Policy unerwünscht (als Deny-all geführt): {t} — "
+                    "entweder Policy entfernen oder aus NO_POLICY_TABLES austragen"
+                )
         elif t not in policies:
-            failures.append(f"Keine RLS-Policy: {t}")
+            failures.append(
+                f"Keine RLS-Policy: {t} — Policy ergänzen oder bewusst in "
+                "NO_POLICY_TABLES eintragen"
+            )
 
     # 6) RPCs vorhanden und ausführbar?
     fns = {r for r in psql(
