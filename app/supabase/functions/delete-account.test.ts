@@ -6,7 +6,13 @@
  */
 import { assertEquals } from "jsr:@std/assert@1";
 
-import { handleRequest, jwtSub, verifiedJwtSub, type FunctionEnv } from "./delete-account.ts";
+import {
+  DEFAULT_ALLOWED_ORIGIN,
+  handleRequest,
+  jwtSub,
+  verifiedJwtSub,
+  type FunctionEnv,
+} from "./delete-account.ts";
 
 const fetchOriginal = globalThis.fetch;
 
@@ -70,6 +76,22 @@ const baseState = (): StubState => ({
 Deno.test("OPTIONS wird ohne Auth beantwortet", async () => {
   const res = await handleRequest(new Request("https://fn/x", { method: "OPTIONS" }), ENV);
   assertEquals(res.status, 200);
+});
+
+Deno.test(
+  "CORS: Access-Control-Allow-Origin ist per Default auf die Live-App-Herkunft eingeschränkt (kein *)",
+  async () => {
+    const res = await handleRequest(new Request("https://fn/x", { method: "OPTIONS" }), ENV);
+    assertEquals(res.headers.get("Access-Control-Allow-Origin"), DEFAULT_ALLOWED_ORIGIN);
+  },
+);
+
+Deno.test("CORS: ALLOWED_ORIGIN überschreibt den Default", async () => {
+  const res = await handleRequest(new Request("https://fn/x", { method: "OPTIONS" }), {
+    ...ENV,
+    ALLOWED_ORIGIN: "https://staging.example.test",
+  });
+  assertEquals(res.headers.get("Access-Control-Allow-Origin"), "https://staging.example.test");
 });
 
 Deno.test("ohne JWT → 401", async () => {

@@ -36,7 +36,10 @@ function maskOf(p: number): string {
 
 export const SCALAR_GEN: Record<string, () => ScalarTask> = {
   subnetting(): ScalarTask {
-    const p = pick([25, 26, 27, 28, 29]);
+    // /30 gehört dazu: die klassische Punkt-zu-Punkt-Maske vor RFC 3021
+    // (4 Adressen, davon 2 nutzbar) und in Altprüfungen der häufigste
+    // WAN-Link-Fall. War bis 14.09.2026 dokumentiert, aber nie geübt.
+    const p = pick([25, 26, 27, 28, 29, 30, 31, 32]);
     const base = pick(["192.168.", "172.20.", "10.42.", "192.168."]);
     const o3 = rnd(0, 60);
     const o4 = rnd(1, 254);
@@ -47,8 +50,17 @@ export const SCALAR_GEN: Record<string, () => ScalarTask> = {
     const bc = net + block - 1;
     const netIp = base + o3 + "." + net;
     const bcIp = base + o3 + "." + bc;
-    const hosts = block - 2;
-    const q = pick(["net", "bc", "hosts", "mask", "last"] as const);
+    // Sonderfälle ohne eigene Netz-/Broadcastadresse:
+    // /31 = RFC 3021 (Punkt-zu-Punkt-Verbindung, z. B. Router-Link) — beide
+    //       Adressen des Zweierblocks sind nutzbare Hosts, "2^1 − 2 = 0" gilt hier nicht.
+    // /32 = Hostroute — adressiert genau einen einzelnen Host, kein Subnetz.
+    const isP2P = p === 31;
+    const isHostRoute = p === 32;
+    const hosts = isP2P ? 2 : isHostRoute ? 1 : block - 2;
+    const q =
+      isP2P || isHostRoute
+        ? pick(["hosts", "mask"] as const)
+        : pick(["net", "bc", "hosts", "mask", "last"] as const);
     const map = {
       net: {
         t: "Geben Sie die <b>Netzadresse</b> an.",
@@ -82,11 +94,42 @@ export const SCALAR_GEN: Record<string, () => ScalarTask> = {
       },
     };
     const s = map[q];
+    const lead = isP2P
+      ? "Zwei Router sind über eine Punkt-zu-Punkt-WAN-Strecke verbunden."
+      : isHostRoute
+        ? "Für einen einzelnen Zielrechner soll eine Hostroute eingetragen werden."
+        : "Ein Arbeitsplatzrechner hat die folgende Konfiguration erhalten.";
+    const steps = isP2P
+      ? [
+          `Präfix /31 ist ein Sonderfall nach <b>RFC 3021</b>: <code>${bits}</code> Hostbit, Blockgröße <code>${block}</code>.`,
+          `Subnetzmaske: <code>${maskOf(p)}</code>`,
+          `Für Punkt-zu-Punkt-Verbindungen gibt es <b>keine</b> eigene Netz- oder Broadcastadresse — beide Adressen des Blocks (<code>${netIp}</code> und <code>${bcIp}</code>) sind nutzbare Hosts.`,
+          `Nutzbare Hosts: <code>2</code> (nicht <code>2^${bits} − 2 = 0</code>)`,
+        ]
+      : isHostRoute
+        ? [
+            `Präfix /32 hat <code>${bits}</code> Hostbits, Blockgröße <code>${block}</code> — es adressiert genau einen einzigen Host (Hostroute).`,
+            `Subnetzmaske: <code>${maskOf(p)}</code>`,
+            `Es gibt keine eigene Netz- oder Broadcastadresse — <code>${ip}</code> bezeichnet nur diese eine Adresse.`,
+            `Nutzbare Hosts: <code>1</code>`,
+          ]
+        : [
+            `Präfix /${p} bedeutet <code>${bits}</code> Hostbits.`,
+            `Subnetzmaske: <code>${maskOf(p)}</code>`,
+            `Blockgröße: <code>256 − ${maskOf(p).split(".")[3]} = ${block}</code>`,
+            `Der Block, in dem .${o4} liegt: <code>${net} – ${bc}</code>`,
+            `Netzadresse <code>${netIp}</code>, Broadcast <code>${bcIp}</code>, Hosts <code>2^${bits} − 2 = ${hosts}</code>`,
+          ];
+    const trap = isP2P
+      ? "Bei /31 (RFC 3021, Punkt-zu-Punkt) gibt es <b>keine</b> Netz- oder Broadcastadresse — beide Adressen sind nutzbar, die Hostzahl ist <b>2</b>, nicht 2^1 − 2 = 0."
+      : isHostRoute
+        ? "Eine /32-Maske ist eine <b>Hostroute</b> und adressiert genau einen Host, kein Subnetz — Netz- und Broadcastadresse gibt es hier nicht."
+        : "Anzahl der Hosts ist 2^h <b>minus zwei</b> — Netz- und Broadcastadresse sind nicht vergebbar.";
     return {
       kind: "scalar",
       topic: "subnetting",
       pts: rnd(1, 2),
-      lead: "Ein Arbeitsplatzrechner hat die folgende Konfiguration erhalten.",
+      lead,
       q: s.t,
       given: [["IP-Adresse mit Präfix", ip + "/" + p]],
       answer: s.a,
@@ -95,16 +138,14 @@ export const SCALAR_GEN: Record<string, () => ScalarTask> = {
       visual: {
         type: "illustration",
         data: { kind: "subnetting" },
-        alt: `Aufteilung der IPv4-Adresse ${ip}/${p} in Netz- und Hostanteil`,
+        alt: isP2P
+          ? `Punkt-zu-Punkt-Verbindung ${ip}/${p} nach RFC 3021 ohne eigene Netz-/Broadcastadresse`
+          : isHostRoute
+            ? `Hostroute ${ip}/32 für einen einzelnen Host`
+            : `Aufteilung der IPv4-Adresse ${ip}/${p} in Netz- und Hostanteil`,
       },
-      steps: [
-        `Präfix /${p} bedeutet <code>${bits}</code> Hostbits.`,
-        `Subnetzmaske: <code>${maskOf(p)}</code>`,
-        `Blockgröße: <code>256 − ${maskOf(p).split(".")[3]} = ${block}</code>`,
-        `Der Block, in dem .${o4} liegt: <code>${net} – ${bc}</code>`,
-        `Netzadresse <code>${netIp}</code>, Broadcast <code>${bcIp}</code>, Hosts <code>2^${bits} − 2 = ${hosts}</code>`,
-      ],
-      trap: "Anzahl der Hosts ist 2^h <b>minus zwei</b> — Netz- und Broadcastadresse sind nicht vergebbar.",
+      steps,
+      trap,
     };
   },
 
@@ -337,27 +378,36 @@ export const SCALAR_GEN: Record<string, () => ScalarTask> = {
     if (mode === "bezug") {
       const lp = pick([890, 1190, 1250, 1320, 1480]);
       const rab = pick([0, 3, 5, 8, 10]);
+      const skonto = pick([2, 3]);
       const lief = pick([0, 9, 12, 18, 25]);
-      const bp = lp * (1 - rab / 100) + lief;
+      // Bezugskalkulation, vollständige Kette:
+      // Listeneinkaufspreis − Rabatt = Zieleinkaufspreis
+      //   − Skonto = Bareinkaufspreis
+      //   + Bezugskosten = Bezugspreis
+      const zep = lp * (1 - rab / 100);
+      const bep = zep * (1 - skonto / 100);
+      const bp = bep + lief;
       return {
         kind: "scalar",
         topic: "wirtschaft",
-        pts: 3,
+        pts: 4,
         lead: "Für eine Beschaffung liegt ein Angebot vor.",
         q: "Berechnen Sie den <b>Bezugspreis pro Stück in EUR</b>.",
         given: [
           ["Listenpreis", de(lp, 2) + " EUR"],
           ["Rabatt", rab + " %"],
+          ["Skonto", skonto + " %"],
           ["Lieferkosten je Stück", de(lief, 2) + " EUR"],
         ],
         answer: bp,
         unit: "EUR",
         dec: 2,
         steps: [
-          `Rabatt abziehen: <code>${de(lp, 2)} × ${de(1 - rab / 100, 2)} = ${de(lp * (1 - rab / 100), 2)} EUR</code>`,
-          `Lieferkosten addieren: <code>+ ${de(lief, 2)} = ${de(bp, 2)} EUR</code>`,
+          `Rabatt abziehen → Zieleinkaufspreis: <code>${de(lp, 2)} × ${de(1 - rab / 100, 2)} = ${de(zep, 2)} EUR</code>`,
+          `Skonto abziehen → Bareinkaufspreis: <code>${de(zep, 2)} × ${de(1 - skonto / 100, 2)} = ${de(bep, 2)} EUR</code>`,
+          `Bezugskosten addieren → Bezugspreis: <code>${de(bep, 2)} + ${de(lief, 2)} = ${de(bp, 2)} EUR</code>`,
         ],
-        trap: "Reihenfolge: erst Rabatt vom Listenpreis, dann Bezugskosten dazu.",
+        trap: "Reihenfolge: erst Rabatt vom Listenpreis (→ Zieleinkaufspreis), dann Skonto vom Zieleinkaufspreis (→ Bareinkaufspreis) — erst danach die Bezugskosten addieren.",
       };
     }
     if (mode === "brutto") {
