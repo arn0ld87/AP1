@@ -392,12 +392,12 @@ export const CARDS: Card[] = [
   [
     "subnetting",
     "Aufgabe: Berechne die Dezimalschreibweise der Subnetzmaske für ein Netzwerk mit dem Suffix /27.",
-    "Formel: $255.255.255.(256 - 2^{32-n})$; Rechnung: $32-27=5$, $2^5=32$, $256-32=224$; Ergebnis: 255.255.255.224; Fehlerfalle: Falsche Berechnung der Bit-Wertigkeit im letzten Oktett.",
+    "Formel: 255.255.255.(256 - 2^(32-n)); Rechnung: 32-27=5, 2^5=32, 256-32=224; Ergebnis: 255.255.255.224; Fehlerfalle: Falsche Berechnung der Bit-Wertigkeit im letzten Oktett.",
   ],
   [
     "subnetting",
     "Aufgabe: Berechne die Netz-ID für die IP-Adresse 203.0.113.180/27.",
-    "Formel: $Blockgröße = 32$; Rechnung: $180 / 32 = 5,625$, $5 \\times 32 = 160$; Ergebnis: 203.0.113.160; Fehlerfalle: Host-Anteil nicht genullt oder falsche Blockgröße verwendet.",
+    "Formel: Blockgröße = 32; Rechnung: 180 / 32 = 5,625, 5 × 32 = 160; Ergebnis: 203.0.113.160; Fehlerfalle: Host-Anteil nicht genullt oder falsche Blockgröße verwendet.",
   ],
   [
     "netzwerk",
@@ -422,12 +422,12 @@ export const CARDS: Card[] = [
   [
     "raid",
     "Aufgabe: Berechne die Nettokapazität eines RAID 5 mit 6 Festplatten zu je 4 TiB.",
-    "Formel: $(n - 1) \\times Kapazität$; Rechnung: $(6 - 1) \\times 4 = 20$; Ergebnis: 20 TiB; Fehlerfalle: Die Kapazität der Paritätsplatte (1 HDD) nicht abgezogen.",
+    "Formel: (n - 1) × Kapazität; Rechnung: (6 - 1) × 4 = 20; Ergebnis: 20 TiB; Fehlerfalle: Die Kapazität der Paritätsplatte (1 HDD) nicht abgezogen.",
   ],
   [
     "raid",
     "Aufgabe: Berechne die benötigte Anzahl an 4 TiB Festplatten für ein RAID 10 mit 20 TiB Nettokapazität.",
-    "Formel: $n = (Nettokapazität / HDD-Größe) \\times 2$; Rechnung: $(20 / 4) \\times 2 = 10$; Ergebnis: 10 Festplatten; Fehlerfalle: Faktor 2 für die Spiegelung (Mirroring) vergessen.",
+    "Formel: n = (Nettokapazität / HDD-Größe) × 2; Rechnung: (20 / 4) × 2 = 10; Ergebnis: 10 Festplatten; Fehlerfalle: Faktor 2 für die Spiegelung (Mirroring) vergessen.",
   ],
   [
     "raid",
@@ -487,7 +487,7 @@ export const CARDS: Card[] = [
   [
     "uebertragung",
     "Aufgabe: Berechne den Bandbreitenbedarf für 100 Mitarbeiter, wenn jeder 50 Kbit/s für Telefonie benötigt.",
-    "Formel: $Teilnehmer \\times Bedarf$; Rechnung: $100 \\times 50 = 5.000$; Ergebnis: 5 Mbit/s; Fehlerfalle: Verwechslung von Kbit/s und Mbit/s ($1.000 = 1$).",
+    "Formel: Teilnehmer × Bedarf; Rechnung: 100 × 50 = 5.000; Ergebnis: 5 Mbit/s; Fehlerfalle: Verwechslung von Kbit/s und Mbit/s (1.000 = 1).",
   ],
   [
     "daten",
@@ -593,12 +593,12 @@ export const CARDS: Card[] = [
   [
     "raid",
     "Aufgabe: Ein NAS benötigt 15 TiB Nettospeicherplatz. Wie viele 3 TiB HDDs sind für ein RAID 5 nötig?",
-    "Formel: $n = (Nettokapazität / HDD-Kapazität) + 1$; Rechnung: $(15 / 3) + 1 = 6$; Ergebnis: 6 Festplatten; Fehlerfalle: Die zusätzliche Paritätsplatte vergessen.",
+    "Formel: n = (Nettokapazität / HDD-Kapazität) + 1; Rechnung: (15 / 3) + 1 = 6; Ergebnis: 6 Festplatten; Fehlerfalle: Die zusätzliche Paritätsplatte vergessen.",
   ],
   [
     "ipv6",
     "Wie berechnet man die Anzahl der möglichen Subnetze, wenn man einen IPv6 /48 Präfix auf /52 erweitert?",
-    "Formel: $2^{Differenz}$; Rechnung: $52 - 48 = 4$, $2^4 = 16$; Ergebnis: 16 Subnetze; Fehlerfalle: Basis 10 statt Basis 2 verwendet.",
+    "Formel: 2^(Differenz); Rechnung: 52 - 48 = 4, 2^4 = 16; Ergebnis: 16 Subnetze; Fehlerfalle: Basis 10 statt Basis 2 verwendet.",
   ],
   [
     "sicherheit",
