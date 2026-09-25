@@ -6,7 +6,11 @@ import {
   Calculator,
   Calendar,
   ClipboardCheck,
+  FileStack,
   FileText,
+  HelpCircle,
+  ListFilter,
+  Network,
   Sigma,
   Target,
 } from "lucide-react";
@@ -50,6 +54,10 @@ const MODULE: { title: string; url: string; icon: typeof Calculator }[] = [
   { title: "Lernblätter", url: "/lernblaetter", icon: FileText },
   { title: "Formelsammlung", url: "/formelsammlung", icon: Sigma },
   { title: "Probeprüfungen", url: "/probepruefungen", icon: ClipboardCheck },
+  { title: "Quiz", url: "/quiz", icon: HelpCircle },
+  { title: "Mindmap", url: "/mindmap", icon: Network },
+  { title: "Material", url: "/material", icon: FileStack },
+  { title: "Aufgabenanalyse", url: "/aufgabenanalyse", icon: ListFilter },
   { title: "Fortschritt", url: "/fortschritt", icon: BarChart2 },
   { title: "Tagesplan", url: "/tagesplan", icon: Calendar },
 ];
