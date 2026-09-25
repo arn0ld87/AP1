@@ -355,6 +355,286 @@ export const CARDS: Card[] = [
     "Wie berechnest du den Verrechnungssatz einer Hilfskostenstelle?",
     "Aktuelle Kosten der Hilfskostenstelle ÷ an noch offene Kostenstellen abgegebene Leistungseinheiten.",
   ],
+
+  // Import aus dem NotebookLM-Notebook "Archive of Examination Papers and Solutions
+  // 1999-2012", 2026-09-25, KI-generiert. Nur ans Ende anhängen — die IDs (c<n>) werden
+  // positional vergeben, ein Umsortieren würde gespeicherten Lernfortschritt verschieben.
+  [
+    "netzwerk",
+    "Welchen Vorteil bietet das Protokoll UDP gegenüber TCP?",
+    "Es hat einen geringeren Overhead und damit eine höhere Übertragungsgeschwindigkeit.",
+  ],
+  [
+    "netzwerk",
+    "Warum ist TCP für die Übertragung von Webseiten (HTTP) besser geeignet als UDP?",
+    "TCP stellt durch Fehlerprüfung und Paketwiederholung eine vollständige und korrekte Datenübertragung sicher.",
+  ],
+  [
+    "netzwerk",
+    "Was ist die Hauptaufgabe von Network Address Translation (NAT)?",
+    "Die Übersetzung von privaten IPv4-Adressen in eine öffentliche IP-Adresse zur Kommunikation mit dem Internet.",
+  ],
+  [
+    "sicherheit",
+    "Erläutere die Funktion von 'Stateful Packet Inspection' (SPI) bei einer Firewall.",
+    "SPI überwacht den Zustand aktiver Verbindungen und lässt zugehörige Antwortpakete automatisch passieren.",
+  ],
+  [
+    "netzwerk",
+    "Welcher Standard-Port wird für verschlüsselte Webverbindungen via HTTPS verwendet?",
+    "Port 443.",
+  ],
+  [
+    "netzwerk",
+    "Welchen Dienst stellt ein Server bereit, der auf Port 53 lauscht?",
+    "DNS (Domain Name System) zur Namensauflösung.",
+  ],
+  [
+    "subnetting",
+    "Aufgabe: Berechne die Dezimalschreibweise der Subnetzmaske für ein Netzwerk mit dem Suffix /27.",
+    "Formel: 255.255.255.(256 - 2^(32-n)); Rechnung: 32-27=5, 2^5=32, 256-32=224; Ergebnis: 255.255.255.224; Fehlerfalle: Falsche Berechnung der Bit-Wertigkeit im letzten Oktett.",
+  ],
+  [
+    "subnetting",
+    "Aufgabe: Berechne die Netz-ID für die IP-Adresse 203.0.113.180/27.",
+    "Formel: Blockgröße = 32; Rechnung: 180 / 32 = 5,625, 5 × 32 = 160; Ergebnis: 203.0.113.160; Fehlerfalle: Host-Anteil nicht genullt oder falsche Blockgröße verwendet.",
+  ],
+  [
+    "netzwerk",
+    "Erläutere den Begriff 'VLAN' (Virtual Local Area Network).",
+    "Die logische Trennung eines physischen Netzwerks in mehrere voneinander isolierte Broadcast-Domänen.",
+  ],
+  [
+    "netzwerk",
+    "Welcher WLAN-Standard nutzt das 5 GHz Band und erreicht Bruttodatenraten im Gbit/s-Bereich?",
+    "IEEE 802.11ac.",
+  ],
+  [
+    "raid",
+    "Wie viele Festplatten dürfen bei einem RAID 5 Verbund maximal gleichzeitig ausfallen?",
+    "Maximal eine Festplatte.",
+  ],
+  [
+    "raid",
+    "Welchen Vorteil bietet ein RAID 6 gegenüber einem RAID 5?",
+    "Es bietet eine höhere Ausfallsicherheit, da bis zu zwei Festplatten gleichzeitig ausfallen dürfen.",
+  ],
+  [
+    "raid",
+    "Aufgabe: Berechne die Nettokapazität eines RAID 5 mit 6 Festplatten zu je 4 TiB.",
+    "Formel: (n - 1) × Kapazität; Rechnung: (6 - 1) × 4 = 20; Ergebnis: 20 TiB; Fehlerfalle: Die Kapazität der Paritätsplatte (1 HDD) nicht abgezogen.",
+  ],
+  [
+    "raid",
+    "Aufgabe: Berechne die benötigte Anzahl an 4 TiB Festplatten für ein RAID 10 mit 20 TiB Nettokapazität.",
+    "Formel: n = (Nettokapazität / HDD-Größe) × 2; Rechnung: (20 / 4) × 2 = 10; Ergebnis: 10 Festplatten; Fehlerfalle: Faktor 2 für die Spiegelung (Mirroring) vergessen.",
+  ],
+  [
+    "raid",
+    "Was versteht man unter einer 'Hot-Spare-Festplatte'?",
+    "Eine im System eingebaute Reserveplatte, die im Falle eines HDD-Ausfalls automatisch den Platz der defekten Platte einnimmt.",
+  ],
+  [
+    "sicherheit",
+    "Nenne den Unterschied zwischen Anonymisierung und Pseudonymisierung laut DSGVO.",
+    "Anonymisierung ist unumkehrbar, während bei der Pseudonymisierung ein Personenbezug mittels Zusatzinformationen wiederherstellbar bleibt.",
+  ],
+  [
+    "sicherheit",
+    "Welche Maßnahme muss ein Unternehmen ergreifen, wenn Unbefugte Zugriff auf eine Datenbank mit Kundendaten hatten?",
+    "Die Meldung des Vorfalls an die zuständige Aufsichtsbehörde (innerhalb von 72 Stunden) und ggf. die Benachrichtigung der Betroffenen.",
+  ],
+  [
+    "sicherheit",
+    "Nenne ein Beispiel für eine technische Maßnahme (TOM) zur 'Zutrittskontrolle'.",
+    "Einsatz von RFID-Chipkarten oder biometrischen Scannern an der Gebäudetür.",
+  ],
+  [
+    "sicherheit",
+    "Nenne ein Beispiel für eine technische Maßnahme (TOM) zur 'Zugriffskontrolle'.",
+    "Implementierung eines Berechtigungskonzepts auf Dateiebene oder Datenbankebene.",
+  ],
+  [
+    "sicherheit",
+    "Was ist der Zweck einer unterbrechungsfreien Stromversorgung (USV)?",
+    "Der Schutz vor Datenverlust und Hardwareschäden durch Überbrückung von Stromausfällen und Glättung von Spannungsspitzen.",
+  ],
+  [
+    "sicherheit",
+    "Welcher Verschlüsselungsalgorithmus gilt aktuell als sicher für die Speicherung sensibler Daten: AES-256 oder MD5?",
+    "AES-256 (MD5 ist eine veraltete Hash-Funktion und gilt als unsicher).",
+  ],
+  [
+    "sicherheit",
+    "Welchen Vorteil hat ein On-Premises-Konzept gegenüber Cloud-Lösungen bezüglich des Datenschutzes?",
+    "Die volle Kontrolle über die Daten und die Infrastruktur verbleibt physisch im eigenen Unternehmen.",
+  ],
+  [
+    "sicherheit",
+    "Warum sollte man beim Löschen von Datenträgern vor der Entsorgung eine spezielle Software nutzen statt nur zu formatieren?",
+    "Weil beim einfachen Formatieren nur das Inhaltsverzeichnis gelöscht wird, die eigentlichen Daten aber rekonstruierbar bleiben.",
+  ],
+  [
+    "daten",
+    "Was bewirkt der SQL-Befehl 'ORDER BY Name DESC'?",
+    "Er sortiert die Ergebnismenge alphabetisch absteigend nach der Spalte 'Name'.",
+  ],
+  [
+    "daten",
+    "Warum schlägt ein 'DELETE'-Statement fehl, wenn die Fehlermeldung 'foreign key constraint fails' erscheint?",
+    "Weil der zu löschende Datensatz als Fremdschlüssel in einer anderen Tabelle noch referenziert wird.",
+  ],
+  [
+    "uebertragung",
+    "Aufgabe: Berechne den Bandbreitenbedarf für 100 Mitarbeiter, wenn jeder 50 Kbit/s für Telefonie benötigt.",
+    "Formel: Teilnehmer × Bedarf; Rechnung: 100 × 50 = 5.000; Ergebnis: 5 Mbit/s; Fehlerfalle: Verwechslung von Kbit/s und Mbit/s (1.000 = 1).",
+  ],
+  [
+    "daten",
+    "Was beschreibt das 'Model' im Model-View-Controller (MVC) Entwurfsmuster?",
+    "Die Datenhaltung, die Geschäftslogik und die Anwendungsdaten des Systems.",
+  ],
+  [
+    "daten",
+    "Welche Aufgabe übernimmt der 'Controller' im MVC-Pattern?",
+    "Er nimmt Benutzereingaben entgegen, wertet sie aus und veranlasst Änderungen im Model oder in der View.",
+  ],
+  [
+    "daten",
+    "Welches Entwurfsmuster ermöglicht es, dass ein Objekt (Subject) mehrere abhängige Objekte (Observer) automatisch über Zustandsänderungen benachrichtigt?",
+    "Observer-Pattern.",
+  ],
+  [
+    "daten",
+    "Was versteht man unter 'Datenkapselung' in der Programmierung?",
+    "Das Verbergen von Attributen vor direktem Zugriff von außen, um die Datenintegrität durch Methoden (Getter/Setter) zu sichern.",
+  ],
+  [
+    "datenmengen",
+    "Erläutere das Prinzip der Lauflängenkodierung (RLE).",
+    "Es ist eine verlustfreie Kompressionsmethode, bei der aufeinanderfolgende gleiche Zeichen durch das Zeichen und dessen Anzahl ersetzt werden.",
+  ],
+  [
+    "netzwerk",
+    "Welchen Vorteil bietet Glasfaser (LWL) gegenüber Kupferkabeln bei der Vernetzung?",
+    "Höhere Übertragungsraten über deutlich größere Distanzen ohne Dämpfung durch elektromagnetische Störungen.",
+  ],
+  [
+    "netzwerk",
+    "Was ist der Zweck eines 'Standardgateways' in den Netzwerkeinstellungen?",
+    "Die IP-Adresse des Routers, an den Pakete gesendet werden, die für Ziele außerhalb des eigenen Subnetzes bestimmt sind.",
+  ],
+  [
+    "netzwerk",
+    "Woran erkennt man im IPv4-Header, ob ein Paket bereits zu viele Router passiert hat?",
+    "Am Feld TTL (Time To Live), das bei jedem Router-Hop dekrementiert wird.",
+  ],
+  [
+    "erm",
+    "In welcher Normalform befindet sich eine Relation, wenn alle Nicht-Schlüsselattribute vom Primärschlüssel voll funktional abhängig sind?",
+    "Zweite Normalform (2NF).",
+  ],
+  [
+    "erm",
+    "Wann ist die Dritte Normalform (3NF) erreicht?",
+    "Wenn die 2NF erfüllt ist und keine transitiven Abhängigkeiten der Nicht-Schlüsselattribute vom Primärschlüssel vorliegen.",
+  ],
+  ["netzwerk", "Welchen Port nutzt das Protokoll HTTP im Standard?", "Port 80."],
+  [
+    "netzwerk",
+    "Welcher Dienst wird standardmäßig über Port 25 abgewickelt?",
+    "SMTP für den E-Mail-Versand.",
+  ],
+  [
+    "projekt",
+    "Nenne zwei Vorteile eines firmeninternen 'Wikis' als Wissensmanagementsystem.",
+    "Zentraler Zugriff auf Wissen für alle Mitarbeiter und einfacher Erhalt von Erfahrungswerten bei Personalwechseln.",
+  ],
+  [
+    "projekt",
+    "Was ist die Kernfunktion eines Content-Management-Systems (CMS)?",
+    "Die gemeinschaftliche Erstellung, Bearbeitung und Organisation von Inhalten ohne Programmierkenntnisse.",
+  ],
+  [
+    "raid",
+    "Warum ist ein RAID 10 teurer in der Anschaffung als ein RAID 5 bei gleicher Nettokapazität?",
+    "Da bei RAID 10 genau 50% der Bruttokapazität für die Spiegelung verloren gehen, während bei RAID 5 nur eine Platte für Parität benötigt wird.",
+  ],
+  [
+    "sicherheit",
+    "Was ist ein 'Full-Backup'?",
+    "Eine vollständige Sicherung aller ausgewählten Daten zu einem bestimmten Zeitpunkt.",
+  ],
+  [
+    "sicherheit",
+    "Worin besteht der Unterschied zwischen inkrementeller und differenzieller Sicherung?",
+    "Inkrementell sichert Änderungen seit der letzten Sicherung, differenziell sichert alle Änderungen seit dem letzten Full-Backup.",
+  ],
+  [
+    "sicherheit",
+    "Erläutere den Begriff 'Bring Your Own Device' (BYOD) aus Sicht der IT-Sicherheit.",
+    "Die Nutzung privater Endgeräte für geschäftliche Zwecke, was erhöhte Sicherheitsrisiken durch unkontrollierte Software darstellt.",
+  ],
+  [
+    "netzwerk",
+    "Welche Hardwarekomponente ist für das Routing zwischen verschiedenen VLANs zuständig?",
+    "Ein Layer-3-Switch oder ein Router.",
+  ],
+  [
+    "erm",
+    "Was beschreibt die 'Kardinalität' in einem Entity-Relationship-Modell (ERM)?",
+    "Das Mengenverhältnis der beteiligten Entitäten in einer Beziehung (z. B. 1:n oder m:n).",
+  ],
+  [
+    "netzwerk",
+    "Warum nutzt man SSH anstelle von Telnet für den Remote-Zugriff auf Server?",
+    "SSH überträgt Daten und Passwörter verschlüsselt, während Telnet sie im Klartext sendet.",
+  ],
+  [
+    "raid",
+    "Aufgabe: Ein NAS benötigt 15 TiB Nettospeicherplatz. Wie viele 3 TiB HDDs sind für ein RAID 5 nötig?",
+    "Formel: n = (Nettokapazität / HDD-Kapazität) + 1; Rechnung: (15 / 3) + 1 = 6; Ergebnis: 6 Festplatten; Fehlerfalle: Die zusätzliche Paritätsplatte vergessen.",
+  ],
+  [
+    "ipv6",
+    "Wie berechnet man die Anzahl der möglichen Subnetze, wenn man einen IPv6 /48 Präfix auf /52 erweitert?",
+    "Formel: 2^(Differenz); Rechnung: 52 - 48 = 4, 2^4 = 16; Ergebnis: 16 Subnetze; Fehlerfalle: Basis 10 statt Basis 2 verwendet.",
+  ],
+  [
+    "sicherheit",
+    "Was versteht man unter 'Georedundanz' bei der Datensicherung?",
+    "Die Speicherung von Daten an räumlich weit voneinander entfernten Standorten zum Schutz vor Katastrophen am Hauptstandort.",
+  ],
+  [
+    "netzwerk",
+    "Welches Protokoll wird verwendet, um E-Mails von einem Server abzurufen, wobei sie auf dem Server verbleiben?",
+    "IMAP.",
+  ],
+  [
+    "netzwerk",
+    "Was ist der Hauptzweck von DHCP?",
+    "Die automatisierte Zuweisung von IP-Adressen und Netzwerkkonfigurationen an Clients in einem Netzwerk.",
+  ],
+  [
+    "netzwerk",
+    "Welche Portnummer nutzt das FTP-Protokoll standardmäßig für die Datenübertragung?",
+    "Port 20 (Port 21 ist für die Steuerung).",
+  ],
+  [
+    "sicherheit",
+    "Welche Gefahr besteht beim Öffnen von E-Mail-Anhängen aus unbekannten Quellen?",
+    "Die Infektion des Systems mit Schadsoftware (Malware) wie Viren, Trojanern oder Ransomware.",
+  ],
+  [
+    "sicherheit",
+    "Erläutere das Prinzip 'Privacy by Design'.",
+    "Der Datenschutz wird bereits bei der Entwicklung von Systemen und Prozessen technisch und organisatorisch berücksichtigt.",
+  ],
+  [
+    "hardware",
+    "Welches Bauteil eines Computers führt Berechnungen aus und steuert andere Hardwarekomponenten?",
+    "Die CPU (Central Processing Unit).",
+  ],
 ].map(([topic, q, a], i): Card => {
   const visual = visualFor(topic!);
   return { id: "c" + i, topic: topic!, q: q!, a: a!, ...(visual ? { visual } : {}) };

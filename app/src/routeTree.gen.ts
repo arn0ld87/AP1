@@ -17,8 +17,10 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedFormelsammlungRouteImport } from './routes/_authenticated/formelsammlung'
 import { Route as AuthenticatedFortschrittRouteImport } from './routes/_authenticated/fortschritt'
 import { Route as AuthenticatedLernblaetterRouteImport } from './routes/_authenticated/lernblaetter'
+import { Route as AuthenticatedMindmapRouteImport } from './routes/_authenticated/mindmap'
 import { Route as AuthenticatedMissionRouteImport } from './routes/_authenticated/mission'
 import { Route as AuthenticatedProbepruefungenRouteImport } from './routes/_authenticated/probepruefungen'
+import { Route as AuthenticatedQuizRouteImport } from './routes/_authenticated/quiz'
 import { Route as AuthenticatedRechnenRouteImport } from './routes/_authenticated/rechnen'
 import { Route as AuthenticatedTagesplanRouteImport } from './routes/_authenticated/tagesplan'
 import { Route as AuthenticatedWissenskartenRouteImport } from './routes/_authenticated/wissenskarten'
@@ -65,6 +67,11 @@ const AuthenticatedLernblaetterRoute =
     path: '/lernblaetter',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMindmapRoute = AuthenticatedMindmapRouteImport.update({
+  id: '/mindmap',
+  path: '/mindmap',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMissionRoute = AuthenticatedMissionRouteImport.update({
   id: '/mission',
   path: '/mission',
@@ -76,6 +83,11 @@ const AuthenticatedProbepruefungenRoute =
     path: '/probepruefungen',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedQuizRoute = AuthenticatedQuizRouteImport.update({
+  id: '/quiz',
+  path: '/quiz',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRechnenRoute = AuthenticatedRechnenRouteImport.update({
   id: '/rechnen',
   path: '/rechnen',
@@ -101,8 +113,10 @@ export interface FileRoutesByFullPath {
   '/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/fortschritt': typeof AuthenticatedFortschrittRoute
   '/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/mindmap': typeof AuthenticatedMindmapRoute
   '/mission': typeof AuthenticatedMissionRoute
   '/probepruefungen': typeof AuthenticatedProbepruefungenRoute
+  '/quiz': typeof AuthenticatedQuizRoute
   '/rechnen': typeof AuthenticatedRechnenRoute
   '/tagesplan': typeof AuthenticatedTagesplanRoute
   '/wissenskarten': typeof AuthenticatedWissenskartenRoute
@@ -114,8 +128,10 @@ export interface FileRoutesByTo {
   '/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/fortschritt': typeof AuthenticatedFortschrittRoute
   '/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/mindmap': typeof AuthenticatedMindmapRoute
   '/mission': typeof AuthenticatedMissionRoute
   '/probepruefungen': typeof AuthenticatedProbepruefungenRoute
+  '/quiz': typeof AuthenticatedQuizRoute
   '/rechnen': typeof AuthenticatedRechnenRoute
   '/tagesplan': typeof AuthenticatedTagesplanRoute
   '/wissenskarten': typeof AuthenticatedWissenskartenRoute
@@ -130,8 +146,10 @@ export interface FileRoutesById {
   '/_authenticated/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/_authenticated/fortschritt': typeof AuthenticatedFortschrittRoute
   '/_authenticated/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/_authenticated/mindmap': typeof AuthenticatedMindmapRoute
   '/_authenticated/mission': typeof AuthenticatedMissionRoute
   '/_authenticated/probepruefungen': typeof AuthenticatedProbepruefungenRoute
+  '/_authenticated/quiz': typeof AuthenticatedQuizRoute
   '/_authenticated/rechnen': typeof AuthenticatedRechnenRoute
   '/_authenticated/tagesplan': typeof AuthenticatedTagesplanRoute
   '/_authenticated/wissenskarten': typeof AuthenticatedWissenskartenRoute
@@ -147,8 +165,10 @@ export interface FileRouteTypes {
     | '/formelsammlung'
     | '/fortschritt'
     | '/lernblaetter'
+    | '/mindmap'
     | '/mission'
     | '/probepruefungen'
+    | '/quiz'
     | '/rechnen'
     | '/tagesplan'
     | '/wissenskarten'
@@ -160,8 +180,10 @@ export interface FileRouteTypes {
     | '/formelsammlung'
     | '/fortschritt'
     | '/lernblaetter'
+    | '/mindmap'
     | '/mission'
     | '/probepruefungen'
+    | '/quiz'
     | '/rechnen'
     | '/tagesplan'
     | '/wissenskarten'
@@ -175,8 +197,10 @@ export interface FileRouteTypes {
     | '/_authenticated/formelsammlung'
     | '/_authenticated/fortschritt'
     | '/_authenticated/lernblaetter'
+    | '/_authenticated/mindmap'
     | '/_authenticated/mission'
     | '/_authenticated/probepruefungen'
+    | '/_authenticated/quiz'
     | '/_authenticated/rechnen'
     | '/_authenticated/tagesplan'
     | '/_authenticated/wissenskarten'
@@ -248,6 +272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLernblaetterRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mindmap': {
+      id: '/_authenticated/mindmap'
+      path: '/mindmap'
+      fullPath: '/mindmap'
+      preLoaderRoute: typeof AuthenticatedMindmapRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/mission': {
       id: '/_authenticated/mission'
       path: '/mission'
@@ -260,6 +291,13 @@ declare module '@tanstack/react-router' {
       path: '/probepruefungen'
       fullPath: '/probepruefungen'
       preLoaderRoute: typeof AuthenticatedProbepruefungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/quiz': {
+      id: '/_authenticated/quiz'
+      path: '/quiz'
+      fullPath: '/quiz'
+      preLoaderRoute: typeof AuthenticatedQuizRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/rechnen': {
@@ -290,8 +328,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFormelsammlungRoute: typeof AuthenticatedFormelsammlungRoute
   AuthenticatedFortschrittRoute: typeof AuthenticatedFortschrittRoute
   AuthenticatedLernblaetterRoute: typeof AuthenticatedLernblaetterRoute
+  AuthenticatedMindmapRoute: typeof AuthenticatedMindmapRoute
   AuthenticatedMissionRoute: typeof AuthenticatedMissionRoute
   AuthenticatedProbepruefungenRoute: typeof AuthenticatedProbepruefungenRoute
+  AuthenticatedQuizRoute: typeof AuthenticatedQuizRoute
   AuthenticatedRechnenRoute: typeof AuthenticatedRechnenRoute
   AuthenticatedTagesplanRoute: typeof AuthenticatedTagesplanRoute
   AuthenticatedWissenskartenRoute: typeof AuthenticatedWissenskartenRoute
@@ -302,8 +342,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFormelsammlungRoute: AuthenticatedFormelsammlungRoute,
   AuthenticatedFortschrittRoute: AuthenticatedFortschrittRoute,
   AuthenticatedLernblaetterRoute: AuthenticatedLernblaetterRoute,
+  AuthenticatedMindmapRoute: AuthenticatedMindmapRoute,
   AuthenticatedMissionRoute: AuthenticatedMissionRoute,
   AuthenticatedProbepruefungenRoute: AuthenticatedProbepruefungenRoute,
+  AuthenticatedQuizRoute: AuthenticatedQuizRoute,
   AuthenticatedRechnenRoute: AuthenticatedRechnenRoute,
   AuthenticatedTagesplanRoute: AuthenticatedTagesplanRoute,
   AuthenticatedWissenskartenRoute: AuthenticatedWissenskartenRoute,

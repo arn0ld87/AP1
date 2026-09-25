@@ -9,8 +9,10 @@ import {
   ChevronRight,
   ClipboardCheck,
   FileText,
+  HelpCircle,
   Loader2,
   LogOut,
+  Network,
   Sigma,
   Target,
   Trash2,
@@ -28,6 +30,8 @@ const navItems = [
   { title: "Formelsammlung", url: "/formelsammlung", icon: Sigma },
   { title: "Tagesplan", url: "/tagesplan", icon: Calendar },
   { title: "Probeprüfungen", url: "/probepruefungen", icon: ClipboardCheck },
+  { title: "Quiz", url: "/quiz", icon: HelpCircle },
+  { title: "Mindmap", url: "/mindmap", icon: Network },
   { title: "Fortschritt & Fehlerliste", url: "/fortschritt", icon: BarChart2 },
 ];
 
