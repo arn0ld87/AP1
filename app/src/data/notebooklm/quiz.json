@@ -1,0 +1,299 @@
+{
+  "quiz": [
+    {
+      "type": "multiple_choice",
+      "question": "Ein Vorgang im Netzplan liegt nicht auf dem kritischen Pfad. Er besitzt einen freien Puffer (FP) von 4 Tagen sowie einen Gesamtpuffer (GP) von 6 Tagen. Dieser Vorgang verzögert sich im Projektverlauf um genau 3 Tage. Welche Auswirkung hat diese Verzögerung auf das Projekt?",
+      "answerOptions": [
+        {
+          "text": "Weder die Frühesten Anfangszeiten (FAZ) der Nachfolger noch der Gesamtfertigstellungstermin des Projekts verschieben sich.",
+          "isCorrect": true,
+          "rationale": "Da die Verzögerung von 3 Tagen kleiner ist als der freie Puffer von 4 Tagen, bleiben sowohl die Ansetzzeiten der unmittelbar nachfolgenden Vorgänge als auch der Endtermin des Gesamtprojekts unbeeinträchtigt."
+        },
+        {
+          "text": "Die unmittelbar nachfolgenden Vorgänge verschieben sich um 3 Tage, der Endtermin des Gesamtprojekts bleibt jedoch unverändert.",
+          "isCorrect": false,
+          "rationale": "Diese Wirkung träte erst ein, wenn der freie Puffer überschritten wird, aber die Verzögerung noch innerhalb des Gesamtpuffers liegt."
+        },
+        {
+          "text": "Der Gesamtfertigstellungstermin des Projekts verschiebt sich um genau 3 Tage nach hinten.",
+          "isCorrect": false,
+          "rationale": "Ein Projektendtermin verschiebt sich erst dann, wenn ein Vorgang auf dem kritischen Pfad verzögert wird oder die Verzögerung den Gesamtpuffer überschreitet."
+        },
+        {
+          "text": "Der freie Puffer des unmittelbaren Nachfolgers verringert sich um 3 Tage, wodurch dieser zum kritischen Vorgang wird.",
+          "isCorrect": false,
+          "rationale": "Die Pufferzeiten nachfolgender Vorgänge verringern sich nicht automatisch durch die Aufzehrung des freien Puffers eines Vorgängers."
+        }
+      ],
+      "hint": "Unterscheide zwischen den Definitionen von freiem Puffer und Gesamtpuffer im Netzplan."
+    },
+    {
+      "type": "multiple_choice",
+      "question": "Bei einer Lauflängenkodierung zur Komprimierung von Bilddaten wird das Zeichen `%` als Indikator genutzt (z. B. steht `%5P` für 5-mal das Zeichen 'P'). Bei der Dekomprimierung der Zeichenkette `%53V` tritt ein Problem auf. Worin besteht diese Fehlerquelle?",
+      "answerOptions": [
+        {
+          "text": "Es ist mehrdeutig, ob das Zeichen 'V' 53-mal wiederholt werden soll oder ob die Ziffer '3' als eigenständiges Datenzeichen 5-mal vorkommt.",
+          "isCorrect": true,
+          "rationale": "Ohne feste Stellenanzahl für den Wiederholungszähler oder ein trennendes Steuerzeichen lässt sich nicht eindeutig entscheiden, ob die '3' zum Zähler gehört oder das zu wiederholende Zeichen darstellt."
+        },
+        {
+          "text": "Das Steuerzeichen `%` wird vom Dekomprimierer als ungültiges Bilddatum verworfen.",
+          "isCorrect": false,
+          "rationale": "Gemäß Vorgabe kommt das `%`-Zeichen in unkomprimierten Bilddaten nicht vor und ist als eindeutiger Indikator definiert."
+        },
+        {
+          "text": "Der Dekomprimierungsalgorithmus kann zweistellige Zahlen grundsätzlich nicht verarbeiten.",
+          "isCorrect": false,
+          "rationale": "Der Algorithmus kann zwei- oder mehrstellige Zahlen verarbeiten, sofern die Syntax eine eindeutige Abgrenzung zwischen Anzahl und Zeichen vorsieht."
+        },
+        {
+          "text": "Nach dem Indikatorzeichen `%` darf laut Spezifikation ausschließlich eine einstellige Zahl stehen.",
+          "isCorrect": false,
+          "rationale": "Spezifikationen erlauben auch mehrstellige Längenangaben, jedoch erfordert dies ein eindeutiges Trennzeichen oder ein festes Format."
+        }
+      ],
+      "hint": "Achte darauf, wie der Zähler von den eigentlichen Nutzdaten abgegrenzt wird."
+    },
+    {
+      "type": "multiple_choice",
+      "question": "In einer Anwendung nach dem Model-View-Controller (MVC) Muster werden Aktualisierungen häufig über das Observer-Pattern umgesetzt. Welche Abfolge von Aufrufen findet statt, nachdem Daten im Model geändert wurden?",
+      "answerOptions": [
+        {
+          "text": "Model ruft `notifyObservers()` auf -> `update()` wird auf dem Observer ausgeführt -> View fordert geänderte Daten via `getData()` an -> View stellt Daten dar.",
+          "isCorrect": true,
+          "rationale": "Das Model benachrichtigt alle registrierten Observer über `notifyObservers()`, woraufhin der Observer über `update()` aufgerufen wird, sich mittels `getData()` die neuen Daten holt und die Ansicht auffrischt."
+        },
+        {
+          "text": "View ruft `update()` direkt auf dem Model auf -> Model sendet `setData()` an den Controller -> Controller aktualisiert die View.",
+          "isCorrect": false,
+          "rationale": "Die View fordert Daten vom Model an und ändert sie nicht direkt über ein `update()` auf dem Model."
+        },
+        {
+          "text": "Controller ruft `notifyObservers()` auf der View auf -> View setzt Werte mittels `setData()` im Model -> Model antwortet mit `display()`.",
+          "isCorrect": false,
+          "rationale": "Das Lösender der Benachrichtigung liegt beim Model, nicht beim Controller, wenn sich der Zustand des Models ändert."
+        },
+        {
+          "text": "View ruft `getData()` auf dem Model auf -> Model führt `setData()` aus -> Controller ruft `display()` auf.",
+          "isCorrect": false,
+          "rationale": "`setData()` wird vom Controller aufgerufen, um Modeldaten zu ändern, und nicht als Reaktion auf eine Abfrage der View."
+        }
+      ],
+      "hint": "Denke an das Entwurfsmuster, bei dem das Subjekt seine Beobachter bei Zustandsänderungen aktiv benachrichtigt."
+    },
+    {
+      "type": "multiple_choice",
+      "question": "Ein Client im Netzwerk weist folgende Konfiguration auf:\n- IPv4-Adresse: `10.0.1.11` / Subnetzmaske: `255.0.0.0`\n- Standardgateway: `10.0.0.250`\n\nEin Ping auf die LAN-Schnittstelle des lokalen Routers (`10.255.255.254`) verläuft erfolgreich. Ein Ping auf eine externe Internet-Adresse (`200.0.0.2`) bricht jedoch mit einer Zeitüberschreitung ab. Welcher Konfigurationsfehler liegt auf dem Client vor?",
+      "answerOptions": [
+        {
+          "text": "Das Standardgateway auf dem Client ist falsch eingetragen (muss `10.255.255.254` statt `10.0.0.250` lauten).",
+          "isCorrect": true,
+          "rationale": "Da der Router unter `10.255.255.254` erreichbar ist, Pakete ins externe Netz aber an die nicht vorhandene oder falsche IP `10.0.0.250` geschickt werden, scheitert das Routing nach außen."
+        },
+        {
+          "text": "Die Subnetzmaske `255.0.0.0` ist falsch und muss zwingend durch `255.255.255.0` ersetzt werden.",
+          "isCorrect": false,
+          "rationale": "Mit der Maske `255.0.0.0` befinden sich sowohl `10.0.1.11` als auch `10.255.255.254` im selben Subnetz (`10.0.0.0/8`), weshalb die lokale Erreichbarkeit gegeben ist."
+        },
+        {
+          "text": "Der DNS-Server auf dem Client fehlt, wodurch IP-Adressen wie `200.0.0.2` nicht geroutet werden können.",
+          "isCorrect": false,
+          "rationale": "Ein Ping auf eine direkte IP-Adresse benötigt keine DNS-Auflösung."
+        },
+        {
+          "text": "Auf dem Client ist die IP-Adresse im falschen Adressbereich für private Netzwerke konfiguriert.",
+          "isCorrect": false,
+          "rationale": "Der IP-Bereich `10.0.0.0/8` gehört gemäß RFC 1918 zu den regulären privaten IPv4-Adressbereichen."
+        }
+      ],
+      "hint": "Vergleiche die IP-Adresse der erreichbaren Router-Schnittstelle mit der im Client eingetragenen Gateway-IP."
+    },
+    {
+      "type": "multiple_select",
+      "question": "Welche der folgenden Aussagen beschreiben typische Merkmale von Supervised Learning (überwachtem Lernen) im Vergleich zu Unsupervised Learning (unüberwachtem Lernen) korrekt?",
+      "answerOptions": [
+        {
+          "text": "Beim Supervised Learning stehen für die Trainingsdaten bereits bekannte Zielwerte (Labels) zur Verfügung.",
+          "isCorrect": true,
+          "rationale": "Beim überwachten Lernen lernt das Modell eine Zuordnungsfunktion von Eingabedaten zu vorgegebenen Ziel-Labels."
+        },
+        {
+          "text": "Unsupervised Learning wird primär eingesetzt, um selbstständig verborgene Strukturen oder Muster (z. B. Clustering) in ungelabelten Daten zu finden.",
+          "isCorrect": true,
+          "rationale": "Unüberwachtes Lernen sucht ohne Zielvorgaben nach Ähnlichkeiten und Gruppierungen innerhalb der Eingabedaten."
+        },
+        {
+          "text": "Supervised Learning verzichtet vollständig auf mathematische Optimierungs- oder Verlustfunktionen.",
+          "isCorrect": false,
+          "rationale": "Gerade beim überwachten Lernen wird eine Verlustfunktion genutzt, um den Abstand zwischen Vorhersage und wahrem Label zu minimieren."
+        },
+        {
+          "text": "Unsupervised Learning kann ausschließlich für die Vorhersage von stetigen Zahlenwerten (Regression) verwendet werden.",
+          "isCorrect": false,
+          "rationale": "Regressionsaufgaben gehören typischerweise zum Supervised Learning, da ein kontinuierlicher Zielwert als Label vorausgesetzt wird."
+        }
+      ],
+      "hint": "Berücksichtige das Vorhandensein oder Fehlen von Zieldaten (Labels) beim Modelltraining.",
+      "hasAllOfTheAbove": false,
+      "hasNoneOfTheAbove": false
+    },
+    {
+      "type": "multiple_choice",
+      "question": "Gegeben sei folgendes Array von Messwerten: `[12, 10, 40, 73, 33, 60]`. Ein Algorithmus durchläuft das Array von Index `i = 0` bis `5`, um den Maximalwert `max` und den zweithöchsten Wert `max2` zu ermitteln. Zu Beginn gilt `max = 0` und `max2 = 0`.\n\nWelche Werte besitzen `max` und `max2` unmittelbar nach der Verarbeitung von Index `i = 2` (Wert `40`)?",
+      "answerOptions": [
+        {
+          "text": "`max = 40`, `max2 = 12`",
+          "isCorrect": true,
+          "rationale": "Bei `i=0` wird `max=12`. Bei `i=1` (Wert 10) bleibt `max=12` und `max2` wird zu `10`. Bei `i=2` (Wert 40) schiebt sich der alte Maximalwert `12` in `max2`, während `max` den Wert `40` annimmt."
+        },
+        {
+          "text": "`max = 40`, `max2 = 10`",
+          "isCorrect": false,
+          "rationale": "Dieser Fall träte ein, wenn beim Aktualisieren von `max` nicht der vorherige Maximalwert (12) an `max2` übergeben würde, sondern der kleinere Wert aus dem vorherigen Schritt (10) erhalten bliebe."
+        },
+        {
+          "text": "`max = 73`, `max2 = 60`",
+          "isCorrect": false,
+          "rationale": "Dies sind die Endwerte nach dem vollständigen Durchlauf aller 6 Elemente des Arrays, nicht der Zwischenstand bei Index `i = 2`."
+        },
+        {
+          "text": "`max = 40`, `max2 = 0`",
+          "isCorrect": false,
+          "rationale": "Dies vernachlässigt, dass `max2` bereits in den vorherigen Schritten auf Werte größer als 0 gesetzt wurde."
+        }
+      ],
+      "hint": "Verfolge Schritt für Schritt, was mit dem bisherigen Maximalwert passiert, wenn ein neues Maximum gefunden wird."
+    },
+    {
+      "type": "multiple_select",
+      "question": "Welche der aufgeführten Bedingungen müssen erfüllt sein, damit sich ein relationales Datenmodell in der Dritten Normalform (3NF) befindet?",
+      "answerOptions": [
+        {
+          "text": "Das Tabellenschema erfüllt bereits alle Anforderungen der Zweiten Normalform (2NF).",
+          "isCorrect": true,
+          "rationale": "Die Normalformen bauen aufeinander auf; die 2NF ist zwingende Voraussetzung für das Erreichen der 3NF."
+        },
+        {
+          "text": "Kein Nicht-Schlüssel-Attribut darf von einem anderen Nicht-Schlüssel-Attribut transitiv abhängen.",
+          "isCorrect": true,
+          "rationale": "Kern der 3NF ist die Elimination von transitiven Abhängigkeiten zwischen Nicht-Schlüssel-Attributen."
+        },
+        {
+          "text": "Alle Attribute enthalten ausschließlich atomare (nicht weiter zerlegbare) Wertebereiche.",
+          "isCorrect": true,
+          "rationale": "Die Atomarität aller Attributwerte ist die Grundanforderung der 1NF und damit auch Voraussetzung für alle höheren Normalformen."
+        },
+        {
+          "text": "Jede Tabelle muss mindestens zwei zusammengesetzte Fremdschlüssel enthalten.",
+          "isCorrect": false,
+          "rationale": "Die Existenz oder Anzahl von Fremdschlüsseln ist keine feste Voraussetzung für das Erreichen der 3NF."
+        }
+      ],
+      "hint": "Denke an das stufenweise Regelwerk zur Vermeidung von Redundanzen und transitiven Abhängigkeiten.",
+      "hasAllOfTheAbove": false,
+      "hasNoneOfTheAbove": false
+    },
+    {
+      "type": "multiple_select",
+      "question": "Ein Administrator möchte die Erreichbarkeit eines externen Webservers (`www.beispiel-ihk.de`) via `ping` überprüfen. Der `ping`-Befehl schlägt fehl (100 % Paketverlust). Das Aufrufen der Webseite über den Webbrowser mittels HTTPS gelingt jedoch problemlos. Welche Gründe erklären dieses Verhalten?",
+      "answerOptions": [
+        {
+          "text": "Eine Firewall auf dem Übertragungsweg oder auf dem Zielsystem blockiert eingehende ICMP-Pakete (Echo Request).",
+          "isCorrect": true,
+          "rationale": "Firewalls filtern häufig ICMP-Traffic aus Sicherheitsgründen, während Port 443 (HTTPS) für Webzugriffe geöffnet bleibt."
+        },
+        {
+          "text": "Auf dem Ziel-Webserver ist die Beantwortung von ICMP-Anfragen im Betriebssystem deaktiviert.",
+          "isCorrect": true,
+          "rationale": "Viele Server-Betriebssysteme lassen sich so konfigurieren, dass sie ICMP Echo Requests nicht beantworten, um unbemerkt zu bleiben."
+        },
+        {
+          "text": "Das HTTPS-Protokoll arbeitet ohne IP-Routing und ist daher von Netzwerkverbindungsfehlern nicht betroffen.",
+          "isCorrect": false,
+          "rationale": "HTTPS basiert auf TCP/IP and ist ebenso wie ICMP auf ein funktionierendes IP-Routing angewiesen."
+        },
+        {
+          "text": "Der DNS-Server kann den Servernamen nicht auflösen, weshalb nur HTTP-Verbindungen möglich sind.",
+          "isCorrect": false,
+          "rationale": "Wenn die Auflösung des Namens fehlschlägt, kann auch der Browser keine HTTPS-Verbindung unter diesem Namen aufbauen."
+        }
+      ],
+      "hint": "Unterscheide zwischen den Protokollen ICMP (für Ping) und TCP/HTTPS (für Webzugriffe).",
+      "hasAllOfTheAbove": false,
+      "hasNoneOfTheAbove": false
+    },
+    {
+      "type": "multiple_choice",
+      "question": "In einem künstlichen Neuronenmodell (Perzeptron) werden die Eingabewerte $x_1, x_2, \\dots, x_n$ verarbeitet. Welchen Zweck erfüllen dabei die zugewiesenen Gewichte $w_i$?",
+      "answerOptions": [
+        {
+          "text": "Sie skalieren den Einfluss des jeweiligen Eingabewerts auf die gewichtete Summe vor der Aktivierungsfunktion.",
+          "isCorrect": true,
+          "rationale": "Die Gewichte bestimmen die Stärke oder Priorität, mit der ein einzelnes Eingangssignal in die Gesamtsumme des Neurons eingeht."
+        },
+        {
+          "text": "Sie legen den Schwellenwert fest, ab dem das Neuron unabhängig von den Eingabewerten immer das Signal 1 ausgibt.",
+          "isCorrect": false,
+          "rationale": "Der Schwellenwert wird durch den Bias-Wert (oder Bias-Gewicht $w_0$) und die Aktivierungsfunktion gesteuert, nicht durch die normalen Eingangsgewichte."
+        },
+        {
+          "text": "Sie wandeln ein analoges Ausgabesignal des Neurons in ein digitales Format um.",
+          "isCorrect": false,
+          "rationale": "Die Umwandlung bzw. Schwellenwertentscheidung erfolgt durch die nachgelagerte Aktivierungsfunktion."
+        },
+        {
+          "text": "Sie bereinigen fehlerhafte Eingabedaten automatisch vor der Verarbeitung im Neuron.",
+          "isCorrect": false,
+          "rationale": "Gewichte dienen dem Erlernen von Mustern und stellen keine automatisierte Datenbereinigung dar."
+        }
+      ],
+      "hint": "Denke an die mathematische Formel der gewichteten Summe $\\sum w_i x_i$."
+    },
+    {
+      "type": "multiple_choice",
+      "question": "Ein Entwicklerteam entscheidet sich bei einer grafischen Benutzeroberfläche dafür, Datenbindung (Data Binding) anstelle des manuellen Observer-Patterns einzusetzen. Welcher Vorteil ergibt sich hieraus?",
+      "answerOptions": [
+        {
+          "text": "Änderungen am Modell werden automatisch ohne explizit geschriebene Event-Listener mit den UI-Elementen synchronisiert.",
+          "isCorrect": true,
+          "rationale": "Data Binding verbindet Modellattribute und UI-Komponenten deklarativ, wodurch manueller Boilerplate-Code für Registrierung und Aktualisierung entfällt."
+        },
+        {
+          "text": "Die Datenbankverbindung wird direkt in die Ansicht (View) verlegt, wodurch die Modellschicht entfällt.",
+          "isCorrect": false,
+          "rationale": "Data Binding ersetzt nicht die Architektur oder das Modell, sondern vereinfacht die Kopplung zwischen Model/ViewModel und View."
+        },
+        {
+          "text": "Das System benötigt keine Variablen mehr im Arbeitsspeicher.",
+          "isCorrect": false,
+          "rationale": "Die Datenhaltung im Speicher bleibt unverändert bestehen."
+        },
+        {
+          "text": "Die Verarbeitungsgeschwindigkeit von Datenbankabfragen verdoppelt sich.",
+          "isCorrect": false,
+          "rationale": "Data Binding betrifft die Synchronisation der UI-Schicht und hat keinen Einfluss auf Datenbankabfragen."
+        }
+      ],
+      "hint": "Überlege, welcher Programmieraufwand bei der Kopplung von UI und Daten durch deklarative Bindung eingespart wird."
+    }
+  ],
+  "topics": {
+    "covered": [
+      "Projektplanung und Netzplantechnik",
+      "Algorithmen zur Datenkomprimierung",
+      "Model-View-Controller und Observer-Pattern",
+      "Netzwerk-Troubleshooting und IP-Konfiguration",
+      "Grundlagen des Maschinellen Lernens",
+      "Relationale Datenbanken und Normalisierung",
+      "Künstliche Neuronal Netzwerke und Perzeptron"
+    ],
+    "followUp": [
+      "Kritischer Pfad und Pufferzeitenberechnung",
+      "Lauflängenkodierung und Escape-Mechanismen",
+      "Vergleich von Observer-Pattern und Data Binding",
+      "Subnetzberechnung und Routing-Tabellen",
+      "Verlustfunktionen und Gradientenabstiegsverfahren",
+      "Boyce-Codd-Normalform (BCNF)"
+    ]
+  }
+}

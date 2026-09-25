@@ -1,0 +1,866 @@
+{
+  "name": "IHK AP1 FISI",
+  "children": [
+    {
+      "name": "Netzwerk",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "Subnetzmaske"
+            },
+            {
+              "name": "Routingtabelle"
+            },
+            {
+              "name": "Standardgateway"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Netzwerkplan analysieren"
+            },
+            {
+              "name": "Routingfehler korrigieren"
+            },
+            {
+              "name": "IP-Konfiguration prüfen"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "CIDR Subnetzberechnung"
+            },
+            {
+              "name": "Host-Anzahl Formel"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Vertauschte Gateways"
+            },
+            {
+              "name": "Falsche Subnetzmaske"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2021-22"
+            },
+            {
+              "name": "Sommer 2023"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hardware",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "Accesspoint (AP)"
+            },
+            {
+              "name": "WLAN-Controller"
+            },
+            {
+              "name": "Switch und Router"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Hardwarekomponenten nennen"
+            },
+            {
+              "name": "Spezifikationen prüfen"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Leistungsbudget in Watt"
+            },
+            {
+              "name": "Speicherkapazität TiB"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Unzureichende PoE-Leistung"
+            },
+            {
+              "name": "Fehlender SFP-Port"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2020-21"
+            },
+            {
+              "name": "Winter 2021-22"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Betriebssysteme",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "Thin Client"
+            },
+            {
+              "name": "Zero Client"
+            },
+            {
+              "name": "All-In-One Client"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Client-Typen vergleichen"
+            },
+            {
+              "name": "Virtualisierung bewerten"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "ROI Berechnung"
+            },
+            {
+              "name": "Amortisationszeit"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Leistungsanforderungen verkennen"
+            },
+            {
+              "name": "Zeitaufwand unterschätzen"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2020-21"
+            },
+            {
+              "name": "Sommer 2020"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dienste und Protokolle",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "DHCP-Server"
+            },
+            {
+              "name": "RADIUS-Server"
+            },
+            {
+              "name": "AAA-Modell"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "AAA-Funktionen erklären"
+            },
+            {
+              "name": "APIPA-Adressen analysieren"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Netzwerkadresse und Broadcast"
+            },
+            {
+              "name": "IP-Bereich Bestimmung"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "APIPA-Fehler bei DHCP-Ausfall"
+            },
+            {
+              "name": "RADIUS Verwechslung"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2021-22"
+            },
+            {
+              "name": "Sommer 2023"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IT-Sicherheit",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "WPA2-Enterprise"
+            },
+            {
+              "name": "Verschlüsselung AES"
+            },
+            {
+              "name": "Firewall und TOM"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "TOM zuordnen"
+            },
+            {
+              "name": "Verschlüsselungsalgorithmen bewerten"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Symmetrische Schlüssellänge"
+            },
+            {
+              "name": "Asymmetrische Verschlüsselung"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "WPA2-PSK vs Enterprise"
+            },
+            {
+              "name": "MD5 als unsicher einstufen"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2021-22"
+            },
+            {
+              "name": "Sommer 2024"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Datenschutz",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "DSGVO und BDSG"
+            },
+            {
+              "name": "Informationspflichten"
+            },
+            {
+              "name": "Datenlöschung"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Maßnahmen bei Datenleck"
+            },
+            {
+              "name": "Datenschutzanforderungen nennen"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Fristen nach DSGVO"
+            },
+            {
+              "name": "Meldepflicht 72 Stunden"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Formatieren reicht nicht aus"
+            },
+            {
+              "name": "Meldepflichten vergessen"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2021-22"
+            },
+            {
+              "name": "Sommer 2024"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Speicher",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "SAN und NAS"
+            },
+            {
+              "name": "RAID-6"
+            },
+            {
+              "name": "Hot-Spare"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Nettospeicherkapazität berechnen"
+            },
+            {
+              "name": "Festplattenanzahl ermitteln"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "RAID Kapazitätsformel"
+            },
+            {
+              "name": "Datenzuwachs pro Jahr"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "GiB und TiB Verwechslung"
+            },
+            {
+              "name": "Auslastung nicht einberechnen"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Sommer 2023"
+            },
+            {
+              "name": "Winter 2021-22"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Backup",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "Backup as a Service"
+            },
+            {
+              "name": "High Availability"
+            },
+            {
+              "name": "Datensicherung"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Cloud-Backup bewerten"
+            },
+            {
+              "name": "Ausfallsicherheit planen"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Backup-Zeitfenster"
+            },
+            {
+              "name": "RPO und RTO"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Bandbreitenprobleme bei Cloud"
+            },
+            {
+              "name": "Fehlende Rücksicherungstests"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2021-22"
+            },
+            {
+              "name": "Sommer 2023"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Virtualisierung / Cloud",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "SaaS, PaaS, IaaS"
+            },
+            {
+              "name": "Skalierbarkeit"
+            },
+            {
+              "name": "Pay-per-Use"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Cloud-Dienste erläutern"
+            },
+            {
+              "name": "Vor- und Nachteile abwägen"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Kostenvergleich On-Premise Cloud"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Abhängigkeit vom Provider"
+            },
+            {
+              "name": "Datenschutz in Cloud"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2021-22"
+            },
+            {
+              "name": "Sommer 2023"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wirtschaftlichkeit",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "Fixe Kosten"
+            },
+            {
+              "name": "Variable Kosten"
+            },
+            {
+              "name": "Wirtschaftlichkeitsfaktor"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Aufträge vergleichen"
+            },
+            {
+              "name": "Kostenarten zuordnen"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Wirtschaftlichkeit = Ertrag / Aufwand"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Verwechslung von Ertrag und Gewinn"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2020-21"
+            },
+            {
+              "name": "Sommer 2020"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Kaufmännische Berechnungen",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "Listeneinkaufspreis"
+            },
+            {
+              "name": "Selbstkosten"
+            },
+            {
+              "name": "Gewinnzuschlag"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Bezugskalkulation durchführen"
+            },
+            {
+              "name": "Handlungskosten berechnen"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Bezugspreis = LEKP - Rabatt"
+            },
+            {
+              "name": "Barverkaufspreis = Selbstkosten + Gewinn"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Falsche Kalkulationsreihenfolge"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Winter 2020-21"
+            },
+            {
+              "name": "Sommer 2020"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Projekt- und Arbeitsorganisation",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "Netzplan"
+            },
+            {
+              "name": "Kritischer Pfad"
+            },
+            {
+              "name": "Vorgangsliste"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Netzplan erstellen"
+            },
+            {
+              "name": "Kritischen Pfad ermitteln"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Gesamtpuffer = SAZ - FAZ"
+            },
+            {
+              "name": "Freier Puffer = FAZ Nachfolger"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Berechnungsfehler bei Rückwärtsrechnung"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Sommer 2020"
+            },
+            {
+              "name": "Winter 2020-21"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Qualitätsmanagement",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "SLA und KPI"
+            },
+            {
+              "name": "Prozessoptimierung"
+            },
+            {
+              "name": "Dokumentation"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Qualitätsmerkmale nennen"
+            },
+            {
+              "name": "SLA-Anforderungen prüfen"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Verfügbarkeit in Prozent"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Unklare Kennzahlen"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Sommer 2020"
+            },
+            {
+              "name": "Winter 2021-22"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Typische Prüfungsfehler",
+      "children": [
+        {
+          "name": "Kernbegriffe",
+          "children": [
+            {
+              "name": "Formfehler"
+            },
+            {
+              "name": "Einheitendreher"
+            },
+            {
+              "name": "Unvollständige Begründung"
+            }
+          ]
+        },
+        {
+          "name": "Typische Aufgabenarten",
+          "children": [
+            {
+              "name": "Korrekturhinweise beachten"
+            },
+            {
+              "name": "Operatoren richtig deuten"
+            }
+          ]
+        },
+        {
+          "name": "Wichtige Formeln",
+          "children": [
+            {
+              "name": "Punkte-Noten-Schlüssel"
+            }
+          ]
+        },
+        {
+          "name": "Typische Stolperfallen",
+          "children": [
+            {
+              "name": "Operator nennen vs erklären"
+            },
+            {
+              "name": "Nicht bearbeitete Aufgaben kennzeichnen"
+            }
+          ]
+        },
+        {
+          "name": "Prüfungen",
+          "children": [
+            {
+              "name": "Sommer 2020"
+            },
+            {
+              "name": "Sommer 2023"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
