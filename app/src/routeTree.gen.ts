@@ -14,9 +14,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedAufgabenanalyseRouteImport } from './routes/_authenticated/aufgabenanalyse'
 import { Route as AuthenticatedFormelsammlungRouteImport } from './routes/_authenticated/formelsammlung'
 import { Route as AuthenticatedFortschrittRouteImport } from './routes/_authenticated/fortschritt'
 import { Route as AuthenticatedLernblaetterRouteImport } from './routes/_authenticated/lernblaetter'
+import { Route as AuthenticatedMaterialRouteImport } from './routes/_authenticated/material'
 import { Route as AuthenticatedMindmapRouteImport } from './routes/_authenticated/mindmap'
 import { Route as AuthenticatedMissionRouteImport } from './routes/_authenticated/mission'
 import { Route as AuthenticatedProbepruefungenRouteImport } from './routes/_authenticated/probepruefungen'
@@ -49,6 +51,12 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAufgabenanalyseRoute =
+  AuthenticatedAufgabenanalyseRouteImport.update({
+    id: '/aufgabenanalyse',
+    path: '/aufgabenanalyse',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFormelsammlungRoute =
   AuthenticatedFormelsammlungRouteImport.update({
     id: '/formelsammlung',
@@ -67,6 +75,11 @@ const AuthenticatedLernblaetterRoute =
     path: '/lernblaetter',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMaterialRoute = AuthenticatedMaterialRouteImport.update({
+  id: '/material',
+  path: '/material',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMindmapRoute = AuthenticatedMindmapRouteImport.update({
   id: '/mindmap',
   path: '/mindmap',
@@ -110,9 +123,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
+  '/aufgabenanalyse': typeof AuthenticatedAufgabenanalyseRoute
   '/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/fortschritt': typeof AuthenticatedFortschrittRoute
   '/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/material': typeof AuthenticatedMaterialRoute
   '/mindmap': typeof AuthenticatedMindmapRoute
   '/mission': typeof AuthenticatedMissionRoute
   '/probepruefungen': typeof AuthenticatedProbepruefungenRoute
@@ -125,9 +140,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
+  '/aufgabenanalyse': typeof AuthenticatedAufgabenanalyseRoute
   '/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/fortschritt': typeof AuthenticatedFortschrittRoute
   '/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/material': typeof AuthenticatedMaterialRoute
   '/mindmap': typeof AuthenticatedMindmapRoute
   '/mission': typeof AuthenticatedMissionRoute
   '/probepruefungen': typeof AuthenticatedProbepruefungenRoute
@@ -143,9 +160,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
+  '/_authenticated/aufgabenanalyse': typeof AuthenticatedAufgabenanalyseRoute
   '/_authenticated/formelsammlung': typeof AuthenticatedFormelsammlungRoute
   '/_authenticated/fortschritt': typeof AuthenticatedFortschrittRoute
   '/_authenticated/lernblaetter': typeof AuthenticatedLernblaetterRoute
+  '/_authenticated/material': typeof AuthenticatedMaterialRoute
   '/_authenticated/mindmap': typeof AuthenticatedMindmapRoute
   '/_authenticated/mission': typeof AuthenticatedMissionRoute
   '/_authenticated/probepruefungen': typeof AuthenticatedProbepruefungenRoute
@@ -162,9 +181,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/datenschutz'
     | '/impressum'
+    | '/aufgabenanalyse'
     | '/formelsammlung'
     | '/fortschritt'
     | '/lernblaetter'
+    | '/material'
     | '/mindmap'
     | '/mission'
     | '/probepruefungen'
@@ -177,9 +198,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/datenschutz'
     | '/impressum'
+    | '/aufgabenanalyse'
     | '/formelsammlung'
     | '/fortschritt'
     | '/lernblaetter'
+    | '/material'
     | '/mindmap'
     | '/mission'
     | '/probepruefungen'
@@ -194,9 +217,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/datenschutz'
     | '/impressum'
+    | '/_authenticated/aufgabenanalyse'
     | '/_authenticated/formelsammlung'
     | '/_authenticated/fortschritt'
     | '/_authenticated/lernblaetter'
+    | '/_authenticated/material'
     | '/_authenticated/mindmap'
     | '/_authenticated/mission'
     | '/_authenticated/probepruefungen'
@@ -251,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/aufgabenanalyse': {
+      id: '/_authenticated/aufgabenanalyse'
+      path: '/aufgabenanalyse'
+      fullPath: '/aufgabenanalyse'
+      preLoaderRoute: typeof AuthenticatedAufgabenanalyseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/formelsammlung': {
       id: '/_authenticated/formelsammlung'
       path: '/formelsammlung'
@@ -270,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/lernblaetter'
       fullPath: '/lernblaetter'
       preLoaderRoute: typeof AuthenticatedLernblaetterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material': {
+      id: '/_authenticated/material'
+      path: '/material'
+      fullPath: '/material'
+      preLoaderRoute: typeof AuthenticatedMaterialRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/mindmap': {
@@ -325,9 +364,11 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAufgabenanalyseRoute: typeof AuthenticatedAufgabenanalyseRoute
   AuthenticatedFormelsammlungRoute: typeof AuthenticatedFormelsammlungRoute
   AuthenticatedFortschrittRoute: typeof AuthenticatedFortschrittRoute
   AuthenticatedLernblaetterRoute: typeof AuthenticatedLernblaetterRoute
+  AuthenticatedMaterialRoute: typeof AuthenticatedMaterialRoute
   AuthenticatedMindmapRoute: typeof AuthenticatedMindmapRoute
   AuthenticatedMissionRoute: typeof AuthenticatedMissionRoute
   AuthenticatedProbepruefungenRoute: typeof AuthenticatedProbepruefungenRoute
@@ -339,9 +380,11 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAufgabenanalyseRoute: AuthenticatedAufgabenanalyseRoute,
   AuthenticatedFormelsammlungRoute: AuthenticatedFormelsammlungRoute,
   AuthenticatedFortschrittRoute: AuthenticatedFortschrittRoute,
   AuthenticatedLernblaetterRoute: AuthenticatedLernblaetterRoute,
+  AuthenticatedMaterialRoute: AuthenticatedMaterialRoute,
   AuthenticatedMindmapRoute: AuthenticatedMindmapRoute,
   AuthenticatedMissionRoute: AuthenticatedMissionRoute,
   AuthenticatedProbepruefungenRoute: AuthenticatedProbepruefungenRoute,

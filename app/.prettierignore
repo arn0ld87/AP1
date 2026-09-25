@@ -6,3 +6,6 @@ pnpm-lock.yaml
 package-lock.json
 bun.lock
 routeTree.gen.ts
+# NotebookLM-Rohcontent: 1:1 aus der Quelle übernommen (Markdown mit *…*-Emphase,
+# die renderMarkdown.ts versteht — Prettiers _…_-Normalisierung würde das brechen).
+src/data/notebooklm/*.md

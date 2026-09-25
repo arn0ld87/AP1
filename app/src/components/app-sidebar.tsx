@@ -8,8 +8,10 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
+  FileStack,
   FileText,
   HelpCircle,
+  ListFilter,
   Loader2,
   LogOut,
   Network,
@@ -32,6 +34,8 @@ const navItems = [
   { title: "Probeprüfungen", url: "/probepruefungen", icon: ClipboardCheck },
   { title: "Quiz", url: "/quiz", icon: HelpCircle },
   { title: "Mindmap", url: "/mindmap", icon: Network },
+  { title: "Material", url: "/material", icon: FileStack },
+  { title: "Aufgabenanalyse", url: "/aufgabenanalyse", icon: ListFilter },
   { title: "Fortschritt & Fehlerliste", url: "/fortschritt", icon: BarChart2 },
 ];
 
